@@ -97,9 +97,9 @@ async function loadApp(){
 }
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]||c))}
 $("authForm").addEventListener("submit",async e=>{e.preventDefault();setStatus($("authStatus"),"Signing in…");try{state.session=await auth("token?grant_type=password",{email:$("email").value,password:$("password").value});sessionStorage.setItem("edunexus_session",JSON.stringify(state.session));await loadApp()}catch(err){setStatus($("authStatus"),err.message,true)}});
-$("signupBtn").addEventListener("click",async()=>{setStatus($("authStatus"),"Creating account…");try{await auth("signup",{email:$("email").value,password:$("password").value});setStatus($("authStatus"),"Account created. Check email if confirmation is enabled, then sign in.")}catch(err){setStatus($("authStatus"),err.message,true)}});
+$("signupBtn").addEventListener("click",async()=>{setStatus($("authStatus"),"Creating account…");try{await auth("signup",{email:$("email").value,password:$("password").value,email_redirect_to:window.location.origin+window.location.pathname});setStatus($("authStatus"),"Account created. Check your email to confirm, then return here and sign in.")}catch(err){setStatus($("authStatus"),err.message,true)}});
 $("logout").addEventListener("click",()=>{state.session=null;sessionStorage.removeItem("edunexus_session");location.reload()});
-try{const s=JSON.parse(sessionStorage.getItem("edunexus_session")||"null");if(s?.access_token){state.session=s;loadApp()}}catch(_){}
+try{const hash=new URLSearchParams(window.location.hash.slice(1));const accessToken=hash.get("access_token");const refreshToken=hash.get("refresh_token");if(accessToken&&refreshToken){const s={access_token:accessToken,refresh_token:refreshToken,user:null};const payload=JSON.parse(atob(accessToken.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));s.user={id:payload.sub,email:payload.email};state.session=s;sessionStorage.setItem("edunexus_session",JSON.stringify(s));history.replaceState({},document.title,window.location.pathname);await loadApp();}else{const s=JSON.parse(sessionStorage.getItem("edunexus_session")||"null");if(s?.access_token){state.session=s;loadApp()}}}catch(_){}
 </script>
 </body>
 </html>
