@@ -41,6 +41,7 @@ jobs:
           test -f supabase/migrations/0013_simulation_trusted_result.sql
           test -f supabase/migrations/0014_practice_simulation_evidence_workflows.sql
           test -f supabase/migrations/0015_foreign_key_performance_indexes.sql
+          test -f supabase/migrations/0016_remove_duplicate_skill_evidence_index.sql
           grep -q "ingest_assessment_evidence" supabase/migrations/0011_skill_evidence_ingestion.sql
           grep -q "ingest_performance_evidence" supabase/migrations/0011_skill_evidence_ingestion.sql
           grep -q "finalize_practice_attempt" supabase/migrations/0014_practice_simulation_evidence_workflows.sql
