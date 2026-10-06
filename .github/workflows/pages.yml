@@ -29,6 +29,8 @@ jobs:
           grep -q "SUPABASE_KEY" web/index.html
           grep -q "edunexus-health" web/index.html
           grep -q "practice_scenarios" web/index.html
+          grep -q "edunexus-practice" web/index.html
+          grep -q "Start practice" web/index.html
           python - <<'PY'
           from pathlib import Path
           html=Path("web/index.html").read_text()
