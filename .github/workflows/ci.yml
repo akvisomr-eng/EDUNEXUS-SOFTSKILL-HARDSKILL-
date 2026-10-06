@@ -22,6 +22,8 @@ jobs:
           test -f supabase/migrations/0003_identity_membership_rls_baseline.sql
           test -f supabase/migrations/0004_learning_core.sql
           test -f supabase/migrations/0005_assessment_core.sql
+          test -f supabase/migrations/0006_assessment_attempt_hardening.sql
+          grep -q "assessment_attempt_lifecycle" supabase/migrations/0006_assessment_attempt_hardening.sql
           grep -q "assessment_items" supabase/migrations/0005_assessment_core.sql
           grep -q "assessment_answers" supabase/migrations/0005_assessment_core.sql
           grep -q "assessment_item_skill_targets" supabase/migrations/0005_assessment_core.sql
