@@ -23,6 +23,9 @@ jobs:
           test -f supabase/migrations/0004_learning_core.sql
           test -f supabase/migrations/0005_assessment_core.sql
           test -f supabase/migrations/0006_assessment_attempt_hardening.sql
+          test -f supabase/migrations/0007_evidence_mastery.sql
+          grep -q "mastery_history" supabase/migrations/0007_evidence_mastery.sql
+          grep -q "skill_evidence_verification_consistency" supabase/migrations/0007_evidence_mastery.sql
           grep -q "assessment_attempt_lifecycle" supabase/migrations/0006_assessment_attempt_hardening.sql
           grep -q "assessment_items" supabase/migrations/0005_assessment_core.sql
           grep -q "assessment_answers" supabase/migrations/0005_assessment_core.sql

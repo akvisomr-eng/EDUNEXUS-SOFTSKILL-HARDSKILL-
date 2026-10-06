@@ -63,3 +63,10 @@ RLS is enabled across the exposed public schema. anon has no table privileges. a
 - `assessment_answers` stores attempt-scoped responses and evaluation feedback; learners can only mutate answers while their attempt is `in_progress`.
 - Assessment catalog and item-target mappings are readable by authenticated users; learner attempt/answer records remain relationship-authorized.
 - Learners may only create an `in_progress` attempt and transition it to `submitted` or `cancelled`; score/result/review state is protected from client mutation.
+
+## Evidence & Mastery Intelligence
+- `skill_evidence` is the durable evidence boundary. Client applications can read authorized evidence but cannot create, modify, verify, or reject evidence directly; trusted workflows/human review own those mutations.
+- Evidence records retain `source_type`, `source_id`, confidence, provenance, verifier, and verification time so AI-derived signals remain traceable.
+- `mastery_records` represents the current skill state and is read-only to clients.
+- `mastery_history` records longitudinal mastery changes and links each change to optional source evidence; clients can read only authorized history.
+- `development_events` and `skill_passports` are also read-only client projections. Their mutations belong to controlled application workflows.
