@@ -105,3 +105,13 @@ RLS is enabled across the exposed public schema. anon has no table privileges. a
 - Reviewed performance observations can be transformed into candidate evidence per targeted skill from accepted metrics in the normalized 0-100 range.
 - Both ingestion paths use deterministic idempotency keys based on source and skill, preventing duplicate candidate evidence.
 - Ingestion is trusted-workflow/service-role-only; it does not bypass the human verification boundary.
+
+
+## Practice & Simulation Evidence Pipeline v1
+- Learner practice attempts and simulation runs remain client-controlled only through safe lifecycle transitions; scores and simulation result payloads are trusted-workflow outputs.
+- `private.finalize_practice_attempt` writes a validated 0-100 practice score only after learner submission.
+- `private.finalize_simulation_run` writes the completed simulation result only from the trusted service role.
+- `private.ingest_practice_evidence` creates deterministic candidate evidence for each skill targeted by the practice scenario.
+- `private.ingest_simulation_evidence` consumes a completed simulation `result.skill_scores` object and creates candidate evidence only for skills targeted by that scenario.
+- Practice/simulation evidence uses deterministic idempotency keys and remains subject to the existing mentor verification boundary before mastery projection.
+- Lifecycle triggers distinguish trusted `service_role` finalization from learner mutations; learners cannot write or alter derived scores/results.
