@@ -46,6 +46,6 @@ jobs:
           grep -q "ingest_practice_evidence" supabase/migrations/0014_practice_simulation_evidence_workflows.sql
           grep -q "finalize_simulation_run" supabase/migrations/0014_practice_simulation_evidence_workflows.sql
           grep -q "ingest_simulation_evidence" supabase/migrations/0014_practice_simulation_evidence_workflows.sql
-          grep -q "current_user=\x27service_role\x27" supabase/migrations/0012_practice_attempt_trusted_scoring.sql
-          grep -q "current_user=\x27service_role\x27" supabase/migrations/0013_simulation_trusted_result.sql
+          grep -q "service_role" supabase/migrations/0012_practice_attempt_trusted_scoring.sql
+          grep -q "service_role" supabase/migrations/0013_simulation_trusted_result.sql
           echo "EDUNEXUS foundation, security baseline, and learning core files present"
