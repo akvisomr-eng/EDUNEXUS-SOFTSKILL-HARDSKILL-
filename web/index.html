@@ -94,7 +94,7 @@ const SUPABASE_KEY="sb_publishable_XJDhLR7flIBD7TLtM1ml-w_fJ0RtbrX";
 const state={session:null,scenario:null,sessionId:null,attemptId:null};
 const $=id=>document.getElementById(id);
 function setStatus(el,msg,error=false){el.textContent=msg;el.className="status "+(error?"error":"ok")}
-function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\":"&quot;","'":"&#39;"}[c]||c))}
+function escapeHtml(v){return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
 async function auth(path,body){
  const r=await fetch(SUPABASE_URL+"/auth/v1/"+path,{method:"POST",headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
  const data=await r.json();if(!r.ok)throw new Error(data.msg||data.error_description||data.message||"Authentication failed");return data;
