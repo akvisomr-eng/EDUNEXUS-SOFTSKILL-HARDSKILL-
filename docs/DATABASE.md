@@ -98,3 +98,10 @@ RLS is enabled across the exposed public schema. anon has no table privileges. a
 - Mastery level mapping in v1 uses score bands: 0-19 Unfamiliar, 20-34 Awareness, 35-49 Beginner, 50-64 Developing, 65-74 Intermediate, 75-84 Advanced, 85-94 Professional, 95-100 Expert.
 - `private.finalize_evidence_pipeline` is the controlled orchestration boundary for verification, mastery recomputation, development projection, and passport refresh.
 - All pipeline functions are revoked from client roles and executable only by `service_role`; this keeps downstream derived records outside direct client mutation.
+
+
+## Skill Evidence Ingestion v1
+- Reviewed assessment attempts can be transformed into candidate evidence per targeted skill using weighted awarded points.
+- Reviewed performance observations can be transformed into candidate evidence per targeted skill from accepted metrics in the normalized 0-100 range.
+- Both ingestion paths use deterministic idempotency keys based on source and skill, preventing duplicate candidate evidence.
+- Ingestion is trusted-workflow/service-role-only; it does not bypass the human verification boundary.
