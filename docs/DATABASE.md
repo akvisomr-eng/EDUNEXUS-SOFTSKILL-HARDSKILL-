@@ -79,3 +79,12 @@ RLS is enabled across the exposed public schema. anon has no table privileges. a
 - simulation_events captures observable simulation events while a run is active. It is intentionally event-oriented so later Performance Intelligence workflows can consume the stream without coupling simulation to scoring.
 - Practice/simulation records use relationship-aware RLS through private.can_access_user.
 - Simulation results remain controlled workflow output; the client cannot write the final result payload.
+
+## Performance Intelligence Core
+- performance_observations remains a derived record and is not client-writable.
+- performance_metrics remains derived and is not client-writable.
+- performance_observation_sources provides explicit lineage from observations to live sessions, practice, simulation, or assessment sources without forcing a polymorphic foreign key.
+- performance_observation_skill_targets maps observations to skills and optional competencies so performance signals can feed Skill Intelligence.
+- observation and metric confidence values are constrained to valid ranges; observation status tracks candidate/reviewed/rejected state.
+- Trusted workflow functions are private and not executable by client roles. They are the controlled entry points for creating observations and metrics.
+- Human review remains the authoritative boundary before downstream evidence, mastery, development, or passport projections.
