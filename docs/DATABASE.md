@@ -88,3 +88,13 @@ RLS is enabled across the exposed public schema. anon has no table privileges. a
 - observation and metric confidence values are constrained to valid ranges; observation status tracks candidate/reviewed/rejected state.
 - Trusted workflow functions are private and not executable by client roles. They are the controlled entry points for creating observations and metrics.
 - Human review remains the authoritative boundary before downstream evidence, mastery, development, or passport projections.
+
+
+## Evidence & Mastery Pipeline v1
+- Trusted workflows create evidence as `candidate` records with score, confidence, provenance, and an idempotency key; client roles remain unable to mutate evidence.
+- Candidate evidence is verified only by an active mentor relationship for the evidence owner. Verification records the reviewer and timestamp.
+- Verified evidence with scores is aggregated per user/skill into `mastery_records`; mastery changes are appended to `mastery_history` for longitudinal tracking.
+- Mastery updates emit idempotent `development_events` and refresh a versioned `skill_passports` snapshot.
+- Mastery level mapping in v1 uses score bands: 0-19 Unfamiliar, 20-34 Awareness, 35-49 Beginner, 50-64 Developing, 65-74 Intermediate, 75-84 Advanced, 85-94 Professional, 95-100 Expert.
+- `private.finalize_evidence_pipeline` is the controlled orchestration boundary for verification, mastery recomputation, development projection, and passport refresh.
+- All pipeline functions are revoked from client roles and executable only by `service_role`; this keeps downstream derived records outside direct client mutation.
