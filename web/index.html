@@ -7,25 +7,21 @@
 <meta name="description" content="EDUNEXUS Human Skill Intelligence & Development Platform">
 <style>
 :root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#f5f7fb}
-*{box-sizing:border-box}body{margin:0}.wrap{max-width:1120px;margin:auto;padding:28px}
-header{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:42px}
-.brand{font-weight:800;letter-spacing:-.03em;font-size:24px}.brand span{opacity:.45}
-.badge{font-size:12px;padding:7px 10px;border:1px solid #d9deea;border-radius:999px;background:white}
-.hero{display:grid;grid-template-columns:1.3fr .7fr;gap:28px;align-items:stretch}
-.card{background:white;border:1px solid #e1e6ef;border-radius:20px;padding:28px;box-shadow:0 12px 40px rgba(28,39,65,.06)}
-h1{font-size:clamp(38px,6vw,68px);line-height:.98;letter-spacing:-.055em;margin:0 0 22px}
-h2{margin:0 0 12px;letter-spacing:-.03em}.muted{color:#68738a;line-height:1.6}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
-.module{padding:18px;border:1px solid #e6eaf1;border-radius:15px;background:#fbfcfe}.module b{display:block;margin-bottom:6px}
-form{display:grid;gap:12px}.field{display:grid;gap:6px}.field label{font-size:13px;font-weight:650}
-input{width:100%;padding:12px 13px;border:1px solid #ccd3df;border-radius:10px;font:inherit}
-button{border:0;border-radius:10px;padding:12px 14px;font:inherit;font-weight:700;cursor:pointer;background:#172033;color:white}
-button.secondary{background:#eef1f6;color:#172033}button:disabled{opacity:.5;cursor:not-allowed}
-.actions{display:flex;gap:9px}.status{font-size:13px;min-height:20px;color:#68738a}.status.error{color:#b42318}.status.ok{color:#067647}
-#app{display:none}.metric{font-size:30px;font-weight:800;letter-spacing:-.04em}
-.list{display:grid;gap:10px;margin-top:15px}.item{padding:13px;border:1px solid #e7ebf2;border-radius:12px}
+*{box-sizing:border-box}body{margin:0}.wrap{max-width:1160px;margin:auto;padding:28px}
+header{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:30px}
+.brand{font-weight:800;letter-spacing:-.03em;font-size:24px}.brand span{opacity:.45}.badge{font-size:12px;padding:7px 10px;border:1px solid #d9deea;border-radius:999px;background:white}
+.hero{display:grid;grid-template-columns:1.3fr .7fr;gap:28px;align-items:stretch}.card{background:white;border:1px solid #e1e6ef;border-radius:20px;padding:28px;box-shadow:0 12px 40px rgba(28,39,65,.06)}
+h1{font-size:clamp(38px,6vw,68px);line-height:.98;letter-spacing:-.055em;margin:0 0 22px}h2{margin:0 0 12px;letter-spacing:-.03em}.muted{color:#68738a;line-height:1.6}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}.module{padding:18px;border:1px solid #e6eaf1;border-radius:15px;background:#fbfcfe}.module b{display:block;margin-bottom:6px}
+form{display:grid;gap:12px}.field{display:grid;gap:6px}.field label{font-size:13px;font-weight:650}input,textarea{width:100%;padding:12px 13px;border:1px solid #ccd3df;border-radius:10px;font:inherit;resize:vertical}
+button{border:0;border-radius:10px;padding:12px 14px;font:inherit;font-weight:700;cursor:pointer;background:#172033;color:white}button.secondary{background:#eef1f6;color:#172033}button:disabled{opacity:.5;cursor:not-allowed}
+.actions{display:flex;gap:9px;flex-wrap:wrap}.status{font-size:13px;min-height:20px;color:#68738a}.status.error{color:#b42318}.status.ok{color:#067647}
+#app{display:none}.metric{font-size:30px;font-weight:800;letter-spacing:-.04em}.list{display:grid;gap:10px;margin-top:15px}
+.item{padding:17px;border:1px solid #e7ebf2;border-radius:14px}.item-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.item h3{margin:0 0 5px}.pill{font-size:11px;border:1px solid #d9deea;border-radius:999px;padding:5px 8px;white-space:nowrap}
+.practice{display:none;margin-top:18px}.practice-grid{display:grid;gap:14px}.result{display:none;margin-top:18px}.result-score{font-size:48px;font-weight:850;letter-spacing:-.06em}.evidence{display:grid;gap:8px;margin-top:12px}
+.empty{padding:16px;border:1px dashed #ccd3df;border-radius:12px}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
 footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
-@media(max-width:800px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.wrap{padding:18px}}
 </style>
 </head>
 <body>
@@ -63,43 +59,116 @@ footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
 <div class="grid">
 <div class="module"><b>Backend</b><div id="health" class="metric">—</div><span class="muted">Edge runtime</span></div>
 <div class="module"><b>Scenarios</b><div id="scenarioCount" class="metric">—</div><span class="muted">Active practice scenarios</span></div>
-<div class="module"><b>Architecture</b><div class="metric">v1</div><span class="muted">Modular monolith</span></div>
+<div class="module"><b>Practice</b><div id="practiceCount" class="metric">—</div><span class="muted">Your completed sessions</span></div>
 </div>
 </div>
-<div class="card" style="margin-top:18px"><h2>Practice catalog</h2><div id="scenarios" class="list"><div class="muted">Loading…</div></div></div>
+
+<div class="card" style="margin-top:18px">
+<div class="section-title"><div><h2>Practice catalog</h2><p class="muted">Complete a structured practice task and generate traceable evidence.</p></div></div>
+<div id="scenarios" class="list"><div class="muted">Loading…</div></div>
+<div id="practice" class="practice">
+<div class="section-title"><div><h2 id="practiceTitle">Practice</h2><p id="practiceDescription" class="muted"></p></div><button id="cancelPractice" class="secondary" type="button">Back</button></div>
+<form id="practiceForm" class="practice-grid"></form>
+<div class="actions" style="margin-top:14px"><button id="submitPractice" type="submit" form="practiceForm">Submit practice</button></div>
+<div id="practiceStatus" class="status" style="margin-top:10px"></div>
+<div id="result" class="result card" style="padding:20px">
+<div class="badge">TRUSTED PRACTICE RESULT</div>
+<div id="resultScore" class="result-score">—</div>
+<p id="resultStatus" class="muted"></p>
+<div id="evidence" class="evidence"></div>
+</div>
+</div>
+</div>
+
+<div class="card" style="margin-top:18px">
+<div class="section-title"><div><h2>Development evidence</h2><p class="muted">Verified evidence can later update mastery and the Skill Passport.</p></div></div>
+<div id="history" class="list"><div class="muted">Loading…</div></div>
+</div>
 </section>
 <footer>EDUNEXUS · Human Skill Intelligence & Development Platform · GitHub + Supabase</footer>
 </div>
+
 <script>
 const SUPABASE_URL="https://tiqywrfgolqpmrcbvvlc.supabase.co";
 const SUPABASE_KEY="sb_publishable_XJDhLR7flIBD7TLtM1ml-w_fJ0RtbrX";
-const state={session:null};
+const state={session:null,scenario:null,sessionId:null,attemptId:null};
 const $=id=>document.getElementById(id);
 function setStatus(el,msg,error=false){el.textContent=msg;el.className="status "+(error?"error":"ok")}
+function escapeHtml(v){return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
 async function auth(path,body){
  const r=await fetch(SUPABASE_URL+"/auth/v1/"+path,{method:"POST",headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
- const data=await r.json(); if(!r.ok) throw new Error(data.msg||data.error_description||data.message||"Authentication failed"); return data;
+ const data=await r.json();if(!r.ok)throw new Error(data.msg||data.error_description||data.message||"Authentication failed");return data;
 }
-async function api(path){
- const r=await fetch(SUPABASE_URL+path,{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+state.session.access_token}});
- const data=await r.json(); if(!r.ok) throw new Error(data.message||"API request failed"); return data;
+async function api(path,options={}){
+ const r=await fetch(SUPABASE_URL+path,{...options,headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+state.session.access_token,"Content-Type":"application/json","Prefer":options.method==="POST"||options.method==="PATCH"?"return=representation":"" ,...(options.headers||{})}});
+ const text=await r.text();const data=text?JSON.parse(text):null;if(!r.ok)throw new Error(data?.message||data?.error_description||"API request failed");return data;
 }
+async function practiceFinalize(attemptId){
+ const r=await fetch(SUPABASE_URL+"/functions/v1/edunexus-practice",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+state.session.access_token,"Content-Type":"application/json"},body:JSON.stringify({action:"finalize",attempt_id:attemptId})});
+ const data=await r.json();if(!r.ok)throw new Error(data.error||"Practice finalization failed");return data;
+}
+async function loadHistory(){
+ try{
+  const rows=await api("/rest/v1/practice_sessions?select=id,status,started_at,completed_at,scenario_id,practice_scenarios(title)&user_id=eq."+encodeURIComponent(state.session.user.id)+"&order=created_at.desc&limit=8");
+  $("practiceCount").textContent=rows.filter(r=>r.status==="completed").length;
+  $("history").innerHTML=rows.length?rows.map(r=>'<div class="item"><div class="item-head"><div><b>'+escapeHtml(r.practice_scenarios?.title||"Practice")+'</b><div class="muted">'+escapeHtml(r.status)+' · '+new Date(r.started_at).toLocaleString()+'</div></div><span class="pill">'+escapeHtml(r.status)+'</span></div></div>').join(""):'<div class="empty muted">No practice sessions yet.</div>';
+ }catch(e){$("history").innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'}
+}
+async function loadCatalog(){
+ const scenarios=await api("/rest/v1/practice_scenarios?select=id,title,description,scenario_type,difficulty,instructions&status=eq.active&order=created_at.desc");
+ $("scenarioCount").textContent=scenarios.length;
+ $("scenarios").innerHTML=scenarios.length?scenarios.map(s=>'<div class="item"><div class="item-head"><div><h3>'+escapeHtml(s.title)+'</h3><div class="muted">'+escapeHtml(s.description||"No description")+'</div></div><span class="pill">difficulty '+s.difficulty+'</span></div><div class="actions" style="margin-top:12px"><button type="button" data-scenario="'+s.id+'">Start practice</button></div></div>').join(""):'<div class="empty muted">No active scenarios yet.</div>';
+ $("scenarios").querySelectorAll("button[data-scenario]").forEach(b=>b.addEventListener("click",()=>startPractice(scenarios.find(s=>s.id===b.dataset.scenario))));
+}
+async function startPractice(scenario){
+ state.scenario=scenario;state.sessionId=null;state.attemptId=null;
+ $("scenarios").style.display="none";$("practice").style.display="block";$("result").style.display="none";
+ $("practiceTitle").textContent=scenario.title;$("practiceDescription").textContent=scenario.description||"";
+ const fields=scenario.instructions?.response_fields||[];
+ $("practiceForm").innerHTML=fields.map(f=>'<div class="field"><label for="field_'+escapeHtml(f.key)+'">'+escapeHtml(f.label)+'</label><span class="muted">'+escapeHtml(f.prompt)+'</span><textarea id="field_'+escapeHtml(f.key)+'" data-key="'+escapeHtml(f.key)+'" rows="4" minlength="12" required></textarea></div>').join("");
+ try{
+  const session=await api("/rest/v1/practice_sessions",{method:"POST",body:JSON.stringify({user_id:state.session.user.id,scenario_id:scenario.id,status:"in_progress",attempt_number:1,metadata:{client:"edunexus-web",mode:"structured_response"}})});
+  state.sessionId=session[0].id;
+  const attempt=await api("/rest/v1/practice_attempts",{method:"POST",body:JSON.stringify({session_id:state.sessionId,user_id:state.session.user.id,attempt_number:1,status:"in_progress",response:{}})});
+  state.attemptId=attempt[0].id;
+ }catch(e){setStatus($("practiceStatus"),e.message,true);$("practiceForm").querySelectorAll("textarea").forEach(x=>x.disabled=true);$("submitPractice").disabled=true}
+}
+$("practiceForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!state.attemptId)return;
+ $("submitPractice").disabled=true;setStatus($("practiceStatus"),"Submitting and generating evidence…");
+ try{
+  const response={};$("practiceForm").querySelectorAll("textarea[data-key]").forEach(x=>response[x.dataset.key]=x.value.trim());
+  await api("/rest/v1/practice_attempts?id=eq."+encodeURIComponent(state.attemptId),{method:"PATCH",body:JSON.stringify({response,status:"submitted",submitted_at:new Date().toISOString()})});
+  await api("/rest/v1/practice_sessions?id=eq."+encodeURIComponent(state.sessionId),{method:"PATCH",body:JSON.stringify({status:"submitted",submitted_at:new Date().toISOString()})});
+  const result=await practiceFinalize(state.attemptId);
+  $("result").style.display="block";$("resultScore").textContent=String(result.score)+"/100";
+  $("resultStatus").textContent="Practice completed. Evidence is "+(result.review_status==="pending_mentor_review"?"pending mentor review.":"not yet generated.");
+  $("evidence").innerHTML=(result.evidence||[]).map(e=>'<div class="item"><b>Evidence candidate</b><div class="muted">Score '+escapeHtml(e.score)+' · '+escapeHtml(e.status)+'</div></div>').join("");
+  setStatus($("practiceStatus"),"Practice completed successfully.");
+  await loadHistory();
+ }catch(e){setStatus($("practiceStatus"),e.message,true);$("submitPractice").disabled=false}
+});
+$("cancelPractice").addEventListener("click",()=>{$("practice").style.display="none";$("scenarios").style.display="grid";state.scenario=null});
 async function loadApp(){
- $("auth").style.display="none"; $("app").style.display="block"; $("sessionBadge").textContent=state.session.user.email||"Signed in";
- $("welcome").textContent="Welcome, "+(state.session.user.email||"learner");
+ $("auth").style.display="none";$("app").style.display="block";$("sessionBadge").textContent=state.session.user.email||"Signed in";$("welcome").textContent="Welcome, "+(state.session.user.email||"learner");
  try{
   const health=await fetch(SUPABASE_URL+"/functions/v1/edunexus-health",{headers:{"Authorization":"Bearer "+state.session.access_token,"apikey":SUPABASE_KEY}});
-  const hd=await health.json(); $("health").textContent=health.ok&&hd.status==="ok"?"OK":"DEGRADED";
-  const scenarios=await api("/rest/v1/practice_scenarios?select=id,title,description,scenario_type,difficulty&status=eq.active&order=created_at.desc");
-  $("scenarioCount").textContent=scenarios.length;
-  $("scenarios").innerHTML=scenarios.length?scenarios.map(s=>'<div class="item"><b>'+escapeHtml(s.title)+'</b><div class="muted">'+escapeHtml(s.description||"No description")+" · "+escapeHtml(s.scenario_type)+" · difficulty "+s.difficulty+"</div></div>").join(""):'<div class="muted">No active scenarios yet.</div>';
+  const hd=await health.json();$("health").textContent=health.ok&&hd.status==="ok"?"OK":"DEGRADED";
+  await loadCatalog();await loadHistory();
  }catch(e){$("health").textContent="ERROR";$("scenarios").innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'}
 }
-function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]||c))}
 $("authForm").addEventListener("submit",async e=>{e.preventDefault();setStatus($("authStatus"),"Signing in…");try{state.session=await auth("token?grant_type=password",{email:$("email").value,password:$("password").value});sessionStorage.setItem("edunexus_session",JSON.stringify(state.session));await loadApp()}catch(err){setStatus($("authStatus"),err.message,true)}});
 $("signupBtn").addEventListener("click",async()=>{setStatus($("authStatus"),"Creating account…");try{await auth("signup",{email:$("email").value,password:$("password").value,email_redirect_to:window.location.origin+window.location.pathname});setStatus($("authStatus"),"Account created. Check your email to confirm, then return here and sign in.")}catch(err){setStatus($("authStatus"),err.message,true)}});
 $("logout").addEventListener("click",()=>{state.session=null;sessionStorage.removeItem("edunexus_session");location.reload()});
-async function bootstrapSession(){try{const hash=new URLSearchParams(window.location.hash.slice(1));const accessToken=hash.get("access_token");const refreshToken=hash.get("refresh_token");if(accessToken&&refreshToken){const s={access_token:accessToken,refresh_token:refreshToken,user:null};const payload=JSON.parse(atob(accessToken.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));s.user={id:payload.sub,email:payload.email};state.session=s;sessionStorage.setItem("edunexus_session",JSON.stringify(s));history.replaceState({},document.title,window.location.pathname);await loadApp();return;}const saved=JSON.parse(sessionStorage.getItem("edunexus_session")||"null");if(!saved?.refresh_token)return;try{const refreshed=await auth("token?grant_type=refresh_token",{refresh_token:saved.refresh_token});state.session=refreshed;sessionStorage.setItem("edunexus_session",JSON.stringify(refreshed));await loadApp();}catch(_){sessionStorage.removeItem("edunexus_session");state.session=null;}}catch(_){sessionStorage.removeItem("edunexus_session");state.session=null;}}bootstrapSession();
+async function bootstrapSession(){
+ try{
+  const hash=new URLSearchParams(window.location.hash.slice(1));const accessToken=hash.get("access_token");const refreshToken=hash.get("refresh_token");
+  if(accessToken&&refreshToken){const s={access_token:accessToken,refresh_token:refreshToken,user:null};const payload=JSON.parse(atob(accessToken.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));s.user={id:payload.sub,email:payload.email};state.session=s;sessionStorage.setItem("edunexus_session",JSON.stringify(s));history.replaceState({},document.title,window.location.pathname);await loadApp();return}
+  const saved=JSON.parse(sessionStorage.getItem("edunexus_session")||"null");if(!saved?.refresh_token)return;
+  try{const refreshed=await auth("token?grant_type=refresh_token",{refresh_token:saved.refresh_token});state.session=refreshed;sessionStorage.setItem("edunexus_session",JSON.stringify(refreshed));await loadApp()}catch(_){sessionStorage.removeItem("edunexus_session");state.session=null}
+ }catch(_){sessionStorage.removeItem("edunexus_session");state.session=null}
+}
+bootstrapSession();
 </script>
 </body>
 </html>
