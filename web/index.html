@@ -96,10 +96,10 @@ async function loadApp(){
  }catch(e){$("health").textContent="ERROR";$("scenarios").innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'}
 }
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]||c))}
-$("authForm").addEventListener("submit",async e=>{e.preventDefault();setStatus($("authStatus"),"Signing in…");try{state.session=await auth("token?grant_type=password",{email:$("email").value,password:$("password").value});localStorage.setItem("edunexus_session",JSON.stringify(state.session));await loadApp()}catch(err){setStatus($("authStatus"),err.message,true)}});
+$("authForm").addEventListener("submit",async e=>{e.preventDefault();setStatus($("authStatus"),"Signing in…");try{state.session=await auth("token?grant_type=password",{email:$("email").value,password:$("password").value});sessionStorage.setItem("edunexus_session",JSON.stringify(state.session));await loadApp()}catch(err){setStatus($("authStatus"),err.message,true)}});
 $("signupBtn").addEventListener("click",async()=>{setStatus($("authStatus"),"Creating account…");try{await auth("signup",{email:$("email").value,password:$("password").value});setStatus($("authStatus"),"Account created. Check email if confirmation is enabled, then sign in.")}catch(err){setStatus($("authStatus"),err.message,true)}});
-$("logout").addEventListener("click",()=>{state.session=null;localStorage.removeItem("edunexus_session");location.reload()});
-try{const s=JSON.parse(localStorage.getItem("edunexus_session")||"null");if(s?.access_token){state.session=s;loadApp()}}catch(_){}
+$("logout").addEventListener("click",()=>{state.session=null;sessionStorage.removeItem("edunexus_session");location.reload()});
+try{const s=JSON.parse(sessionStorage.getItem("edunexus_session")||"null");if(s?.access_token){state.session=s;loadApp()}}catch(_){}
 </script>
 </body>
 </html>
