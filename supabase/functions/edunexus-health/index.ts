@@ -1,6 +1,16 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-Deno.serve(async (_req: Request) => {
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "https://akvisomr-eng.github.io",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+};
+
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   return new Response(
     JSON.stringify({
       service: "edunexus",
@@ -9,6 +19,11 @@ Deno.serve(async (_req: Request) => {
       architecture: "modular-monolith",
       timestamp: new Date().toISOString(),
     }),
-    { headers: { "content-type": "application/json" } },
+    {
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
+    },
   );
 });
