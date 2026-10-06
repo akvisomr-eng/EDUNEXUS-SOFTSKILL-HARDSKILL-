@@ -7,7 +7,7 @@ The canonical relational model follows the EDUNEXUS MASTER BLUEPRINT v2.0.
 - Learning: programs, courses, modules, lessons, activities.
 - Skills: skills, competencies, skill levels, mastery records.
 - Assessment: assessments, attempts.
-- Simulation: simulations, scenarios, simulation attempts (planned extension).
+- Simulation: practice scenarios, scenario skill targets, practice sessions, practice attempts, simulation runs and simulation events.
 - Live: live sessions, participants, consent, media metadata (planned extension).
 - Performance: observations, metrics, evidence.
 - Mentoring: mentor reviews and feedback.
@@ -49,24 +49,33 @@ RLS is enabled across the exposed public schema. anon has no table privileges. a
 - Verified evidence requires mentor/human validation when the workflow requires it.
 - Media metadata is separated from derived performance features.
 
-
 ## Learning Core
-- `course_enrollments` records explicit user enrollment and enforces one enrollment per course/user.
-- `lesson_progress` records per-user lesson state and only permits progress writes for an active enrollment in the lesson's parent course.
-- Both tables use relationship-aware RLS through `private.can_access_user`.
+- course_enrollments records explicit user enrollment and enforces one enrollment per course/user.
+- lesson_progress records per-user lesson state and only permits progress writes for an active enrollment in the lesson's parent course.
+- Both tables use relationship-aware RLS through private.can_access_user.
 
 ## Assessment Core
-- `assessments` remains the catalog-level assessment definition.
-- `assessment_attempts` now has an explicit lifecycle: `in_progress -> submitted -> reviewed`, with `cancelled` as a terminal alternative.
-- `assessment_items` stores ordered assessment tasks/questions without embedding item structure into the attempt row.
-- `assessment_item_skill_targets` maps items to skills and optional competencies so assessment results can feed the Skill Intelligence layer.
-- `assessment_answers` stores attempt-scoped responses and evaluation feedback; learners can only mutate answers while their attempt is `in_progress`.
+- assessments remains the catalog-level assessment definition.
+- assessment_attempts now has an explicit lifecycle: in_progress -> submitted -> reviewed, with cancelled as a terminal alternative.
+- assessment_items stores ordered assessment tasks/questions without embedding item structure into the attempt row.
+- assessment_item_skill_targets maps items to skills and optional competencies so assessment results can feed the Skill Intelligence layer.
+- assessment_answers stores attempt-scoped responses and evaluation feedback; learners can only mutate answers while their attempt is in_progress.
 - Assessment catalog and item-target mappings are readable by authenticated users; learner attempt/answer records remain relationship-authorized.
-- Learners may only create an `in_progress` attempt and transition it to `submitted` or `cancelled`; score/result/review state is protected from client mutation.
+- Learners may only create an in_progress attempt and transition it to submitted or cancelled; score/result/review state is protected from client mutation.
 
 ## Evidence & Mastery Intelligence
-- `skill_evidence` is the durable evidence boundary. Client applications can read authorized evidence but cannot create, modify, verify, or reject evidence directly; trusted workflows/human review own those mutations.
-- Evidence records retain `source_type`, `source_id`, confidence, provenance, verifier, and verification time so AI-derived signals remain traceable.
-- `mastery_records` represents the current skill state and is read-only to clients.
-- `mastery_history` records longitudinal mastery changes and links each change to optional source evidence; clients can read only authorized history.
-- `development_events` and `skill_passports` are also read-only client projections. Their mutations belong to controlled application workflows.
+- skill_evidence is the durable evidence boundary. Client applications can read authorized evidence but cannot create, modify, verify, or reject evidence directly; trusted workflows/human review own those mutations.
+- Evidence records retain source_type, source_id, confidence, provenance, verifier, and verification time so AI-derived signals remain traceable.
+- mastery_records represents the current skill state and is read-only to clients.
+- mastery_history records longitudinal mastery changes and links each change to optional source evidence; clients can read only authorized history.
+- development_events and skill_passports are also read-only client projections. Their mutations belong to controlled application workflows.
+
+## Practice & Simulation Core
+- practice_scenarios is the catalog boundary for reusable practice, simulation, role-play, and industry scenarios.
+- scenario_skill_targets explicitly maps scenarios to skills and optional competencies with a target weight.
+- practice_sessions tracks learner-owned execution of a scenario and supports in_progress -> submitted, with cancellation as a terminal path.
+- practice_attempts stores attempt-scoped learner responses. Scores are protected from learner mutation and belong to controlled assessment/performance workflows.
+- simulation_runs represents a simulation execution and supports live_assistance or post_session modes.
+- simulation_events captures observable simulation events while a run is active. It is intentionally event-oriented so later Performance Intelligence workflows can consume the stream without coupling simulation to scoring.
+- Practice/simulation records use relationship-aware RLS through private.can_access_user.
+- Simulation results remain controlled workflow output; the client cannot write the final result payload.
