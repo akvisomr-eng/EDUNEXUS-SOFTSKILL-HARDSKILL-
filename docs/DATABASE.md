@@ -48,3 +48,17 @@ RLS is enabled across the exposed public schema. anon has no table privileges. a
 - AI-generated observations include provenance and model metadata.
 - Verified evidence requires mentor/human validation when the workflow requires it.
 - Media metadata is separated from derived performance features.
+
+
+## Learning Core
+- `course_enrollments` records explicit user enrollment and enforces one enrollment per course/user.
+- `lesson_progress` records per-user lesson state and only permits progress writes for an active enrollment in the lesson's parent course.
+- Both tables use relationship-aware RLS through `private.can_access_user`.
+
+## Assessment Core
+- `assessments` remains the catalog-level assessment definition.
+- `assessment_attempts` now has an explicit lifecycle: `in_progress -> submitted -> reviewed`, with `cancelled` as a terminal alternative.
+- `assessment_items` stores ordered assessment tasks/questions without embedding item structure into the attempt row.
+- `assessment_item_skill_targets` maps items to skills and optional competencies so assessment results can feed the Skill Intelligence layer.
+- `assessment_answers` stores attempt-scoped responses and evaluation feedback; learners can only mutate answers while their attempt is `in_progress`.
+- Assessment catalog and item-target mappings are readable by authenticated users; learner attempt/answer records remain relationship-authorized.
