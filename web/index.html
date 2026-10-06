@@ -57,7 +57,7 @@ footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
 <button id="logout" class="secondary">Keluar</button>
 </div>
 <div class="grid">
-<div class="module"><b>Kembaliend</b><div id="health" class="metric">—</div><span class="muted">Runtime Edge</span></div>
+<div class="module"><b>Backend</b><div id="health" class="metric">—</div><span class="muted">Runtime Edge</span></div>
 <div class="module"><b>Skenario</b><div id="scenarioCount" class="metric">—</div><span class="muted">Skenario praktik aktif</span></div>
 <div class="module"><b>Praktik</b><div id="practiceCount" class="metric">—</div><span class="muted">Sesi Anda yang selesai</span></div>
 </div>
@@ -85,7 +85,7 @@ footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
 <div id="history" class="list"><div class="muted">Memuat…</div></div>
 </div>
 </section>
-<footer>EDUNEXUS · Human Skill Intelligence & Development Platform · GitHub + Supabase</footer>
+<footer>EDUNEXUS · Platform Kecerdasan & Pengembangan Keterampilan · GitHub + Supabase</footer>
 </div>
 
 <script>
@@ -94,6 +94,7 @@ const SUPABASE_KEY="sb_publishable_XJDhLR7flIBD7TLtM1ml-w_fJ0RtbrX";
 const state={session:null,scenario:null,sessionId:null,attemptId:null};
 const $=id=>document.getElementById(id);
 function setStatus(el,msg,error=false){el.textContent=localizeError(msg);el.className="status "+(error?"error":"ok")}
+function localizeStatus(status){const map={in_progress:"Sedang berlangsung",submitted:"Dikirim",completed:"Selesai",reviewed:"Ditinjau",cancelled:"Dibatalkan"};return map[status]||status}
 function localizeError(msg){
  const map={"Invalid login credentials":"Email atau kata sandi tidak valid.","Email not confirmed":"Email belum dikonfirmasi.","User already registered":"Email sudah terdaftar.","Password should be at least 6 characters":"Kata sandi minimal 6 karakter.","Authentication failed":"Autentikasi gagal.","API request failed":"Permintaan ke server gagal.","Practice finalization failed":"Penyelesaian praktik gagal."};
  return map[msg]||msg;
@@ -115,7 +116,7 @@ async function loadHistory(){
  try{
   const rows=await api("/rest/v1/practice_sessions?select=id,status,started_at,completed_at,scenario_id,practice_scenarios(title)&user_id=eq."+encodeURIComponent(state.session.user.id)+"&order=created_at.desc&limit=8");
   $("practiceCount").textContent=rows.filter(r=>r.status==="completed").length;
-  $("history").innerHTML=rows.length?rows.map(r=>'<div class="item"><div class="item-head"><div><b>'+escapeHtml(r.practice_scenarios?.title||"Practice")+'</b><div class="muted">'+escapeHtml(r.status)+' · '+new Date(r.started_at).toLocaleString()+'</div></div><span class="pill">'+escapeHtml(r.status)+'</span></div></div>').join(""):'<div class="empty muted">Belum ada sesi praktik.</div>';
+  $("history").innerHTML=rows.length?rows.map(r=>'<div class="item"><div class="item-head"><div><b>'+escapeHtml(r.practice_scenarios?.title||"Praktik")+'</b><div class="muted">'+escapeHtml(localizeStatus(r.status))+' · '+new Date(r.started_at).toLocaleString()+'</div></div><span class="pill">'+escapeHtml(localizeStatus(r.status))+'</span></div></div>').join(""):'<div class="empty muted">Belum ada sesi praktik.</div>';
  }catch(e){$("history").innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'}
 }
 async function loadCatalog(){
@@ -154,15 +155,15 @@ $("practiceForm").addEventListener("submit",async e=>{
 });
 $("cancelPractice").addEventListener("click",()=>{$("practice").style.display="none";$("scenarios").style.display="grid";state.scenario=null});
 async function loadApp(){
- $("auth").style.display="none";$("app").style.display="block";$("sessionBadge").textContent=state.session.user.email||"Signed in";$("welcome").textContent="Selamat datang, "+(state.session.user.email||"pembelajar");
+ $("auth").style.display="none";$("app").style.display="block";$("sessionBadge").textContent=state.session.user.email||"Sudah masuk";$("welcome").textContent="Selamat datang, "+(state.session.user.email||"pembelajar");
  try{
   const health=await fetch(SUPABASE_URL+"/functions/v1/edunexus-health",{headers:{"Authorization":"Bearer "+state.session.access_token,"apikey":SUPABASE_KEY}});
   const hd=await health.json();$("health").textContent=health.ok&&hd.status==="ok"?"OK":"TERGANGGU";
   await loadCatalog();await loadHistory();
  }catch(e){$("health").textContent="GAGAL";$("scenarios").innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'}
 }
-$("authForm").addEventListener("submit",async e=>{e.preventDefault();setStatus($("authStatus"),"Signing in…");try{state.session=await auth("token?grant_type=password",{email:$("email").value,password:$("password").value});sessionStorage.setItem("edunexus_session",JSON.stringify(state.session));await loadApp()}catch(err){setStatus($("authStatus"),err.message,true)}});
-$("signupBtn").addEventListener("click",async()=>{setStatus($("authStatus"),"Creating account…");try{await auth("signup",{email:$("email").value,password:$("password").value,email_redirect_to:window.location.origin+window.location.pathname});setStatus($("authStatus"),"Account created. Check your email to confirm, then return here and sign in.")}catch(err){setStatus($("authStatus"),err.message,true)}});
+$("authForm").addEventListener("submit",async e=>{e.preventDefault();setStatus($("authStatus"),"Sedang masuk…");try{state.session=await auth("token?grant_type=password",{email:$("email").value,password:$("password").value});sessionStorage.setItem("edunexus_session",JSON.stringify(state.session));await loadApp()}catch(err){setStatus($("authStatus"),err.message,true)}});
+$("signupBtn").addEventListener("click",async()=>{setStatus($("authStatus"),"Membuat akun…");try{await auth("signup",{email:$("email").value,password:$("password").value,email_redirect_to:window.location.origin+window.location.pathname});setStatus($("authStatus"),"Akun berhasil dibuat. Periksa email Anda untuk konfirmasi, lalu kembali ke sini dan masuk.")}catch(err){setStatus($("authStatus"),err.message,true)}});
 $("logout").addEventListener("click",()=>{state.session=null;sessionStorage.removeItem("edunexus_session");location.reload()});
 async function bootstrapSession(){
  try{
