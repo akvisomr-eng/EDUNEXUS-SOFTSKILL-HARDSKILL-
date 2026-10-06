@@ -1,0 +1,21 @@
+name: EDUNEXUS CI
+
+on:
+  push:
+    branches: ["main", "feat/**"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate repository foundation
+        run: |
+          test -f README.md
+          test -f docs/ARCHITECTURE.md
+          test -f docs/DATABASE.md
+          test -f docs/API.md
+          test -f supabase/migrations/0001_initial_foundation.sql
+          echo "EDUNEXUS foundation files present"
