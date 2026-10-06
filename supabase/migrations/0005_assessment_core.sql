@@ -28,11 +28,12 @@ create table if not exists public.assessment_items (
 );
 
 create table if not exists public.assessment_item_skill_targets (
+  id uuid primary key default gen_random_uuid(),
   item_id uuid not null references public.assessment_items(id) on delete cascade,
   skill_id uuid not null references public.skills(id) on delete cascade,
   competency_id uuid references public.competencies(id) on delete set null,
   weight numeric(6,3) not null default 1 check (weight > 0),
-  primary key(item_id, skill_id, competency_id)
+  unique(item_id, skill_id, competency_id)
 );
 
 create table if not exists public.assessment_answers (
