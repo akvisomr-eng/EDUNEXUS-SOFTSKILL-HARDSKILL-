@@ -1,0 +1,23 @@
+-- Performance indexes for uncovered foreign keys identified by Supabase Advisor.
+create index if not exists idx_activities_lesson_id on public.activities(lesson_id);
+create index if not exists idx_assessment_answers_item_id on public.assessment_answers(item_id);
+create index if not exists idx_assessment_attempts_assessment_id on public.assessment_attempts(assessment_id);
+create index if not exists idx_assessment_item_skill_targets_competency_id on public.assessment_item_skill_targets(competency_id);
+create index if not exists idx_assessments_course_id on public.assessments(course_id);
+create index if not exists idx_audit_events_actor_user_id on public.audit_events(actor_user_id);
+create index if not exists idx_development_events_skill_id on public.development_events(skill_id);
+create index if not exists idx_live_sessions_host_user_id on public.live_sessions(host_user_id);
+create index if not exists idx_mastery_history_level_id on public.mastery_history(level_id);
+create index if not exists idx_mastery_history_skill_id on public.mastery_history(skill_id);
+create index if not exists idx_mastery_history_source_evidence_id on public.mastery_history(source_evidence_id);
+create index if not exists idx_mastery_records_level_id on public.mastery_records(level_id);
+create index if not exists idx_mastery_records_skill_id on public.mastery_records(skill_id);
+create index if not exists idx_mentor_reviews_mentor_id on public.mentor_reviews(mentor_id);
+create index if not exists idx_mentor_reviews_observation_id on public.mentor_reviews(observation_id);
+create index if not exists idx_performance_observation_skill_targets_competency_id on public.performance_observation_skill_targets(competency_id);
+create index if not exists idx_performance_observations_session_id on public.performance_observations(session_id);
+create index if not exists idx_scenario_skill_targets_competency_id on public.scenario_skill_targets(competency_id);
+create index if not exists idx_session_consents_session_id on public.session_consents(session_id);
+create index if not exists idx_session_consents_user_id on public.session_consents(user_id);
+create index if not exists idx_skill_evidence_skill_id on public.skill_evidence(skill_id);
+create index if not exists idx_skill_evidence_verified_by on public.skill_evidence(verified_by);
