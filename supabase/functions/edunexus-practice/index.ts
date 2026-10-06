@@ -44,47 +44,47 @@ Deno.serve(async (req: Request) => {
 
   const connection = await db.connect();
   try {
-    const attemptResult = await connection.queryObject<AttemptRow>\`
+    const attemptResult = await connection.queryObject<AttemptRow>`
       select a.id, a.user_id, a.session_id, a.status, a.score, a.response, s.scenario_id
       from public.practice_attempts a
       join public.practice_sessions s on s.id = a.session_id
-      where a.id = \${body.attempt_id}::uuid and a.user_id = \${userId}::uuid limit 1
-    \`;
+      where a.id = ${body.attempt_id}::uuid and a.user_id = ${userId}::uuid limit 1
+    `;
     const attempt = attemptResult.rows[0];
     if (!attempt) return json({ error: "attempt_not_found" }, 404);
     if (attempt.status !== "submitted") return json({ error: "attempt_must_be_submitted" }, 409);
 
-    const scenarioResult = await connection.queryObject<ScenarioRow>\`
-      select id, instructions from public.practice_scenarios where id = \${attempt.scenario_id}::uuid
-    \`;
+    const scenarioResult = await connection.queryObject<ScenarioRow>`
+      select id, instructions from public.practice_scenarios where id = ${attempt.scenario_id}::uuid
+    `;
     const scenario = scenarioResult.rows[0];
     if (!scenario) return json({ error: "scenario_not_found" }, 404);
 
     let score = attempt.score;
     if (score === null) {
       score = scoreStructuredResponse(attempt.response ?? {}, scenario.instructions?.response_fields ?? []);
-      await connection.queryObject\`
-        select private.finalize_practice_attempt(\${attempt.id}::uuid, \${score}::numeric)
-      \`;
+      await connection.queryObject`
+        select private.finalize_practice_attempt(${attempt.id}::uuid, ${score}::numeric)
+      `;
     }
 
-    await connection.queryObject\`
-      select private.ingest_practice_evidence(\${attempt.id}::uuid)
-    \`;
-    await connection.queryObject\`
+    await connection.queryObject`
+      select private.ingest_practice_evidence(${attempt.id}::uuid)
+    `;
+    await connection.queryObject`
       update public.practice_sessions
       set status='completed', completed_at=coalesce(completed_at, now()), submitted_at=coalesce(submitted_at, now())
-      where id=\${attempt.session_id}::uuid and user_id=\${userId}::uuid and status='submitted'
-    \`;
+      where id=${attempt.session_id}::uuid and user_id=${userId}::uuid and status='submitted'
+    `;
 
     const evidence = await connection.queryObject<{
       id: string; skill_id: string; score: number | null; status: string; summary: string | null;
-    }>\`
+    }>`
       select id, skill_id, score, status, summary
       from public.skill_evidence
-      where source_id=\${attempt.id}::uuid and source_type='practice_attempt'
+      where source_id=${attempt.id}::uuid and source_type='practice_attempt'
       order by created_at
-    \`;
+    `;
 
     return json({
       status: "completed", score, evidence: evidence.rows,
