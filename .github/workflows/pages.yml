@@ -1,5 +1,7 @@
 name: Deploy EDUNEXUS Web
 
+# Safe trigger refresh after initial Pages publication setup.
+
 on:
   push:
     branches: ["main"]
