@@ -62,3 +62,4 @@ RLS is enabled across the exposed public schema. anon has no table privileges. a
 - `assessment_item_skill_targets` maps items to skills and optional competencies so assessment results can feed the Skill Intelligence layer.
 - `assessment_answers` stores attempt-scoped responses and evaluation feedback; learners can only mutate answers while their attempt is `in_progress`.
 - Assessment catalog and item-target mappings are readable by authenticated users; learner attempt/answer records remain relationship-authorized.
+- Learners may only create an `in_progress` attempt and transition it to `submitted` or `cancelled`; score/result/review state is protected from client mutation.
