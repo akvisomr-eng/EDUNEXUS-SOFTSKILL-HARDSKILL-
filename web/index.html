@@ -198,7 +198,7 @@ async function loadKnowledgeSources(){
   const response=await fetch(new URL("knowledge-sources.json",document.baseURI),{cache:"no-cache"});
   if(!response.ok)throw new Error("HTTP "+response.status);
   const registry=await response.json();
-  const sources=Array.isArray(registry.sources)?registry.sources:[];
+  const sources=Array.isArray(registry.sources)?registry.sources.filter(source=>!source.isKnowledgeChunk):[];
   host.innerHTML=sources.map(source=>'<div class="item"><div class="item-head"><div><h3>'+escapeHtml(source.title)+'</h3><div class="muted">'+escapeHtml(source.publisher)+' · '+escapeHtml(source.domain)+'</div></div><span class="pill">Trust '+escapeHtml(source.trust)+'</span></div><p class="muted">'+escapeHtml(source.use)+'</p><p class="muted"><b>Lisensi:</b> '+escapeHtml(source.license)+'</p><a href="'+escapeHtml(source.url)+'" target="_blank" rel="noopener noreferrer">Buka sumber asli ↗</a></div>').join("");
   const notes=Array.isArray(registry.knowledgeChunks)?registry.knowledgeChunks:[];
   $("knowledgeNotes").innerHTML=notes.map(note=>{
