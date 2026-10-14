@@ -43,7 +43,7 @@ footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
 <h2>Akses EDUNEXUS</h2><p class="muted">Buat akun pembelajar atau masuk.</p>
 <form id="authForm">
 <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" required></div>
-<div class="field"><label for="password">Password</label><input id="password" type="password" minlength="6" autocomplete="current-password" required></div>
+<div class="field"><label for="password">Password</label><input id="password" type="password" minlength="8" autocomplete="current-password" required></div>
 <div class="actions"><button id="loginBtn" type="submit">Masuk</button><button id="signupBtn" class="secondary" type="button">Buat akun</button></div>
 <div id="authStatus" class="status"></div>
 </form>
@@ -53,11 +53,11 @@ footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
 <section id="app">
 <div class="card">
 <div style="display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap">
-<div><div class="badge">KONSOL PEMBELAJAR</div><h2 id="welcome">Selamat datang</h2><p class="muted">Fondasi EDUNEXUS Anda terhubung langsung ke Supabase.</p></div>
+<div><div class="badge">KONSOL PEMBELAJAR</div><h2 id="welcome">Selamat datang</h2><p class="muted">Fondasi EDUNEXUS Anda terhubung langsung ke Neon Data API.</p></div>
 <button id="logout" class="secondary">Keluar</button>
 </div>
 <div class="grid">
-<div class="module"><b>Backend</b><div id="health" class="metric">—</div><span class="muted">Runtime Edge</span></div>
+<div class="module"><b>Backend</b><div id="health" class="metric">—</div><span class="muted">Neon Data API</span></div>
 <div class="module"><b>Skenario</b><div id="scenarioCount" class="metric">—</div><span class="muted">Skenario praktik aktif</span></div>
 <div class="module"><b>Praktik</b><div id="practiceCount" class="metric">—</div><span class="muted">Sesi Anda yang selesai</span></div>
 </div>
@@ -85,66 +85,102 @@ footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
 <div id="history" class="list"><div class="muted">Memuat…</div></div>
 </div>
 </section>
-<footer>EDUNEXUS · Platform Kecerdasan & Pengembangan Keterampilan · GitHub + Supabase</footer>
+<footer>EDUNEXUS · Platform Kecerdasan & Pengembangan Keterampilan · GitHub + Neon</footer>
 </div>
 
-<script>
-const SUPABASE_URL="https://tiqywrfgolqpmrcbvvlc.supabase.co";
-const SUPABASE_KEY="sb_publishable_XJDhLR7flIBD7TLtM1ml-w_fJ0RtbrX";
-const state={session:null,scenario:null,sessionId:null,attemptId:null};
+<script type="module">
+import { createAuthClient } from "https://esm.sh/@neondatabase/auth@0.5.0-beta";
+
+const NEON_AUTH_URL="https://ep-curly-bread-azog8hfw.neonauth.c-3.ap-southeast-1.aws.neon.tech/neondb/auth";
+const DATA_API_URL="https://ep-curly-bread-azog8hfw.apirest.c-3.ap-southeast-1.aws.neon.tech/neondb/rest/v1";
+const auth=createAuthClient(NEON_AUTH_URL);
+const state={session:null,user:null,businessUserId:null,scenario:null,sessionId:null,attemptId:null};
 const $=id=>document.getElementById(id);
 function setStatus(el,msg,error=false){el.textContent=localizeError(msg);el.className="status "+(error?"error":"ok")}
 function localizeStatus(status){const map={in_progress:"Sedang berlangsung",submitted:"Dikirim",completed:"Selesai",reviewed:"Ditinjau",cancelled:"Dibatalkan"};return map[status]||status}
 function localizeError(msg){
- const map={"Invalid login credentials":"Email atau kata sandi tidak valid.","Email not confirmed":"Email belum dikonfirmasi.","User already registered":"Email sudah terdaftar.","Password should be at least 6 characters":"Kata sandi minimal 6 karakter.","Authentication failed":"Autentikasi gagal.","API request failed":"Permintaan ke server gagal.","Practice finalization failed":"Penyelesaian praktik gagal."};
+ const map={
+  "Invalid email or password":"Email atau kata sandi tidak valid.",
+  "Invalid password":"Kata sandi tidak valid.",
+  "User already exists":"Email sudah terdaftar.",
+  "User already registered":"Email sudah terdaftar.",
+  "Password should be at least 8 characters":"Kata sandi minimal 8 karakter.",
+  "authentication_required":"Silakan masuk kembali.",
+  "attempt_must_be_submitted":"Jawaban praktik belum dikirim.",
+  "attempt_not_found":"Attempt praktik tidak ditemukan.",
+  "API request failed":"Permintaan ke server gagal.",
+  "Practice finalization failed":"Penyelesaian praktik gagal."
+ };
  return map[msg]||msg;
 }
 function escapeHtml(v){return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
-async function auth(path,body){
- const r=await fetch(SUPABASE_URL+"/auth/v1/"+path,{method:"POST",headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
- const data=await r.json();if(!r.ok)throw new Error(data.msg||data.error_description||data.message||"Autentikasi gagal");return data;
+async function getJwtToken(){
+ const result=await auth.getSession();
+ if(result?.error)throw new Error(result.error.message||"Sesi Neon Auth tidak dapat dibaca.");
+ const token=result?.data?.session?.token;
+ if(typeof token!=="string"||token.split(".").length!==3)throw new Error("Sesi login tidak menyediakan JWT Data API. Silakan keluar lalu masuk kembali.");
+ return token;
 }
 async function api(path,options={}){
- const r=await fetch(SUPABASE_URL+path,{...options,headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+state.session.access_token,"Content-Type":"application/json","Prefer":options.method==="POST"||options.method==="PATCH"?"return=representation":"" ,...(options.headers||{})}});
- const text=await r.text();const data=text?JSON.parse(text):null;if(!r.ok)throw new Error(data?.message||data?.error_description||"API request failed");return data;
+ const token=await getJwtToken();
+ const headers={"Authorization":"Bearer "+token,"Content-Type":"application/json","Prefer":options.method==="POST"||options.method==="PATCH"?"return=representation":"",...(options.headers||{})};
+ const r=await fetch(DATA_API_URL+path,{...options,headers});
+ const text=await r.text();let data=null;
+ try{data=text?JSON.parse(text):null}catch{data=text}
+ if(!r.ok)throw new Error(data?.message||data?.details||data?.hint||data?.error||("HTTP "+r.status));
+ return data;
+}
+async function ensureProfile(){
+ const id=await api("/rpc/ensure_my_profile",{method:"POST",body:"{}"});
+ const uid=typeof id==="string"?id:(Array.isArray(id)?id[0]:id?.ensure_my_profile);
+ if(!uid)throw new Error("Identitas profil pembelajar tidak dapat dibuat.");
+ const verified=await api("/rpc/current_user_id",{method:"POST",body:"{}"});
+ const current=typeof verified==="string"?verified:(Array.isArray(verified)?verified[0]:verified?.current_user_id);
+ if(String(current)!==String(uid))throw new Error("Pemetaan identitas akun tidak konsisten. Akses dihentikan demi keamanan.");
+ state.businessUserId=uid;
+ return uid;
 }
 async function practiceFinalize(attemptId){
- const r=await fetch(SUPABASE_URL+"/functions/v1/edunexus-practice",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+state.session.access_token,"Content-Type":"application/json"},body:JSON.stringify({action:"finalize",attempt_id:attemptId})});
- const data=await r.json();if(!r.ok)throw new Error(data.error||"Practice finalization failed");return data;
+ return api("/rpc/finalize_my_practice_attempt",{method:"POST",body:JSON.stringify({p_attempt_id:attemptId})});
 }
 async function loadHistory(){
  try{
-  const rows=await api("/rest/v1/practice_sessions?select=id,status,started_at,completed_at,scenario_id,practice_scenarios(title)&user_id=eq."+encodeURIComponent(state.session.user.id)+"&order=created_at.desc&limit=8");
+  const rows=await api("/practice_sessions?select=id,status,started_at,completed_at,scenario_id,practice_scenarios(title)&user_id=eq."+encodeURIComponent(state.businessUserId)+"&order=created_at.desc&limit=8");
   $("practiceCount").textContent=rows.filter(r=>r.status==="completed").length;
   $("history").innerHTML=rows.length?rows.map(r=>'<div class="item"><div class="item-head"><div><b>'+escapeHtml(r.practice_scenarios?.title||"Praktik")+'</b><div class="muted">'+escapeHtml(localizeStatus(r.status))+' · '+new Date(r.started_at).toLocaleString()+'</div></div><span class="pill">'+escapeHtml(localizeStatus(r.status))+'</span></div></div>').join(""):'<div class="empty muted">Belum ada sesi praktik.</div>';
  }catch(e){$("history").innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'}
 }
 async function loadCatalog(){
- const scenarios=await api("/rest/v1/practice_scenarios?select=id,title,description,scenario_type,difficulty,instructions&status=eq.active&order=created_at.desc");
+ const scenarios=await api("/practice_scenarios?select=id,title,description,scenario_type,difficulty,instructions&status=eq.active&order=created_at.desc");
  $("scenarioCount").textContent=scenarios.length;
- $("scenarios").innerHTML=scenarios.length?scenarios.map(s=>'<div class="item"><div class="item-head"><div><h3>'+escapeHtml(s.title)+'</h3><div class="muted">'+escapeHtml(s.description||"Belum ada deskripsi")+'</div></div><span class="pill">tingkat kesulitan '+s.difficulty+'</span></div><div class="actions" style="margin-top:12px"><button type="button" data-scenario="'+s.id+'">Mulai praktik</button></div></div>').join(""):'<div class="empty muted">Belum ada skenario aktif.</div>';
+ $("scenarios").innerHTML=scenarios.length?scenarios.map(s=>'<div class="item"><div class="item-head"><div><h3>'+escapeHtml(s.title)+'</h3><div class="muted">'+escapeHtml(s.description||"Belum ada deskripsi")+'</div></div><span class="pill">tingkat kesulitan '+escapeHtml(s.difficulty)+'</span></div><div class="actions" style="margin-top:12px"><button type="button" data-scenario="'+s.id+'">Mulai praktik</button></div></div>').join(""):'<div class="empty muted">Belum ada skenario aktif.</div>';
  $("scenarios").querySelectorAll("button[data-scenario]").forEach(b=>b.addEventListener("click",()=>startPractice(scenarios.find(s=>s.id===b.dataset.scenario))));
 }
 async function startPractice(scenario){
  state.scenario=scenario;state.sessionId=null;state.attemptId=null;
  $("scenarios").style.display="none";$("practice").style.display="block";$("result").style.display="none";
  $("practiceTitle").textContent=scenario.title;$("practiceDescription").textContent=scenario.description||"";
+ $("practiceStatus").textContent="Menyiapkan sesi praktik…";$("submitPractice").disabled=false;
  const fields=scenario.instructions?.response_fields||[];
  $("practiceForm").innerHTML=fields.map(f=>'<div class="field"><label for="field_'+escapeHtml(f.key)+'">'+escapeHtml(f.label)+'</label><span class="muted">'+escapeHtml(f.prompt)+'</span><textarea id="field_'+escapeHtml(f.key)+'" data-key="'+escapeHtml(f.key)+'" rows="4" minlength="12" required></textarea></div>').join("");
  try{
-  const session=await api("/rest/v1/practice_sessions",{method:"POST",body:JSON.stringify({user_id:state.session.user.id,scenario_id:scenario.id,status:"in_progress",attempt_number:1,metadata:{client:"edunexus-web",mode:"structured_response"}})});
-  state.sessionId=session[0].id;
-  const attempt=await api("/rest/v1/practice_attempts",{method:"POST",body:JSON.stringify({session_id:state.sessionId,user_id:state.session.user.id,attempt_number:1,status:"in_progress",response:{}})});
-  state.attemptId=attempt[0].id;
+  const session=await api("/practice_sessions",{method:"POST",body:JSON.stringify({user_id:state.businessUserId,scenario_id:scenario.id,status:"in_progress",attempt_number:1,metadata:{client:"edunexus-web",mode:"structured_response"}})});
+  state.sessionId=session?.[0]?.id;
+  if(!state.sessionId)throw new Error("Server tidak mengembalikan ID sesi praktik.");
+  const attempt=await api("/practice_attempts",{method:"POST",body:JSON.stringify({session_id:state.sessionId,user_id:state.businessUserId,attempt_number:1,status:"in_progress",response:{}})});
+  state.attemptId=attempt?.[0]?.id;
+  if(!state.attemptId)throw new Error("Server tidak mengembalikan ID attempt praktik.");
+  setStatus($("practiceStatus"),"Sesi siap. Lengkapi seluruh jawaban lalu kirim.");
  }catch(e){setStatus($("practiceStatus"),e.message,true);$("practiceForm").querySelectorAll("textarea").forEach(x=>x.disabled=true);$("submitPractice").disabled=true}
 }
 $("practiceForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!state.attemptId)return;
- $("submitPractice").disabled=true;setStatus($("practiceStatus"),"Mengirim dan menghasilkan bukti…");
+ $("submitPractice").disabled=true;setStatus($("practiceStatus"),"Mengirim jawaban dan menghitung hasil…");
  try{
   const response={};$("practiceForm").querySelectorAll("textarea[data-key]").forEach(x=>response[x.dataset.key]=x.value.trim());
-  await api("/rest/v1/practice_attempts?id=eq."+encodeURIComponent(state.attemptId),{method:"PATCH",body:JSON.stringify({response,status:"submitted",submitted_at:new Date().toISOString()})});
-  await api("/rest/v1/practice_sessions?id=eq."+encodeURIComponent(state.sessionId),{method:"PATCH",body:JSON.stringify({status:"submitted",submitted_at:new Date().toISOString()})});
+  const submittedAt=new Date().toISOString();
+  await api("/practice_attempts?id=eq."+encodeURIComponent(state.attemptId),{method:"PATCH",body:JSON.stringify({response,status:"submitted",submitted_at:submittedAt})});
+  await api("/practice_sessions?id=eq."+encodeURIComponent(state.sessionId),{method:"PATCH",body:JSON.stringify({status:"submitted",submitted_at:submittedAt})});
   const result=await practiceFinalize(state.attemptId);
   $("result").style.display="block";$("resultScore").textContent=String(result.score)+"/100";
   $("resultStatus").textContent="Praktik selesai. Status bukti: "+(result.review_status==="pending_mentor_review"?"menunggu tinjauan mentor.":"belum dihasilkan.");
@@ -153,25 +189,59 @@ $("practiceForm").addEventListener("submit",async e=>{
   await loadHistory();
  }catch(e){setStatus($("practiceStatus"),e.message,true);$("submitPractice").disabled=false}
 });
-$("cancelPractice").addEventListener("click",()=>{$("practice").style.display="none";$("scenarios").style.display="grid";state.scenario=null});
+$("cancelPractice").addEventListener("click",()=>{$("practice").style.display="none";$("scenarios").style.display="grid";state.scenario=null;state.sessionId=null;state.attemptId=null});
 async function loadApp(){
- $("auth").style.display="none";$("app").style.display="block";$("sessionBadge").textContent=state.session.user.email||"Sudah masuk";$("welcome").textContent="Selamat datang, "+(state.session.user.email||"pembelajar");
+ $("auth").style.display="none";$("app").style.display="block";
+ $("sessionBadge").textContent=state.user?.email||"Sudah masuk";
+ $("welcome").textContent="Selamat datang, "+(state.user?.name||state.user?.email||"pembelajar");
  try{
-  const health=await fetch(SUPABASE_URL+"/functions/v1/edunexus-health",{headers:{"Authorization":"Bearer "+state.session.access_token,"apikey":SUPABASE_KEY}});
-  const hd=await health.json();$("health").textContent=health.ok&&hd.status==="ok"?"OK":"TERGANGGU";
-  await loadCatalog();await loadHistory();
- }catch(e){$("health").textContent="GAGAL";$("scenarios").innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'}
+  await ensureProfile();
+  await loadCatalog();
+  $("health").textContent="OK";
+  await loadHistory();
+ }catch(e){
+  $("health").textContent="GAGAL";
+  $("scenarios").innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>';
+ }
 }
-$("authForm").addEventListener("submit",async e=>{e.preventDefault();setStatus($("authStatus"),"Sedang masuk…");try{state.session=await auth("token?grant_type=password",{email:$("email").value,password:$("password").value});sessionStorage.setItem("edunexus_session",JSON.stringify(state.session));await loadApp()}catch(err){setStatus($("authStatus"),err.message,true)}});
-$("signupBtn").addEventListener("click",async()=>{setStatus($("authStatus"),"Membuat akun…");try{await auth("signup",{email:$("email").value,password:$("password").value,email_redirect_to:window.location.origin+window.location.pathname});setStatus($("authStatus"),"Akun berhasil dibuat. Periksa email Anda untuk konfirmasi, lalu kembali ke sini dan masuk.")}catch(err){setStatus($("authStatus"),err.message,true)}});
-$("logout").addEventListener("click",()=>{state.session=null;sessionStorage.removeItem("edunexus_session");location.reload()});
+$("authForm").addEventListener("submit",async e=>{
+ e.preventDefault();setStatus($("authStatus"),"Sedang masuk…");
+ try{
+  const result=await auth.signIn.email({email:$("email").value.trim(),password:$("password").value});
+  if(result?.error)throw new Error(result.error.message||"Autentikasi gagal.");
+  const session=await auth.getSession();
+  if(session?.error||!session?.data?.user)throw new Error(session?.error?.message||"Login berhasil tetapi sesi tidak tersedia.");
+  state.session=session.data.session;state.user=session.data.user;
+  await loadApp();
+ }catch(err){setStatus($("authStatus"),err.message,true)}
+});
+$("signupBtn").addEventListener("click",async()=>{
+ setStatus($("authStatus"),"Membuat akun…");
+ try{
+  const email=$("email").value.trim(),password=$("password").value;
+  if(!email||!password)throw new Error("Masukkan email dan kata sandi.");
+  if(password.length<8)throw new Error("Kata sandi minimal 8 karakter.");
+  const result=await auth.signUp.email({email,password,name:email.split("@")[0]||"Pembelajar EDUNEXUS"});
+  if(result?.error)throw new Error(result.error.message||"Pendaftaran gagal.");
+  setStatus($("authStatus"),"Akun berhasil dibuat. Silakan masuk menggunakan email dan kata sandi Anda.");
+ }catch(err){setStatus($("authStatus"),err.message,true)}
+});
+$("logout").addEventListener("click",async()=>{
+ try{await auth.signOut()}catch(_){}
+ state.session=null;state.user=null;state.businessUserId=null;location.reload();
+});
 async function bootstrapSession(){
  try{
-  const hash=new URLSearchParams(window.location.hash.slice(1));const accessToken=hash.get("access_token");const refreshToken=hash.get("refresh_token");
-  if(accessToken&&refreshToken){const s={access_token:accessToken,refresh_token:refreshToken,user:null};const payload=JSON.parse(atob(accessToken.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));s.user={id:payload.sub,email:payload.email};state.session=s;sessionStorage.setItem("edunexus_session",JSON.stringify(s));history.replaceState({},document.title,window.location.pathname);await loadApp();return}
-  const saved=JSON.parse(sessionStorage.getItem("edunexus_session")||"null");if(!saved?.refresh_token)return;
-  try{const refreshed=await auth("token?grant_type=refresh_token",{refresh_token:saved.refresh_token});state.session=refreshed;sessionStorage.setItem("edunexus_session",JSON.stringify(refreshed));await loadApp()}catch(_){sessionStorage.removeItem("edunexus_session");state.session=null}
- }catch(_){sessionStorage.removeItem("edunexus_session");state.session=null}
+  const result=await auth.getSession();
+  if(result?.error)throw result.error;
+  if(result?.data?.user){
+   state.session=result.data.session;state.user=result.data.user;
+   await loadApp();
+  }
+ }catch(err){
+  state.session=null;state.user=null;
+  if(err?.message&&err.message!=="UNAUTHORIZED")console.warn("EDUNEXUS session restore:",err.message);
+ }
 }
 bootstrapSession();
 </script>
