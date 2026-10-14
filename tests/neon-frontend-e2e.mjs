@@ -45,7 +45,7 @@ try {
   if (await page.locator("#practiceStatus").evaluate(el => el.classList.contains("error"))) {
     throw new Error("Practice session creation failed: " + (await page.locator("#practiceStatus").innerText()));
   }
-  const fields = page.locator("#practiceForm textarea[data-key");
+  const fields = page.locator("#practiceForm textarea[data-key]");
   const fieldCount = await fields.count();
   if (fieldCount < 1) throw new Error("Practice scenario rendered no response fields.");
   for (let i = 0; i < fieldCount; i++) {
