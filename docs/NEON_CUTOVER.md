@@ -4,6 +4,8 @@
 
 - Neon Auth is configured with Better Auth; email/password sign-up is enabled.
 - Neon Data API is active and limited to the `public` schema on production and the disposable test branch.
+- A no-compute rollback snapshot branch `edunexus-pre-neon-cutover-20261014` (`br-icy-pine-az1nl1b7`) was created from production at LSN `0/21E2710` before applying cutover functions.
+- Production row counts were inspected read-only before cutover: 1 legacy `auth.users` ID, 1 `neon_auth.user`, 0 `profiles`, 0 `practice_sessions`, 0 `practice_attempts`, 0 `skill_evidence`, and 2 active practice scenarios.
 - 41 public tables were inspected on production; all 41 currently have RLS enabled.
 - The Neon database contains 2 practice scenarios.
 - The identity migration table has one mapping, and the mapped Supabase and Neon user UUIDs differ.
