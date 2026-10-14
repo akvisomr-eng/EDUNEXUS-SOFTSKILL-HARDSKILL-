@@ -45,7 +45,7 @@ SELECT m.id,v.title,
  jsonb_build_object(
   'summary',v.summary,
   'objectives',jsonb_build_array(v.objective),
-  'sections',jsonb_build_array(jsonb_build_object('heading','Materi inti','body',v.body),jsonb_build_object('heading','Praktik yang disarankan','body',v.practice)),
+  'sections',jsonb_build_array(jsonb_build_object('heading','Materi inti','body',v.body)),
   'exercise',v.exercise,
   'sources',v.sources::jsonb,
   'license_note','Materi pembelajaran EDUNEXUS ditulis ulang secara orisinal. Sumber dicantumkan sebagai rujukan dan bacaan lanjutan; bukan salinan isi sumber. Periksa lisensi setiap aset sebelum menggunakan ulang materi pihak ketiga.'
@@ -124,7 +124,7 @@ FROM (VALUES
  'Pilih satu keterampilan prioritas. Tetapkan hasil yang dapat diamati, latihan mingguan, sumber belajar, dan seseorang atau rubrik untuk memberi umpan balik. Lakukan latihan kecil, catat bukti, dan tinjau kemajuan setiap minggu. Ubah rencana bila bukti menunjukkan strategi tidak efektif.',
  'Buat rencana empat minggu dengan satu tujuan, dua sesi latihan per minggu, satu bukti hasil, dan satu refleksi mingguan.',
  '["UNESCO — AI competency framework for students","https://www.unesco.org/en/articles/ai-competency-framework-students","Kerangka kompetensi memberi contoh progresi belajar dari memahami, menerapkan, hingga mencipta; adaptasikan ke konteks keterampilan yang dipilih."]')
-) AS v(course_slug,module_position,lesson_position,title,summary,objective,body,practice,exercise,sources)
+) AS v(course_slug,module_position,lesson_position,title,summary,objective,body,exercise,sources)
 JOIN public.courses c ON c.slug=v.course_slug
 JOIN public.modules m ON m.course_id=c.id AND m.position=v.module_position
 ON CONFLICT(module_id,position) DO UPDATE SET title=EXCLUDED.title,content=EXCLUDED.content;
