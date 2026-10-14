@@ -22,12 +22,19 @@
 
 `neon/migrations/0001_auth_identity_compat.sql` is a proposed Neon-specific migration. It preserves the existing data model by translating a Neon Auth subject to its mapped legacy business-user UUID inside `auth.uid()`, and exposes a no-argument `public.current_user_id()` RPC so the browser can use the mapped ID for inserts.
 
-**Do not apply this migration directly to production yet.** Test it on a disposable Neon branch or cloned database first, including signed-in RLS checks and an unmapped-subject fallback. Review the effective owner and grants of both functions before release.
+**Do not apply this migration directly to production yet.** It has been applied on disposable branch `edunexus-cutover-test-20261014` and validated for:
+- mapped Neon subject resolving to the existing legacy business-user UUID;
+- unmapped subject falling back to its own UUID;
+- `authenticated` can execute `current_user_id()`, while `PUBLIC` cannot.
+
+The SQL checks are reproducible in `neon/tests/0001_auth_identity_compat.sql`. The clone has no practice-session or attempt rows, so end-to-end RLS isolation and the actual Data API JWT claim behavior remain unverified. Test those with a disposable test account and real Neon Auth JWT before applying the migration to production.
 
 ## Release gates
 
-- [ ] CI green for the migration branch.
-- [ ] Identity mapping migration tested on a clone; RLS self-access and cross-user denial confirmed.
+- [x] CI green for the migration branch.
+- [x] Identity mapping function and RPC grants tested on a disposable Neon branch.
+- [ ] Real Neon Auth JWT verified against the Data API and mapped user ID.
+- [ ] Identity/RLS isolation tested with disposable user-owned rows and cross-user denial confirmed.
 - [ ] Neon practice API deployed with all runtime dependencies bundled.
 - [ ] API smoke test passes with a Neon Auth JWT; unauthorized requests rejected.
 - [ ] End-to-end practice flow writes and reads from Neon only.
