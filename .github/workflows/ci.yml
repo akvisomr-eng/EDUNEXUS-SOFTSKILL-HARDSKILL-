@@ -38,14 +38,14 @@ jobs:
           test -f .github/workflows/neon-browser-smoke.yml
           grep -q "playwright" .github/workflows/neon-browser-smoke.yml
           grep -q "JWT nyata dari Neon Auth" tests/neon-browser-smoke.mjs
-          grep -q "@neondatabase/auth" web/neon-cutover-smoke.html
-          grep -q "getSession()" web/neon-cutover-smoke.html
-          grep -q "data?.session?.token" web/neon-cutover-smoke.html
-          grep -q "rpc/current_user_id" web/neon-cutover-smoke.html
-          grep -q "rpc/ensure_my_profile" web/neon-cutover-smoke.html
+          grep -q "@neondatabase/auth" tests/fixtures/neon-cutover-smoke.html
+          grep -q "getSession()" tests/fixtures/neon-cutover-smoke.html
+          grep -q "data?.session?.token" tests/fixtures/neon-cutover-smoke.html
+          grep -q "rpc/current_user_id" tests/fixtures/neon-cutover-smoke.html
+          grep -q "rpc/ensure_my_profile" tests/fixtures/neon-cutover-smoke.html
           grep -q "ensure_my_profile" neon/migrations/0003_ensure_my_profile.sql
           grep -q "Bukti praktik sebagai kandidat" tests/neon-browser-smoke.mjs
-          grep -q "Uji isolasi lintas akun" web/neon-cutover-smoke.html
+          grep -q "Uji isolasi lintas akun" tests/fixtures/neon-cutover-smoke.html
           grep -q "current_user_id" neon/migrations/0001_auth_identity_compat.sql
           grep -q "supabase_identity_migration" neon/migrations/0001_auth_identity_compat.sql
           grep -q "SECURITY DEFINER" neon/migrations/0002_trusted_practice_rpc.sql
