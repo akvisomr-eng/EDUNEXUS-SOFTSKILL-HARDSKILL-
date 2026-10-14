@@ -117,7 +117,7 @@ function escapeHtml(v){return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;
 async function getJwtToken(forceRefresh=false){
  let token=state.session?.token;
  if(!forceRefresh&&typeof token==="string"&&token.split(".").length===3)return token;
- const result=await auth.getSession();
+ const result=await Promise.race([auth.getSession(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("Sesi Neon Auth melewati batas waktu.")),12000))]);
  if(result?.error)throw new Error(result.error.message||"Sesi Neon Auth tidak dapat dibaca.");
  state.session=result?.data?.session||state.session;
  token=state.session?.token;
@@ -127,10 +127,10 @@ async function getJwtToken(forceRefresh=false){
 async function api(path,options={}){
  const token=await getJwtToken();
  const headers={"Authorization":"Bearer "+token,"Content-Type":"application/json","Prefer":options.method==="POST"||options.method==="PATCH"?"return=representation":"",...(options.headers||{})};
- let r=await fetch(DATA_API_URL+path,{...options,headers});
+ let r=await fetch(DATA_API_URL+path,{...options,signal:options.signal||AbortSignal.timeout(20000),headers});
  if(r.status===401){
   const refreshedToken=await getJwtToken(true);
-  r=await fetch(DATA_API_URL+path,{...options,headers:{...headers,"Authorization":"Bearer "+refreshedToken}});
+  r=await fetch(DATA_API_URL+path,{...options,signal:AbortSignal.timeout(20000),headers:{...headers,"Authorization":"Bearer "+refreshedToken}});
  }
  const text=await r.text();let data=null;
  try{data=text?JSON.parse(text):null}catch{data=text}
