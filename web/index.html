@@ -285,7 +285,13 @@ function renderLessonContent(content){
  if(Array.isArray(value.sections))for(const section of value.sections)parts.push('<div class="item"><b>'+escapeHtml(section.heading||"Materi")+'</b><p class="muted">'+escapeHtml(section.body||"")+'</p></div>');
  if(value.exercise)parts.push('<div class="item"><b>Latihan</b><p class="muted">'+escapeHtml(typeof value.exercise==="string"?value.exercise:JSON.stringify(value.exercise))+'</p></div>');
  if(Array.isArray(value.sources)&&value.sources.length){
-  const links=value.sources.map(source=>{
+  let sourceItems=value.sources;
+  if(typeof sourceItems[0]==="string"){
+   const triples=[];
+   for(let i=0;i+1<sourceItems.length;i+=3)triples.push({title:sourceItems[i],url:sourceItems[i+1],note:sourceItems[i+2]||""});
+   sourceItems=triples;
+  }
+  const links=sourceItems.map(source=>{
    let title="",url="",note="";
    if(Array.isArray(source)){[title,url,note]=source}else if(source&&typeof source==="object"){title=source.title||"Sumber";url=source.url||"";note=source.note||""}
    try{const parsed=new URL(url);if(parsed.protocol!=="https:")return ""}catch{return ""}
