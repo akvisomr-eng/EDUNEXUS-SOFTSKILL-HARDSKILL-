@@ -49,7 +49,7 @@ The specialist runtime retrieves at most four chunks from the bundled curated co
 
 ## Rollout status
 
-- Neon migration: neon/migrations/0006_knowledge_registry_curriculum_v2.sql
-- Supabase rollback migration: supabase/migrations/20261014150000_knowledge_registry_curriculum_v2.sql
+- Neon migration: neon/migrations/0007_knowledge_registry_curriculum_v2.sql
+- Supabase rollback migration: supabase/migrations/20261014170000_knowledge_registry_curriculum_v2.sql
 - This change is designed to be idempotent. The production rollout must be followed by row counts and browser verification.
 - The migration's SQL does not delete learner records or modify authentication.
