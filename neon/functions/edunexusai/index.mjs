@@ -142,6 +142,14 @@ async function retrieveKnowledge(message) {
     .sort((a, b) => b.retrievalScore - a.retrievalScore);
   return ranked.slice(0, 4);
 }
+export function buildKnowledgeOnlyAnswer(knowledge) {
+  if (!Array.isArray(knowledge) || knowledge.length === 0) {
+    return "Belum ditemukan sumber yang cukup cocok di basis pengetahuan terkurasi EDUNEXUS. Coba gunakan istilah yang lebih spesifik atau periksa sumber resmi secara langsung. Jawaban tidak dibuat-buat.";
+  }
+  return "Mode basis pengetahuan terkurasi (tanpa model generatif). Berikut ringkasan sumber yang paling relevan untuk ditelaah:\\n\\n" +
+    knowledge.map((source, index) => "[" + (index + 1) + "] " + source.title + "\\n" + source.text).join("\\n\\n") +
+    "\\n\\nRingkasan ini bukan pengganti pemeriksaan sumber asli. Gunakan tautan rujukan yang disertakan untuk memverifikasi detail.";
+}
 async function callModel({ message, agent, locale, knowledge }) {
   const apiKey = process.env.MODEL_API_KEY;
   const baseUrl = process.env.MODEL_API_BASE_URL;
@@ -181,7 +189,8 @@ export default {
     const cors = corsHeaders(origin);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     if (url.pathname === "/health" && request.method === "GET") {
-      return json({ service: "edunexus-ai", status: "ok", inferenceConfigured: Boolean(process.env.MODEL_API_KEY && process.env.MODEL_API_BASE_URL && process.env.MODEL_ID), authConfigured: Boolean(process.env.NEON_AUTH_JWKS_URL) }, 200, cors);
+      const corpus = await knowledgePromise;
+      return json({ service: "edunexus-ai", status: "ok", inferenceConfigured: Boolean(process.env.MODEL_API_KEY && process.env.MODEL_API_BASE_URL && process.env.MODEL_ID), authConfigured: Boolean(process.env.NEON_AUTH_JWKS_URL), knowledgeConfigured: Array.isArray(corpus.chunks) && corpus.chunks.length > 0, knowledgeVersion: corpus.version, knowledgeChunks: Array.isArray(corpus.chunks) ? corpus.chunks.length : 0 }, 200, cors);
     }
     if (url.pathname !== "/chat" || request.method !== "POST") return json({ error: "not_found" }, 404, cors);
     if (origin && !cors["access-control-allow-origin"]) return json({ error: "origin_not_allowed" }, 403, cors);
@@ -196,10 +205,23 @@ export default {
     if (!message || message.length > MAX_MESSAGE_CHARS) return json({ error: "invalid_message", message: "Pesan wajib diisi dan maksimal 4.000 karakter." }, 400, cors);
     const agents = selectAgents(message);
     const knowledge = await retrieveKnowledge(message);
+    const sources = knowledge.map((source, index) => ({ id: "S" + (index + 1), sourceId: source.id, title: source.title, url: source.url, trustTier: source.trust_tier, reviewedAt: source.reviewed_at }));
+    if (!process.env.MODEL_API_KEY || !process.env.MODEL_API_BASE_URL || !process.env.MODEL_ID) {
+      const corpus = await knowledgePromise;
+      return json({
+        answer: buildKnowledgeOnlyAnswer(knowledge),
+        agents: agents.map(([id, agent]) => ({ id, label: agent.label })),
+        mode: "curated_retrieval_only_v1",
+        knowledgeVersion: corpus.version,
+        retrieval: "lexical-overlap-v1",
+        sources,
+        sourceNotice: "Mode sumber terkurasi saja; model generatif belum dikonfigurasi. Jawaban ini merangkum sumber yang cocok, bukan keluaran LLM."
+      }, 200, cors);
+    }
     try {
       const results = await Promise.all(agents.map(async ([id, agent]) => ({ id, label: agent.label, answer: await callModel({ message, agent, locale: body.locale, knowledge }) })));
       const answer = results.length === 1 ? results[0].answer : results.map((result) => "**" + result.label + "**\n" + result.answer).join("\n\n---\n\n");
-      return json({ answer, agents: results.map(({ id, label }) => ({ id, label })), mode: "specialist_parallel_v1", knowledgeVersion: (await knowledgePromise).version, retrieval: "lexical-overlap-v1", sources: knowledge.map((source, index) => ({ id: "S" + (index + 1), sourceId: source.id, title: source.title, url: source.url, trustTier: source.trust_tier, reviewedAt: source.reviewed_at })), sourceNotice: knowledge.length ? "Sumber adalah ringkasan terkurasi; bukan penelusuran web langsung. Buka tautan sumber untuk konteks lengkap." : "Tidak ada sumber korpus yang cocok; jawaban tidak boleh mengarang sitasi." }, 200, cors);
+      return json({ answer, agents: results.map(({ id, label }) => ({ id, label })), mode: "specialist_parallel_v1", knowledgeVersion: (await knowledgePromise).version, retrieval: "lexical-overlap-v1", sources, sourceNotice: knowledge.length ? "Sumber adalah ringkasan terkurasi; bukan penelusuran web langsung. Buka tautan sumber untuk konteks lengkap." : "Tidak ada sumber korpus yang cocok; jawaban tidak boleh mengarang sitasi." }, 200, cors);
     } catch (error) {
       const reason = error instanceof Error ? error.message : "unknown";
       if (reason === "ai_not_configured") return json({ error: "ai_not_configured", message: "Layanan AI belum dikonfigurasi. Tidak ada jawaban simulasi yang ditampilkan." }, 503, cors);
