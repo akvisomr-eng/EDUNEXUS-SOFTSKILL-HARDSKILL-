@@ -435,15 +435,15 @@ async function checkAiHealth(){
  try{
   const response=await fetch(EDUNEXUS_AI_URL+"/health",{signal:AbortSignal.timeout(10000)});
   const data=await response.json();
-  if(!response.ok||!data.authConfigured)throw new Error("Layanan AI belum dapat diverifikasi.");
+  if(!response.ok||!data.authConfigured||!data.knowledgeConfigured)throw new Error("Layanan AI atau basis pengetahuan belum dapat diverifikasi.");
   if(data.inferenceConfigured){
-   $("aiHealth").textContent="Layanan AI aktif. Jawaban akan dibuat oleh model dan spesialis terpilih.";
+   $("aiHealth").textContent="AI generatif aktif. Pertanyaan dirutekan ke spesialis dengan sumber pengetahuan terkurasi.";
    $("aiHealth").className="status ok";
    $("aiSendBtn").disabled=false;
   }else{
-   $("aiHealth").textContent="Runtime AI sudah terpasang, tetapi inference belum aktif karena secret MODEL_API_KEY belum dikonfigurasi oleh administrator.";
-   $("aiHealth").className="status error";
-   $("aiSendBtn").disabled=true;
+   $("aiHealth").textContent="Mode basis pengetahuan aktif: EDUNEXUS dapat merangkum sumber yang cocok, tetapi model generatif belum dikonfigurasi.";
+   $("aiHealth").className="status ok";
+   $("aiSendBtn").disabled=false;
   }
  }catch(e){
   $("aiHealth").textContent="Status layanan AI belum dapat diverifikasi. Coba muat ulang atau hubungi administrator.";
@@ -473,8 +473,8 @@ $("aiChatForm").addEventListener("submit",async e=>{
   if(!response.ok)throw new Error(data.message||"Layanan AI belum tersedia (HTTP "+response.status+").");
   $("aiAnswer").textContent=data.answer||"Belum ada jawaban.";
   renderAiSources(data.sources);
-  $("aiAgentStatus").textContent="Spesialis: "+(data.agents||[]).map(a=>a.label).join(", ")+" · Retrieval: "+(data.retrieval||"—")+" · "+(data.sourceNotice||"");
-  $("aiHealth").textContent="Jawaban diterima.";
+  $("aiAgentStatus").textContent="Mode: "+(data.mode||"—")+" · Spesialis: "+(data.agents||[]).map(a=>a.label).join(", ")+" · Basis pengetahuan: "+(data.knowledgeVersion||"—")+" · Retrieval: "+(data.retrieval||"—")+" · "+(data.sourceNotice||"");
+  $("aiHealth").textContent=data.mode==="curated_retrieval_only_v1"?"Jawaban dirangkum dari sumber terkurasi; model generatif belum aktif.":"Jawaban generatif diterima.";
   $("aiHealth").className="status ok";
  }catch(err){
   $("aiAnswer").textContent=String(err.message||err);
