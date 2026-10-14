@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS public.knowledge_sources (
 ALTER TABLE public.knowledge_sources ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS knowledge_sources_public_read ON public.knowledge_sources;
 CREATE POLICY knowledge_sources_public_read ON public.knowledge_sources
-  FOR SELECT TO anon, authenticated USING (true);
-GRANT SELECT ON public.knowledge_sources TO anon, authenticated;
+  FOR SELECT TO PUBLIC USING (true);
+GRANT SELECT ON public.knowledge_sources TO PUBLIC;
 
 INSERT INTO public.knowledge_sources
 (source_key,title,url,publisher,trust_tier,license_note,summary,reviewed_at)
