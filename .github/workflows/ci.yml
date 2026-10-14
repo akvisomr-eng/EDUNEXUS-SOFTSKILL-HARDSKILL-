@@ -22,6 +22,11 @@ jobs:
           test -f neon/tests/0001_auth_identity_compat.sql
           test -f neon/tests/0002_trusted_practice_rpc.sql
           test -f docs/NEON_CUTOVER.md
+          test -f web/neon-cutover-smoke.html
+          grep -q "@neondatabase/auth" web/neon-cutover-smoke.html
+          grep -q "getJWTToken" web/neon-cutover-smoke.html
+          grep -q "rpc/current_user_id" web/neon-cutover-smoke.html
+          grep -q "Uji isolasi lintas akun" web/neon-cutover-smoke.html
           grep -q "current_user_id" neon/migrations/0001_auth_identity_compat.sql
           grep -q "supabase_identity_migration" neon/migrations/0001_auth_identity_compat.sql
           grep -q "SECURITY DEFINER" neon/migrations/0002_trusted_practice_rpc.sql
