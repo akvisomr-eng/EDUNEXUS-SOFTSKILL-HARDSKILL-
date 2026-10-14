@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EDUNEXUS · Neon Cutover Smoke Test</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#172033;background:#f5f7fb}*{box-sizing:border-box}body{margin:0}.wrap{max-width:900px;margin:auto;padding:24px}.card{background:#fff;border:1px solid #dfe5ef;border-radius:16px;padding:22px;margin:14px 0}h1{margin:0 0 8px}.muted{color:#68738a;line-height:1.5}.field{display:grid;gap:6px;margin:12px 0}label{font-weight:650;font-size:14px}input{width:100%;padding:11px;border:1px solid #ccd3df;border-radius:9px;font:inherit}button{padding:11px 14px;border:0;border-radius:9px;background:#172033;color:white;font:inherit;font-weight:700;cursor:pointer;margin:4px 4px 4px 0}.secondary{background:#eef1f6;color:#172033}.status{padding:10px;border-radius:8px;background:#f2f4f7;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}.ok{background:#ecfdf3;color:#067647}.err{background:#fef3f2;color:#b42318}code{overflow-wrap:anywhere}.checks{display:grid;gap:8px}.check{padding:10px;border:1px solid #e4e8f0;border-radius:9px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>EDUNEXUS · Uji Migrasi Neon</h1>
+<p class="muted">Halaman diagnostik untuk branch pengujian saja. Tidak membuat atau mengubah data bisnis. Akun yang didaftarkan di sini hanya berada pada lingkungan auth branch pengujian.</p>
+<div class="card">
+<h2>1. Autentikasi</h2>
+<div class="field"><label for="email">Email akun uji</label><input id="email" type="email" autocomplete="email"></div>
+<div class="field"><label for="password">Kata sandi akun uji</label><input id="password" type="password" autocomplete="current-password" minlength="8"></div>
+<div class="field"><label for="name">Nama (hanya untuk pendaftaran)</label><input id="name" autocomplete="name"></div>
+<button id="signup">Buat akun uji</button><button id="signin">Masuk</button><button id="signout" class="secondary">Keluar</button>
+<div id="authStatus" class="status">Belum terautentikasi.</div>
+</div>
+<div class="card">
+<h2>2. Pemeriksaan JWT dan RLS (baca saja)</h2>
+<p class="muted">Jalankan setelah masuk. Pemeriksaan ini memakai JWT aktual dari Neon Auth dan membaca data tanpa mengubah catatan.</p>
+<button id="run" disabled>Jalankan pemeriksaan</button>
+<div id="checks" class="checks"></div>
+<div class="field"><label for="otherSession">ID sesi uji milik akun kedua (opsional)</label><input id="otherSession" placeholder="UUID sesi yang dibuat akun uji kedua"></div>
+<button id="checkOther" class="secondary" disabled>Uji isolasi lintas akun</button>
+<p class="muted">Untuk uji dua akun, masuk dengan akun A dan catat ID sesi milik akun B yang dibuat terpisah pada branch uji. Permintaan filter ID harus mengembalikan nol baris untuk akun A. Jangan gunakan ID atau akun production.</p>
+<div id="isolation" class="status">Uji isolasi belum dijalankan.</div>
+</div>
+<div class="card">
+<h2>Konfigurasi yang diuji</h2>
+<div class="muted">Auth: <code>ep-autumn-dust-az7syu30.neonauth.c-3.ap-southeast-1.aws.neon.tech/neondb/auth</code><br>Data API: <code>ep-autumn-dust-az7syu30.apirest.c-3.ap-southeast-1.aws.neon.tech/neondb/rest/v1</code></div>
+</div>
+</div>
+<script type="module">
+import { createAuthClient } from "https://esm.sh/@neondatabase/auth";
+const AUTH_URL="https://ep-autumn-dust-az7syu30.neonauth.c-3.ap-southeast-1.aws.neon.tech/neondb/auth";
+const DATA_URL="https://ep-autumn-dust-az7syu30.apirest.c-3.ap-southeast-1.aws.neon.tech/neondb/rest/v1";
+const auth=createAuthClient(AUTH_URL);
+const $=id=>document.getElementById(id);
+let activeUser=null;
+function show(id,message,kind=""){const el=$(id);el.textContent=message;el.className="status "+kind}
+function errText(e){return e?.message||String(e)}
+async function responseData(r){const t=await r.text();let d=null;try{d=t?JSON.parse(t):null}catch{d=t}if(!r.ok)throw new Error((d&& (d.message||d.error||d.details))||("HTTP "+r.status));return d}
+async function signIn(){const email=$("email").value.trim(),password=$("password").value;if(!email||!password)throw new Error("Masukkan email dan kata sandi akun uji.");const result=await auth.signIn.email({email,password});if(result?.error)throw new Error(result.error.message||"Login gagal.");const session=await auth.getSession();activeUser=session?.data?.user||session?.user||result?.data?.user||result?.user||null;if(!activeUser)throw new Error("Login berhasil tetapi profil sesi tidak terbaca; periksa SDK/auth endpoint.");show("authStatus","Login berhasil. Pengguna: "+(activeUser.email||email),"ok");$("run").disabled=false;$("checkOther").disabled=false}
+$("signup").addEventListener("click",async()=>{try{const email=$("email").value.trim(),password=$("password").value,name=$("name").value.trim()||"EDUNEXUS Test";if(!email||!password)throw new Error("Masukkan email dan kata sandi.");const r=await auth.signUp.email({email,password,name});if(r?.error)throw new Error(r.error.message||"Pendaftaran gagal.");show("authStatus","Pendaftaran berhasil pada branch uji. Silakan masuk.","ok")}catch(e){show("authStatus",errText(e),"err")}});
+$("signin").addEventListener("click",async()=>{try{await signIn()}catch(e){show("authStatus",errText(e),"err")}});
+$("signout").addEventListener("click",async()=>{try{await auth.signOut();activeUser=null;$("run").disabled=true;$("checkOther").disabled=true;show("authStatus","Keluar dari akun uji.");$("checks").replaceChildren()}catch(e){show("authStatus",errText(e),"err")}});
+async function api(path,token,options={}){return responseData(await fetch(DATA_URL+path,{...options,headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json",...(options.headers||{})}}))}
+function check(name,ok,detail){const el=document.createElement("div");el.className="check";el.textContent=(ok?"LULUS · ":"PERLU DITINJAU · ")+name+" — "+detail;$("checks").append(el)}
+$("run").addEventListener("click",async()=>{const root=$("checks");root.replaceChildren();$("run").disabled=true;try{
+ const token=await auth.getJWTToken();if(!token)throw new Error("SDK tidak mengembalikan JWT; periksa konfigurasi Neon Auth.");
+ const parts=token.split(".");check("JWT nyata dari Neon Auth",parts.length===3,"format JWT "+(parts.length===3?"terdeteksi":"tidak valid")); 
+ const identity=await api("/rpc/current_user_id",token,{method:"POST",body:"{}"});
+ const uid=typeof identity==="string"?identity:(Array.isArray(identity)?identity[0]:identity?.current_user_id);
+ check("RPC current_user_id",!!uid,String(uid||"respons kosong"));
+ const scenarios=await api("/practice_scenarios?select=id,title&status=eq.active&limit=5",token);
+ check("Baca katalog praktik",Array.isArray(scenarios),Array.isArray(scenarios)?scenarios.length+" skenario terlihat":"respons bukan daftar");
+ const rows=await api("/practice_sessions?select=id,user_id,status&limit=100",token);
+ const allOwned=Array.isArray(rows)&&rows.every(r=>String(r.user_id)===String(uid));
+ check("RLS sesi praktik milik pengguna",Array.isArray(rows)&&allOwned,(Array.isArray(rows)?rows.length:"?")+" baris terlihat; semua user_id cocok dengan identitas terpetakan: "+allOwned);
+ show("isolation","Pemeriksaan awal selesai. Untuk membuktikan penolakan lintas akun, jalankan tes ID sesi akun kedua di bawah.","ok");
+}catch(e){check("Pemeriksaan gagal",false,errText(e));show("isolation","Pemeriksaan gagal; jangan anggap cutover lolos.","err")}finally{$("run").disabled=false}});
+$("checkOther").addEventListener("click",async()=>{try{const id=$("otherSession").value.trim();if(!id)throw new Error("Masukkan ID sesi uji dari akun kedua.");if(!/^[0-9a-f-]{36}$/i.test(id))throw new Error("Format UUID tidak valid.");const token=await auth.getJWTToken();const rows=await api("/practice_sessions?select=id,user_id&id=eq."+encodeURIComponent(id),token);const passed=Array.isArray(rows)&&rows.length===0;show("isolation",passed?"LULUS: API tidak mengembalikan sesi milik akun lain.":"GAGAL/PERLU DITINJAU: API mengembalikan "+(Array.isArray(rows)?rows.length:"respons non-daftar")+" baris untuk ID lintas akun.",passed?"ok":"err")}catch(e){show("isolation",errText(e),"err")}});
+</script>
+</body>
+</html>
