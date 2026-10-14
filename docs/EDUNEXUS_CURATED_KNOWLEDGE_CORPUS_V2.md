@@ -67,3 +67,13 @@ Each course contains three modules and six short lessons (24 lessons total). The
 ## Deployment boundary
 
 Migration `neon/migrations/0006_curated_knowledge_curriculum_v2.sql` is idempotent. It must first be tested on the disposable branch and reviewed before application to production. Supabase has a corresponding migration for rollback parity. A registry and curriculum seed are not, by themselves, a full RAG index: server-side ingestion, chunking, embeddings/vector retrieval, refresh scheduling, and AI-provider credentials are separate work items.
+
+## Additional sources reviewed
+
+- UNESCO Media and Information Literacy Curriculum for Teachers: https://www.unesco.org/en/articles/media-and-information-literacy-curriculum-teachers
+- Skills Builder Universal Framework 2.0: https://www.skillsbuilder.org/global/universal-framework
+- CASEL SEL framework: https://casel.org/fundamentals-of-sel/what--is-the-casel-framework/
+- OpenStax licensing: https://help.openstax.org/s/article/Licensing-information-of-OpenStax-textbooks
+- MIT OpenCourseWare terms: https://ocw.mit.edu/pages/privacy-and-terms-of-use/
+
+**Commercial-use note:** OpenStax and MIT OpenCourseWare materials use CC BY-NC-SA terms, so the content should not be copied/adapted into a commercial product without a separate permission path. EDUNEXUS only registers those sources as references and license guidance. CASEL and Skills Builder resources also require checking their own attribution/permission terms before reproducing detailed frameworks.
