@@ -8,6 +8,7 @@ on:
       - "neon/functions/edunexusai/**"
       - "tests/neon-frontend-e2e.mjs"
       - "web/knowledge-sources.json"
+      - "web/knowledge-corpus.json"
       - "docs/KNOWLEDGE_CORPUS_CURRICULUM_V1.md"
   workflow_dispatch:
 
