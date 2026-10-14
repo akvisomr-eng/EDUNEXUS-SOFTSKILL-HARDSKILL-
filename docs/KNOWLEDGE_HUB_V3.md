@@ -15,7 +15,7 @@ This is a curated source registry and an original synthesis corpus, **not a comp
 - 0 full-text documents downloaded by this pipeline;
 - 0 embeddings created.
 
-Each external source is linked to its canonical location. Free access is not equivalent to a redistribution license. MIT OCW, OpenStax, OER Commons, OpenLearn, Khan Academy and other resources must be checked at the item level before copying or commercial reuse. This migration stores original summaries and source metadata, not the full source content.
+Each external source is linked to its canonical location. The static JSON also exposes each original editorial note in the source-shaped retrieval format used by the current agent runtime; the learner interface filters those records from the canonical source directory and renders them in the separate notes list. Free access is not equivalent to a redistribution license. MIT OCW, OpenStax, OER Commons, OpenLearn, Khan Academy and other resources must be checked at the item level before copying or commercial reuse. This migration stores original summaries and source metadata, not the full source content.
 
 ## Multi-agent use
 
