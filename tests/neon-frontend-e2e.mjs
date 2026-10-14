@@ -87,6 +87,19 @@ try {
   await page.waitForFunction(() => !document.querySelector("#learningStatus")?.textContent.includes("Memuat katalog"), null, { timeout: 30000 });
   console.log("FRONTEND_GOAL_WORKFLOW=PASS; goal created and completed; learning catalog loaded");
 
+  await page.waitForFunction(() => document.querySelectorAll("#coursesList .item").length >= 2, null, { timeout: 30000 });
+  const firstCourse = page.locator("#coursesList .item").first();
+  await firstCourse.locator("button[data-enroll-course]").click();
+  await page.waitForFunction(() => document.querySelector("#learningStatus")?.textContent.includes("Pendaftaran kursus tersimpan"), null, { timeout: 30000 });
+  await page.locator("#coursesList [data-open-lesson]").first().click();
+  await page.locator("#lessonReader").waitFor({ state: "visible", timeout: 15000 });
+  const lessonTitle = (await page.locator("#lessonTitle").innerText()).trim();
+  const lessonContent = (await page.locator("#lessonContent").innerText()).trim();
+  if (!lessonTitle || !lessonContent) throw new Error("Lesson reader did not display seeded lesson content.");
+  await page.locator("#completeLessonBtn").click();
+  await page.waitForFunction(() => document.querySelector("#lessonProgressStatus")?.textContent.includes("Progres tersimpan: pelajaran selesai"), null, { timeout: 30000 });
+  console.log("FRONTEND_LEARNING_WORKFLOW=PASS; enrolled, opened lesson, and persisted completion for " + lessonTitle);
+
   await page.locator("#scenarios button[data-scenario]").first().click();
 
   await page.locator("#practice").waitFor({ state: "visible", timeout: 15000 });
