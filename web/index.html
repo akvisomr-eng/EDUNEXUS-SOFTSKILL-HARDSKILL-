@@ -284,6 +284,16 @@ function renderLessonContent(content){
  if(Array.isArray(value.objectives)&&value.objectives.length)parts.push('<div class="item"><b>Tujuan belajar</b><ul>'+value.objectives.map(x=>'<li>'+escapeHtml(x)+'</li>').join("")+'</ul></div>');
  if(Array.isArray(value.sections))for(const section of value.sections)parts.push('<div class="item"><b>'+escapeHtml(section.heading||"Materi")+'</b><p class="muted">'+escapeHtml(section.body||"")+'</p></div>');
  if(value.exercise)parts.push('<div class="item"><b>Latihan</b><p class="muted">'+escapeHtml(typeof value.exercise==="string"?value.exercise:JSON.stringify(value.exercise))+'</p></div>');
+ if(Array.isArray(value.sources)&&value.sources.length){
+  const links=value.sources.map(source=>{
+   let title="",url="",note="";
+   if(Array.isArray(source)){[title,url,note]=source}else if(source&&typeof source==="object"){title=source.title||"Sumber";url=source.url||"";note=source.note||""}
+   try{const parsed=new URL(url);if(parsed.protocol!=="https:")return ""}catch{return ""}
+   return '<li><a href="'+escapeHtml(url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(title||url)+'</a>'+(note?'<p class="muted">'+escapeHtml(note)+'</p>':'')+'</li>';
+  }).filter(Boolean);
+  if(links.length)parts.push('<div class="item"><b>Sumber dan bacaan lanjutan</b><ul>'+links.join("")+'</ul></div>');
+ }
+ if(value.license_note)parts.push('<div class="item"><b>Catatan sumber dan lisensi</b><p class="muted">'+escapeHtml(value.license_note)+'</p></div>');
  return parts.join("")||'<div class="empty muted">Konten pelajaran belum tersedia.</div>';
 }
 function openLesson(lessonId){
