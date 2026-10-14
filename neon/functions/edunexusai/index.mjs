@@ -1,3 +1,4 @@
+import { createPublicKey, verify as verifySignature } from "node:crypto";
 const enc = new TextEncoder();
 const APP_ORIGIN = process.env.APP_ORIGIN || "https://akvisomr-eng.github.io";
 const DATA_API_URL = (process.env.DATA_API_URL || "https://ep-curly-bread-azog8hfw.apirest.c-3.ap-southeast-1.aws.neon.tech/neondb/rest/v1").replace(/\/$/, "");
@@ -18,13 +19,15 @@ async function verifyJwt(token){
  try{
   const parts=token.split("."); if(parts.length!==3)return null;
   const header=JSON.parse(b64url(parts[0])), payload=JSON.parse(b64url(parts[1]));
-  if(header.alg!=="RS256"||!header.kid||!payload.sub||!payload.exp||payload.exp*1000<Date.now()||(payload.nbf&&payload.nbf*1000>Date.now()))return null;
+  if(!["RS256","ES256","EdDSA"].includes(header.alg)||!header.kid||!payload.sub||!payload.exp||payload.exp*1000<Date.now()||(payload.nbf&&payload.nbf*1000>Date.now()))return null;
   if(Date.now()>jwksCache.until){const r=await fetch(JWKS_URL,{signal:AbortSignal.timeout(5000)});if(!r.ok)return null;const j=await r.json();jwksCache={keys:j.keys||[],until:Date.now()+300000};}
-  const jwk=jwksCache.keys.find(k=>k.kid===header.kid&&k.kty==="RSA"); if(!jwk)return null;
-  const key=await crypto.subtle.importKey("jwk",jwk,{name:"RSASSA-PKCS1-v1_5",hash:"SHA-256"},false,["verify"]);
-  const signature=Buffer.from(parts[2],"base64url");
-  const ok=await crypto.subtle.verify("RSASSA-PKCS1-v1_5",key,signature,enc.encode(parts[0]+"."+parts[1]));
-  return ok?payload:null;
+  const jwk=jwksCache.keys.find(k=>k.kid===header.kid&&k.use!=="enc"&&(!k.alg||k.alg===header.alg)); if(!jwk)return null;
+  if((header.alg==="RS256"&&jwk.kty!=="RSA")||(header.alg==="ES256"&&(jwk.kty!=="EC"||jwk.crv!=="P-256"))||(header.alg==="EdDSA"&&(jwk.kty!=="OKP"||jwk.crv!=="Ed25519")))return null;
+  const key=createPublicKey({key:jwk,format:"jwk"});
+  const input=Buffer.from(parts[0]+"."+parts[1]),signature=Buffer.from(parts[2],"base64url");
+  const verifierKey=header.alg==="ES256"?{key,dsaEncoding:"ieee-p1363"}:key;
+  const algorithm=header.alg==="RS256"?"RSA-SHA256":header.alg==="ES256"?"sha256":null;
+  return verifySignature(algorithm,input,verifierKey,signature)?payload:null;
  }catch{return null;}
 }
 function cors(origin){return {"Access-Control-Allow-Origin":origin===APP_ORIGIN?APP_ORIGIN:"null","Access-Control-Allow-Headers":"Authorization, Content-Type","Access-Control-Allow-Methods":"GET, POST, OPTIONS","Vary":"Origin","Cache-Control":"no-store"};}
