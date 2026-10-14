@@ -2,44 +2,31 @@
 
 ## Verified on 2026-10-14
 
-- Neon project: `EDUNEXUS SOFTSKILL & HARDSKILL`, production branch.
 - Neon Auth is configured with Better Auth; email/password sign-up is enabled.
 - Neon Data API is active and limited to the `public` schema.
 - 41 public tables were inspected; all 41 currently have RLS enabled.
-- The current Neon database contains 2 practice scenarios.
+- The Neon database contains 2 practice scenarios.
 - The identity migration table has one mapping, and the mapped Supabase and Neon user UUIDs differ.
-- Neon Function `edunexusapi` has an older completed deployment, but its current deployment failed because the uploaded bundle could not resolve the `pg` package. Do not treat the current function deployment as healthy.
-- The current GitHub Pages frontend still uses Supabase Auth, Supabase Data API, and the Supabase `edunexus-practice` Edge Function.
+- Neon Function `edunexusapi` deployment 4 failed because the bundle could not resolve package `pg`; deployment 2 remains the active deployment.
+- GitHub Pages frontend still uses Supabase Auth, Supabase REST, and the Supabase `edunexus-practice` Edge Function.
 
-## Cutover blockers
+## Changes prepared for Neon
 
-1. **Identity compatibility:** legacy business records use the original Supabase user UUIDs. Neon Auth returns a different user UUID. RLS owner checks and frontend writes must use the mapped business-user UUID.
-2. **Trusted practice finalization:** the current frontend calls a Supabase Edge Function that invokes trusted database functions. Moving only the browser's reads/writes to Neon would split a single practice workflow across two databases and is not safe.
-3. **Backend deployment:** the latest `edunexusapi` deployment failed dependency loading. A green function deployment and endpoint smoke test are required before switching practice finalization.
-4. **End-to-end validation:** verify login, sign-up, scenario reads, creating and submitting a practice, trusted scoring/evidence ingestion, history, and RLS isolation with a test account before production cutover.
+- `neon/migrations/0001_auth_identity_compat.sql` maps Neon Auth subjects to legacy business-user IDs.
+- `neon/migrations/0002_trusted_practice_rpc.sql` exposes a narrowly scoped Data API RPC for trusted practice finalization. It checks authenticated ownership and submitted status, keeps scoring/evidence functions private, and grants execution only to `authenticated`.
+- `neon/tests/0001_auth_identity_compat.sql` checks identity mapping and grants.
+- `neon/tests/0002_trusted_practice_rpc.sql` checks function security and grants.
 
-## Identity compatibility migration
+These migrations have been prepared for the disposable test branch; do not apply to production until the test scripts and real JWT/RLS integration checks pass.
 
-`neon/migrations/0001_auth_identity_compat.sql` is a proposed Neon-specific migration. It preserves the existing data model by translating a Neon Auth subject to its mapped legacy business-user UUID inside `auth.uid()`, and exposes a no-argument `public.current_user_id()` RPC so the browser can use the mapped ID for inserts.
+## Remaining release gates
 
-**Do not apply this migration directly to production yet.** It has been applied on disposable branch `edunexus-cutover-test-20261014` and validated for:
-- mapped Neon subject resolving to the existing legacy business-user UUID;
-- unmapped subject falling back to its own UUID;
-- `authenticated` can execute `current_user_id()`, while `PUBLIC` cannot.
+1. Apply both Neon migrations to the disposable branch and run both SQL test scripts.
+2. Verify actual Neon Auth JWT subject claims through the Data API, not only simulated session settings.
+3. Test RLS isolation using two disposable authenticated accounts and user-owned rows; verify cross-user reads/writes are denied.
+4. Adapt the frontend auth/session layer to Neon Auth and map its subject to the legacy business-user ID. Do not mix writes across Supabase and Neon.
+5. Switch practice finalization to `rpc/finalize_my_practice_attempt` and validate the entire workflow.
+6. Verify GitHub Pages deployment and browser smoke tests before cutover.
+7. Keep Supabase available as rollback source until the cutover is explicitly accepted.
 
-The SQL checks are reproducible in `neon/tests/0001_auth_identity_compat.sql`. The clone has no practice-session or attempt rows, so end-to-end RLS isolation and the actual Data API JWT claim behavior remain unverified. Test those with a disposable test account and real Neon Auth JWT before applying the migration to production.
-
-## Release gates
-
-- [x] CI green for the migration branch.
-- [x] Identity mapping function and RPC grants tested on a disposable Neon branch.
-- [ ] Real Neon Auth JWT verified against the Data API and mapped user ID.
-- [ ] Identity/RLS isolation tested with disposable user-owned rows and cross-user denial confirmed.
-- [ ] Neon practice API deployed with all runtime dependencies bundled.
-- [ ] API smoke test passes with a Neon Auth JWT; unauthorized requests rejected.
-- [ ] End-to-end practice flow writes and reads from Neon only.
-- [ ] Existing business rows and identity mapping counts reconciled.
-- [ ] GitHub Pages deployment verified by HTTP response and browser smoke tests.
-- [ ] Supabase retained as rollback source until the cutover is explicitly accepted.
-
-A deployed static page or an active database endpoint alone is not evidence that EDUNEXUS is live end-to-end.
+A successful static deployment or active database endpoint alone is not evidence that EDUNEXUS is live end-to-end.

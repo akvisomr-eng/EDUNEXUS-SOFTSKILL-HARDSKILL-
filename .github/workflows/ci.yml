@@ -18,11 +18,14 @@ jobs:
           test -f docs/DATABASE.md
           test -f docs/API.md
           test -f neon/migrations/0001_auth_identity_compat.sql
+          test -f neon/migrations/0002_trusted_practice_rpc.sql
           test -f neon/tests/0001_auth_identity_compat.sql
+          test -f neon/tests/0002_trusted_practice_rpc.sql
           test -f docs/NEON_CUTOVER.md
           grep -q "current_user_id" neon/migrations/0001_auth_identity_compat.sql
           grep -q "supabase_identity_migration" neon/migrations/0001_auth_identity_compat.sql
-          grep -q "ROLLBACK" neon/tests/0001_auth_identity_compat.sql
+          grep -q "SECURITY DEFINER" neon/migrations/0002_trusted_practice_rpc.sql
+          grep -q "finalize_my_practice_attempt" neon/tests/0002_trusted_practice_rpc.sql
           grep -q "41 public tables" docs/NEON_CUTOVER.md
           test -f supabase/migrations/0001_initial_foundation.sql
           test -f supabase/migrations/0002_rls_policy_design.sql
