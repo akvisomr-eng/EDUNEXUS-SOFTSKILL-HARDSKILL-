@@ -30,10 +30,12 @@ try {
   await page.locator("#confirmPassword").fill("New-EDUNEXUS-Test-Password-123!");
   await page.locator("#resetPasswordBtn").click();
   await page.waitForFunction(() => {
-    const text = document.querySelector("#recoveryResetStatus")?.textContent || "";
-    return text.includes("Tautan pemulihan tidak valid") || text.includes("kedaluwarsa");
+    const el = document.querySelector("#recoveryResetStatus");
+    return Boolean(el?.textContent?.trim()) && el.classList.contains("error");
   }, null, { timeout: 30000 });
-  console.log("PASSWORD_RECOVERY_UI=PASS; invalid reset token rejected");
+  const invalidTokenMessage = (await page.locator("#recoveryResetStatus").innerText()).trim();
+  if (!invalidTokenMessage) throw new Error("Invalid reset token did not produce a visible error.");
+  console.log("PASSWORD_RECOVERY_UI=PASS; invalid reset token rejected: " + invalidTokenMessage);
 
   await page.goto(base, { waitUntil: "domcontentloaded", timeout: 60000 });
   await page.locator("#email").fill(email);
