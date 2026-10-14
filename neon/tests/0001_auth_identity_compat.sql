@@ -33,7 +33,14 @@ BEGIN
   IF NOT has_function_privilege('authenticated', 'public.current_user_id()', 'EXECUTE') THEN
     RAISE EXCEPTION 'authenticated role must be able to execute current_user_id';
   END IF;
-  IF has_function_privilege('public', 'public.current_user_id()', 'EXECUTE') THEN
+  IF EXISTS (
+    SELECT 1
+    FROM pg_proc p
+    CROSS JOIN LATERAL aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner))) a
+    WHERE p.oid = 'public.current_user_id()'::regprocedure
+      AND a.grantee = 0
+      AND a.privilege_type = 'EXECUTE'
+  ) THEN
     RAISE EXCEPTION 'PUBLIC must not be able to execute current_user_id';
   END IF;
 END;
