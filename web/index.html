@@ -170,7 +170,7 @@ async function startPractice(scenario){
  $("practiceStatus").textContent="Menyiapkan sesi praktik…";
  const fields=scenario.instructions?.response_fields||[];
  $("practiceForm").innerHTML=fields.map(f=>'<div class="field"><label for="field_'+escapeHtml(f.key)+'">'+escapeHtml(f.label)+'</label><span class="muted">'+escapeHtml(f.prompt)+'</span><textarea id="field_'+escapeHtml(f.key)+'" data-key="'+escapeHtml(f.key)+'" rows="4" minlength="12" required></textarea></div>').join("")+'<div class="actions" style="margin-top:14px"><button id="submitPractice" type="submit">Kirim praktik</button></div>';
- $("submitPractice").disabled=false;
+ $("submitPractice").disabled=true;
  try{
   const session=await api("/practice_sessions",{method:"POST",body:JSON.stringify({user_id:state.businessUserId,scenario_id:scenario.id,status:"in_progress",attempt_number:1,metadata:{client:"edunexus-web",mode:"structured_response"}})});
   state.sessionId=session?.[0]?.id;
@@ -179,6 +179,8 @@ async function startPractice(scenario){
   state.attemptId=attempt?.[0]?.id;
   if(!state.attemptId)throw new Error("Server tidak mengembalikan ID attempt praktik.");
   $("practiceForm").dataset.attemptId=state.attemptId;
+  $("submitPractice").dataset.attemptId=state.attemptId;
+  $("submitPractice").disabled=false;
   setStatus($("practiceStatus"),"Sesi siap. Lengkapi seluruh jawaban lalu kirim.");
  }catch(e){setStatus($("practiceStatus"),e.message,true);$("practiceForm").querySelectorAll("textarea").forEach(x=>x.disabled=true);$("submitPractice").disabled=true}
 }
