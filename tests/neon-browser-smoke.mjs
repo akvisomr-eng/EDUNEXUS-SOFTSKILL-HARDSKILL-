@@ -54,8 +54,11 @@ try {
   console.log("SMOKE_CHECKS=" + JSON.stringify(checks));
   const required = [
     "JWT nyata dari Neon Auth",
+    "Profil sendiri dibuat aman",
     "RPC current_user_id",
     "Baca katalog praktik",
+    "Alur praktik dan finalisasi tepercaya",
+    "Bukti praktik sebagai kandidat",
     "RLS sesi praktik milik pengguna",
   ];
   for (const label of required) {
@@ -63,7 +66,7 @@ try {
     if (!row || !row.startsWith("LULUS")) failures.push(`Check failed: ${label}: ${row || "missing"}`);
   }
   if (failures.length) throw new Error(failures.join("\n"));
-  console.log("PASS: Neon Auth signup/signin, real JWT, identity RPC, catalog read and own-session RLS diagnostic.");
+  console.log("PASS: Neon Auth signup/signin, real JWT, profile provisioning, identity RPC, catalog, full practice finalization, candidate evidence and own-session RLS.");
 } catch (error) {
   console.error("BROWSER_SMOKE_FAILURE=" + (error?.stack || error));
   if (diagnostics.length) console.error("BROWSER_DIAGNOSTICS=\n" + diagnostics.join("\n"));
