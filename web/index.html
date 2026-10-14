@@ -134,6 +134,18 @@ footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
 <div><h3>Linimasa pengembangan</h3><div id="timelineList" class="list"><div class="muted">Memuat…</div></div></div>
 </div>
 </div>
+
+<div class="card" style="margin-top:18px" id="aiCoach">
+<div class="section-title"><div><div class="badge">EDUNEXUS MULTI-AGENT AI</div><h2>Asisten belajar EDUNEXUS</h2><p class="muted">Tanya tentang materi, latihan, soft skill, hard skill, praktik, atau arah karier. Jawaban bersumber dari korpus terkurasi; ini bukan pencarian web langsung.</p></div></div>
+<div id="aiHealth" class="status" role="status" aria-live="polite">Memeriksa layanan AI…</div>
+<form id="aiChatForm">
+<div class="field"><label for="aiMessage">Pertanyaan</label><textarea id="aiMessage" rows="3" maxlength="4000" placeholder="Contoh: bantu saya menyusun rencana belajar komunikasi profesional selama 2 minggu" required></textarea></div>
+<div class="actions"><button id="aiSendBtn" type="submit">Tanya EDUNEXUS</button><button id="aiClearBtn" class="secondary" type="button">Bersihkan jawaban</button></div>
+</form>
+<div id="aiAnswer" class="item" style="display:none;margin-top:14px;white-space:pre-wrap;line-height:1.65" aria-live="polite"></div>
+<div id="aiSources" class="list" style="margin-top:10px"></div>
+<div id="aiAgentStatus" class="muted" style="margin-top:8px;font-size:12px"></div>
+</div>
 </section>
 <footer>EDUNEXUS · Platform Kecerdasan & Pengembangan Keterampilan · GitHub + Neon</footer>
 </div>
@@ -402,6 +414,62 @@ $("goalForm").addEventListener("submit",async e=>{
  }catch(err){setStatus($("goalStatus"),err.message,true)}
  finally{$("saveGoalBtn").disabled=false}
 });
+const EDUNEXUS_AI_URL="https://br-bitter-king-azb11lde-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech";
+async function checkAiHealth(){
+ try{
+  const response=await fetch(EDUNEXUS_AI_URL+"/health",{signal:AbortSignal.timeout(10000)});
+  const data=await response.json();
+  if(!response.ok||!data.authConfigured)throw new Error("Layanan AI belum dapat diverifikasi.");
+  if(data.inferenceConfigured){
+   $("aiHealth").textContent="Layanan AI aktif. Jawaban akan dibuat oleh model dan spesialis terpilih.";
+   $("aiHealth").className="status ok";
+   $("aiSendBtn").disabled=false;
+  }else{
+   $("aiHealth").textContent="Runtime AI sudah terpasang, tetapi inference belum aktif karena secret MODEL_API_KEY belum dikonfigurasi oleh administrator.";
+   $("aiHealth").className="status error";
+   $("aiSendBtn").disabled=true;
+  }
+ }catch(e){
+  $("aiHealth").textContent="Status layanan AI belum dapat diverifikasi. Coba muat ulang atau hubungi administrator.";
+  $("aiHealth").className="status error";
+  $("aiSendBtn").disabled=true;
+ }
+}
+function renderAiSources(sources){
+ const host=$("aiSources");host.replaceChildren();
+ for(const source of (sources||[])){
+  const item=document.createElement("div");item.className="item";
+  const title=document.createElement("b");title.textContent="["+source.id+"] "+source.title;item.appendChild(title);
+  const link=document.createElement("a");link.href=source.url;link.target="_blank";link.rel="noopener noreferrer";link.textContent="Buka sumber";link.style.display="block";link.style.marginTop="6px";item.appendChild(link);
+  const tier=document.createElement("div");tier.className="muted";tier.textContent="Tingkat sumber: "+(source.trustTier||"tidak dinyatakan");item.appendChild(tier);
+  host.appendChild(item);
+ }
+}
+$("aiChatForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const message=$("aiMessage").value.trim();if(!message)return;
+ $("aiSendBtn").disabled=true;$("aiHealth").textContent="EDUNEXUS sedang memproses pertanyaan…";
+ $("aiAnswer").style.display="block";$("aiAnswer").textContent="Menyiapkan jawaban…";$("aiSources").replaceChildren();$("aiAgentStatus").textContent="";
+ try{
+  const token=await getJwtToken();
+  const response=await fetch(EDUNEXUS_AI_URL+"/chat",{method:"POST",signal:AbortSignal.timeout(55000),headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({message,locale:"Indonesia"})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.message||"Layanan AI belum tersedia (HTTP "+response.status+").");
+  $("aiAnswer").textContent=data.answer||"Belum ada jawaban.";
+  renderAiSources(data.sources);
+  $("aiAgentStatus").textContent="Spesialis: "+(data.agents||[]).map(a=>a.label).join(", ")+" · Retrieval: "+(data.retrieval||"—")+" · "+(data.sourceNotice||"");
+  $("aiHealth").textContent="Jawaban diterima.";
+  $("aiHealth").className="status ok";
+ }catch(err){
+  $("aiAnswer").textContent=String(err.message||err);
+  $("aiHealth").textContent="Permintaan AI belum berhasil.";
+  $("aiHealth").className="status error";
+ }finally{
+  $("aiSendBtn").disabled=$("aiHealth").textContent.includes("secret MODEL_API_KEY")||$("aiHealth").textContent.includes("belum dapat diverifikasi");
+ }
+});
+$("aiClearBtn").addEventListener("click",()=>{$("aiAnswer").style.display="none";$("aiAnswer").textContent="";$("aiSources").replaceChildren();$("aiAgentStatus").textContent="";$("aiMessage").value=""});
+checkAiHealth();
 async function loadApp(){
  $("auth").style.display="none";$("app").style.display="block";
  $("sessionBadge").textContent=state.user?.email||"Sudah masuk";
