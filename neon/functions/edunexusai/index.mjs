@@ -127,7 +127,7 @@ function checkRateLimit(userId) {
 }
 const STOPWORDS = new Set(["yang","dan","atau","dari","untuk","dengan","pada","dalam","ini","itu","saya","anda","kami","kita","bisa","bagaimana","apa","adalah","the","and","for","with","from","this","that","have","your","you","are"]);
 function terms(value) {
-  return new Set((String(value || "").toLowerCase().normalize("NFKD").replace(/[\\u0300-\\u036f]/g, "").match(/[a-z0-9]+/g) || []).filter((term) => term.length > 2 && !STOPWORDS.has(term)));
+  return new Set((String(value || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").match(/[a-z0-9]+/g) || []).filter((term) => term.length > 2 && !STOPWORDS.has(term)));
 }
 async function retrieveKnowledge(message) {
   const corpus = await knowledgePromise;
@@ -150,7 +150,7 @@ async function callModel({ message, agent, locale, knowledge }) {
   const sourceContext = knowledge.length
     ? knowledge.map((source, index) => "[S" + (index + 1) + "] " + source.title + "\nURL: " + source.url + "\nTrust tier: " + source.trust_tier + "\n" + source.text).join("\n\n")
     : "Tidak ada sumber korpus yang cocok untuk pertanyaan ini. Jangan mengarang sitasi atau menyatakan telah melakukan pencarian web.";
-  const response = await fetch(baseUrl.replace(/\\/$/, "") + "/chat/completions", {
+  const response = await fetch(baseUrl.replace(/\/$/, "") + "/chat/completions", {
     method: "POST",
     signal: AbortSignal.timeout(45_000),
     headers: { authorization: "Bearer " + apiKey, "content-type": "application/json" },
