@@ -2,7 +2,7 @@ name: Neon Browser Smoke Test
 
 on:
   push:
-    branches: ["feat/neon-production-cutover"]
+    branches: ["main", "feat/neon-production-cutover"]
   pull_request:
     branches: ["main"]
   workflow_dispatch:
