@@ -1,5 +1,5 @@
 {
-  "version": "edunexus-curated-knowledge-2026-10-14-v1",
+  "version": "edunexus-curated-knowledge-2026-10-14-v2",
   "retrieval": "lexical-overlap-v1",
   "chunks": [
     {
@@ -262,6 +262,221 @@
         "ai"
       ],
       "text": "Google documents an OpenAI-compatible Gemini API endpoint at https://generativelanguage.googleapis.com/v1beta/openai/ and says a Gemini API key is required. Model availability and limits vary by account and model; verify current pricing and rate limits before deployment. A free tier may have data-use terms unsuitable for sensitive learner information, so do not send personal or confidential learner data without an approved privacy review."
+    },
+    {
+      "id": "CURRICULUM-ID-KEMENDIKDASMEN",
+      "title": "Panduan Mata Pelajaran dan Capaian Pembelajaran Indonesia",
+      "url": "https://kurikulum.kemendikdasmen.go.id/panduan-mapel",
+      "publisher": "Kementerian Pendidikan Dasar dan Menengah RI",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "kurikulum",
+        "indonesia",
+        "capaian pembelajaran",
+        "mata pelajaran",
+        "modul ajar",
+        "ATP",
+        "fase",
+        "tujuan pembelajaran"
+      ],
+      "text": "Sumber resmi untuk panduan mata pelajaran dan penerjemahan Capaian Pembelajaran ke praktik kelas. Gunakan untuk memetakan fase, mata pelajaran, tujuan, aktivitas dan asesmen. Periksa dokumen terbaru sesuai jenjang dan fase; jangan menganggap materi generik EDUNEXUS sebagai dokumen resmi pemerintah."
+    },
+    {
+      "id": "CURRICULUM-ID-PUSKUR",
+      "title": "Pusat Kurikulum dan Pembelajaran: Panduan Asesmen dan Pembelajaran",
+      "url": "https://puskur.kemendikdasmen.go.id/",
+      "publisher": "Pusat Kurikulum dan Pembelajaran",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "asesmen",
+        "pembelajaran",
+        "formatif",
+        "sumatif",
+        "rapor",
+        "ATP",
+        "perencanaan pembelajaran"
+      ],
+      "text": "Portal resmi memuat panduan pembelajaran, asesmen, alur tujuan pembelajaran, pengolahan dan pelaporan hasil asesmen. Prinsip penting: asesmen memberi bukti untuk memperbaiki pembelajaran; gunakan rubrik transparan dan bukti kompetensi, bukan label kepribadian."
+    },
+    {
+      "id": "UNESCO-AI-STUDENT",
+      "title": "UNESCO AI Competency Framework for Students",
+      "url": "https://www.unesco.org/en/articles/ai-competency-framework-students",
+      "publisher": "UNESCO",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "ai",
+        "literasi ai",
+        "kompetensi siswa",
+        "etika ai",
+        "human centred",
+        "aplikasi ai",
+        "desain sistem ai"
+      ],
+      "text": "Kerangka UNESCO memetakan kompetensi AI siswa ke empat dimensi: pola pikir berpusat pada manusia, etika AI, teknik dan aplikasi AI, serta desain sistem AI. Progresi belajar: memahami, menerapkan, mencipta. Gunakan untuk tujuan belajar dan asesmen literasi AI yang berorientasi tanggung jawab."
+    },
+    {
+      "id": "UNESCO-AI-TEACHER",
+      "title": "UNESCO AI Competency Framework for Teachers",
+      "url": "https://www.unesco.org/en/articles/ai-competency-framework-teachers",
+      "publisher": "UNESCO",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "guru",
+        "pendidik",
+        "ai",
+        "pedagogi ai",
+        "etika",
+        "pengembangan profesional",
+        "kompetensi"
+      ],
+      "text": "Kerangka pendidik UNESCO memuat lima dimensi: pola pikir berpusat pada manusia, etika AI, fondasi dan aplikasi AI, pedagogi AI, dan pembelajaran profesional. Gunakan untuk pengembangan kompetensi guru; lakukan validasi konteks lokal dan jangan menganggap kerangka internasional menggantikan kebijakan nasional."
+    },
+    {
+      "id": "UNESCO-GENAI-EDUCATION",
+      "title": "Guidance for Generative AI in Education and Research",
+      "url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research",
+      "publisher": "UNESCO",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "generative ai",
+        "privasi",
+        "pendidikan",
+        "keselamatan",
+        "anak",
+        "human agency",
+        "tata kelola ai"
+      ],
+      "text": "Panduan UNESCO menekankan pendekatan human-centred, perlindungan privasi, kesiapan pedagogis dan kebijakan yang koheren untuk GenAI di pendidikan. Hindari mengirim data pribadi siswa ke provider tanpa dasar hukum, persetujuan dan pemeriksaan syarat pemrosesan data. AI membantu pendidik, bukan menggantikan tanggung jawab manusia."
+    },
+    {
+      "id": "OECD-LEARNING-COMPASS",
+      "title": "OECD Learning Compass 2030",
+      "url": "https://www.oecd.org/en/data/tools/oecd-learning-compass-2030.html",
+      "publisher": "OECD",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "agency",
+        "student agency",
+        "wellbeing",
+        "kompetensi",
+        "pengetahuan",
+        "sikap",
+        "nilai",
+        "learning compass"
+      ],
+      "text": "OECD Learning Compass 2030 adalah kerangka aspiratif untuk pendidikan masa depan yang menekankan agency pembelajar, kesejahteraan, pengetahuan, keterampilan, sikap dan nilai. Kerangka ini perlu dikontekstualisasikan; gunakan untuk merancang refleksi, pengambilan keputusan, kolaborasi dan transfer pembelajaran."
+    },
+    {
+      "id": "ESCO-API",
+      "title": "ESCO Skills, Competences, Qualifications and Occupations API",
+      "url": "https://esco.ec.europa.eu/en/use-esco/use-esco-services-api/esco-web-service-api",
+      "publisher": "European Commission",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "esco",
+        "skills",
+        "occupations",
+        "career",
+        "kompetensi",
+        "taksonomi",
+        "api"
+      ],
+      "text": "ESCO menyediakan klasifikasi multibahasa untuk keterampilan, kompetensi, kualifikasi dan pekerjaan melalui API web dan local API. Berguna untuk menghubungkan profil keterampilan ke peran kerja dan jalur belajar. Simpan versi dataset dan URI konsep agar perubahan versi dapat ditelusuri."
+    },
+    {
+      "id": "UNESCO-DIGITAL-LITERACY",
+      "title": "UNESCO Digital Literacy Global Framework",
+      "url": "https://www.uis.unesco.org/en/gaml/monitoring-framework",
+      "publisher": "UNESCO Institute for Statistics",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "literasi digital",
+        "digital literacy",
+        "informasi",
+        "komunikasi",
+        "pemecahan masalah",
+        "keamanan digital"
+      ],
+      "text": "Kerangka literasi digital global dikembangkan untuk membantu pengukuran kecakapan digital dan terkait dengan pemetaan kerangka DigComp serta berbagai negara. Gunakan sebagai referensi pengelompokan keterampilan informasi, komunikasi, penciptaan konten, keamanan dan pemecahan masalah, bukan sebagai satu-satunya standar penilaian."
+    },
+    {
+      "id": "MIT-OCW",
+      "title": "MIT OpenCourseWare — Open Educational Resources",
+      "url": "https://ocw.mit.edu/get-started/",
+      "publisher": "MIT OpenCourseWare",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "open courseware",
+        "kuliah terbuka",
+        "silabus",
+        "materi kuliah",
+        "oer",
+        "modul",
+        "latihan"
+      ],
+      "text": "MIT OCW menyediakan materi dari ribuan kursus, sering kali termasuk silabus, catatan, bacaan, tugas dan ujian. Materi MIT OCW memiliki ketentuan lisensi Creative Commons BY-NC-SA; penggunaan ulang dan adaptasi harus mematuhi nonkomersial, atribusi dan share-alike. Untuk produk komersial, gunakan hanya sebagai referensi kecuali izin dan lisensi sudah diverifikasi."
+    },
+    {
+      "id": "OPENSTAX-LICENSE",
+      "title": "OpenStax textbook licensing",
+      "url": "https://help.openstax.org/s/article/Openstax-textbook-licensing-and-customization",
+      "publisher": "OpenStax",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "open textbook",
+        "lisensi",
+        "cc by-nc-sa",
+        "materi terbuka",
+        "atribusi"
+      ],
+      "text": "Buku OpenStax menggunakan CC BY-NC-SA. Materi boleh digunakan dan diadaptasi untuk tujuan nonkomersial dengan atribusi dan share-alike, tetapi bukan untuk penggunaan komersial tanpa izin. EDUNEXUS dapat menautkan sumber dan membuat ringkasan orisinal; jangan menyalin teks penuh ke produk berbayar tanpa izin."
+    },
+    {
+      "id": "OWASP-LLM-TOP10",
+      "title": "OWASP Top 10 for Large Language Model Applications",
+      "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+      "publisher": "OWASP",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "llm",
+        "prompt injection",
+        "data leakage",
+        "ai security",
+        "tool use",
+        "rag",
+        "injection"
+      ],
+      "text": "OWASP mengidentifikasi risiko aplikasi LLM seperti prompt injection, penanganan output tidak aman, kebocoran informasi sensitif, ketergantungan berlebihan, dan risiko tool/plugin. Anggap konten web yang diambil sebagai data tidak tepercaya; pisahkan instruksi sistem dari dokumen sumber, batasi hak tool, validasi output, dan catat provenance."
+    },
+    {
+      "id": "OER-LICENSE-PRACTICE",
+      "title": "Praktik lisensi untuk konten pendidikan terbuka",
+      "url": "https://creativecommons.org/share-your-work/cclicenses/",
+      "publisher": "Creative Commons",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "creative commons",
+        "lisensi",
+        "oer",
+        "atribusi",
+        "reuse",
+        "share alike",
+        "noncommercial"
+      ],
+      "text": "Lisensi Creative Commons memiliki syarat berbeda terkait atribusi, penggunaan komersial, adaptasi dan berbagi serupa. Sebelum menyalin atau mengadaptasi materi, simpan URL, penulis/penerbit, lisensi, tanggal akses dan perubahan yang dilakukan. Jika lisensi tidak jelas, simpan metadata dan tautan saja sampai hak penggunaan dikonfirmasi."
     }
   ]
 }
