@@ -25,18 +25,22 @@ jobs:
       - name: Validate web app
         run: |
           test -f web/index.html
-          grep -q "SUPABASE_URL" web/index.html
-          grep -q "SUPABASE_KEY" web/index.html
-          grep -q "edunexus-health" web/index.html
+          grep -q "@neondatabase/auth@0.5.0-beta" web/index.html
+          grep -q "NEON_AUTH_URL" web/index.html
+          grep -q "DATA_API_URL" web/index.html
+          grep -q "ensure_my_profile" web/index.html
+          grep -q "finalize_my_practice_attempt" web/index.html
           grep -q "practice_scenarios" web/index.html
-          grep -q "edunexus-practice" web/index.html
           grep -q "Mulai praktik" web/index.html
+          ! grep -q "SUPABASE_URL" web/index.html
+          ! grep -q "SUPABASE_KEY" web/index.html
+          ! grep -q "supabase.co" web/index.html
           python - <<'PY'
           from pathlib import Path
           html=Path("web/index.html").read_text()
-          assert html.count("<script>") == 1
+          assert html.count('<script type="module">') == 1
           assert "</html>" in html
-          print("EDUNEXUS web smoke validation passed")
+          print("EDUNEXUS Neon frontend smoke validation passed")
           PY
 
   deploy:

@@ -1,0 +1,57 @@
+name: Neon Browser Smoke Test
+
+on:
+  push:
+    branches: ["feat/neon-production-cutover"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install browser test runner
+        run: npm install --no-save playwright
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Generate production-frontend fixture for disposable branch
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          page = Path("web/index.html").read_text()
+          page = page.replace(
+              "https://ep-curly-bread-azog8hfw.neonauth.c-3.ap-southeast-1.aws.neon.tech/neondb/auth",
+              "https://ep-autumn-dust-az7syu30.neonauth.c-3.ap-southeast-1.aws.neon.tech/neondb/auth",
+          )
+          page = page.replace(
+              "https://ep-curly-bread-azog8hfw.apirest.c-3.ap-southeast-1.aws.neon.tech/neondb/rest/v1",
+              "https://ep-autumn-dust-az7syu30.apirest.c-3.ap-southeast-1.aws.neon.tech/neondb/rest/v1",
+          )
+          if "ep-curly-bread-azog8hfw" in page:
+              raise SystemExit("Production endpoint remains in disposable frontend fixture")
+          Path("web/neon-preview.html").write_text(page)
+          print("Generated temporary frontend fixture for disposable Neon branch.")
+          PY
+      - name: Serve disposable Neon smoke pages
+        run: |
+          python3 -m http.server 4173 --directory . > /tmp/edunexus-smoke-http.log 2>&1 &
+          echo $! > /tmp/edunexus-smoke-http.pid
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/tests/fixtures/neon-cutover-smoke.html >/dev/null && curl --fail --silent http://127.0.0.1:4173/web/neon-preview.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/edunexus-smoke-http.log
+          exit 1
+      - name: Test Neon Auth, Data API and practice lifecycle
+        run: node tests/neon-browser-smoke.mjs
+      - name: Test production frontend against disposable Neon branch
+        run: node tests/neon-frontend-e2e.mjs
