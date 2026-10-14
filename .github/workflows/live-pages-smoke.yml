@@ -1,0 +1,36 @@
+name: EDUNEXUS Live Pages Smoke Test
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "web/**"
+      - ".github/workflows/live-pages-smoke.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "web/**"
+      - ".github/workflows/live-pages-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify published EDUNEXUS frontend
+        run: |
+          set -euo pipefail
+          URL="https://akvisomr-eng.github.io/EDUNEXUS-SOFTSKILL-HARDSKILL-/"
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error --max-time 15 "$URL" -o live.html; then break; fi
+            sleep 3
+          done
+          grep -q "EDUNEXUS" live.html
+          grep -q "EDUNEXUS MULTI-AGENT AI" live.html
+          grep -q "Mode basis pengetahuan aktif" live.html
+          grep -q "knowledgeVersion" live.html
+          echo "Published EDUNEXUS Pages contains the source-grounded assistant UI."
