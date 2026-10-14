@@ -38,7 +38,14 @@ try {
   await page.locator("#scenarios button[data-scenario]").first().click();
 
   await page.locator("#practice").waitFor({ state: "visible", timeout: 15000 });
-  const fields = page.locator("#practiceForm textarea[data-key]");
+  await page.waitForFunction(() => {
+    const status = document.querySelector("#practiceStatus");
+    return status?.textContent?.includes("Sesi siap") || status?.classList.contains("error");
+  }, null, { timeout: 45000 });
+  if (await page.locator("#practiceStatus").evaluate(el => el.classList.contains("error"))) {
+    throw new Error("Practice session creation failed: " + (await page.locator("#practiceStatus").innerText()));
+  }
+  const fields = page.locator("#practiceForm textarea[data-key");
   const fieldCount = await fields.count();
   if (fieldCount < 1) throw new Error("Practice scenario rendered no response fields.");
   for (let i = 0; i < fieldCount; i++) {
