@@ -49,10 +49,19 @@ async function signIn(){const email=$("email").value.trim(),password=$("password
 $("signup").addEventListener("click",async()=>{try{const email=$("email").value.trim(),password=$("password").value,name=$("name").value.trim()||"EDUNEXUS Test";if(!email||!password)throw new Error("Masukkan email dan kata sandi.");const r=await auth.signUp.email({email,password,name});if(r?.error)throw new Error(r.error.message||"Pendaftaran gagal.");show("authStatus","Pendaftaran berhasil pada branch uji. Silakan masuk.","ok")}catch(e){show("authStatus",errText(e),"err")}});
 $("signin").addEventListener("click",async()=>{try{await signIn()}catch(e){show("authStatus",errText(e),"err")}});
 $("signout").addEventListener("click",async()=>{try{await auth.signOut();activeUser=null;$("run").disabled=true;$("checkOther").disabled=true;show("authStatus","Keluar dari akun uji.");$("checks").replaceChildren()}catch(e){show("authStatus",errText(e),"err")}});
+async function getJwtToken(){
+ const getter=typeof auth.getJWTToken==="function"?auth.getJWTToken.bind(auth):(typeof auth.token==="function"?auth.token.bind(auth):null);
+ if(!getter)throw new Error("SDK tidak menyediakan getJWTToken/token; periksa versi Neon SDK.");
+ const result=await Promise.race([getter(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("Pengambilan JWT melewati batas waktu 12 detik.")),12000))]);
+ if(result?.error)throw new Error(result.error.message||"Gagal memperoleh JWT dari Neon Auth.");
+ const token=typeof result==="string"?result:(result?.data?.token||result?.token||(typeof result?.data==="string"?result.data:null));
+ if(!token)throw new Error("SDK tidak mengembalikan JWT; bentuk respons: "+JSON.stringify(result).slice(0,300));
+ return token;
+}
 async function api(path,token,options={}){return responseData(await fetch(DATA_URL+path,{...options,headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json",...(options.headers||{})}}))}
 function check(name,ok,detail){const el=document.createElement("div");el.className="check";el.textContent=(ok?"LULUS · ":"PERLU DITINJAU · ")+name+" — "+detail;$("checks").append(el)}
 $("run").addEventListener("click",async()=>{const root=$("checks");root.replaceChildren();$("run").disabled=true;try{
- const tokenResult=await auth.token();if(tokenResult?.error)throw new Error(tokenResult.error.message||"Gagal memperoleh JWT dari Neon Auth.");const token=tokenResult?.data?.token;if(!token)throw new Error("SDK tidak mengembalikan JWT; periksa konfigurasi Neon Auth.");
+ const token=await getJwtToken();
  const parts=token.split(".");check("JWT nyata dari Neon Auth",parts.length===3,"format JWT "+(parts.length===3?"terdeteksi":"tidak valid")); 
  const identity=await api("/rpc/current_user_id",token,{method:"POST",body:"{}"});
  const uid=typeof identity==="string"?identity:(Array.isArray(identity)?identity[0]:identity?.current_user_id);
@@ -64,7 +73,7 @@ $("run").addEventListener("click",async()=>{const root=$("checks");root.replaceC
  check("RLS sesi praktik milik pengguna",Array.isArray(rows)&&allOwned,(Array.isArray(rows)?rows.length:"?")+" baris terlihat; semua user_id cocok dengan identitas terpetakan: "+allOwned);
  show("isolation","Pemeriksaan awal selesai. Untuk membuktikan penolakan lintas akun, jalankan tes ID sesi akun kedua di bawah.","ok");
 }catch(e){check("Pemeriksaan gagal",false,errText(e));show("isolation","Pemeriksaan gagal; jangan anggap cutover lolos.","err")}finally{$("run").disabled=false}});
-$("checkOther").addEventListener("click",async()=>{try{const id=$("otherSession").value.trim();if(!id)throw new Error("Masukkan ID sesi uji dari akun kedua.");if(!/^[0-9a-f-]{36}$/i.test(id))throw new Error("Format UUID tidak valid.");const tokenResult=await auth.token();if(tokenResult?.error)throw new Error(tokenResult.error.message||"Gagal memperoleh JWT dari Neon Auth.");const token=tokenResult?.data?.token;if(!token)throw new Error("SDK tidak mengembalikan JWT; periksa konfigurasi Neon Auth.");const rows=await api("/practice_sessions?select=id,user_id&id=eq."+encodeURIComponent(id),token);const passed=Array.isArray(rows)&&rows.length===0;show("isolation",passed?"LULUS: API tidak mengembalikan sesi milik akun lain.":"GAGAL/PERLU DITINJAU: API mengembalikan "+(Array.isArray(rows)?rows.length:"respons non-daftar")+" baris untuk ID lintas akun.",passed?"ok":"err")}catch(e){show("isolation",errText(e),"err")}});
+$("checkOther").addEventListener("click",async()=>{try{const id=$("otherSession").value.trim();if(!id)throw new Error("Masukkan ID sesi uji dari akun kedua.");if(!/^[0-9a-f-]{36}$/i.test(id))throw new Error("Format UUID tidak valid.");const token=await getJwtToken();const rows=await api("/practice_sessions?select=id,user_id&id=eq."+encodeURIComponent(id),token);const passed=Array.isArray(rows)&&rows.length===0;show("isolation",passed?"LULUS: API tidak mengembalikan sesi milik akun lain.":"GAGAL/PERLU DITINJAU: API mengembalikan "+(Array.isArray(rows)?rows.length:"respons non-daftar")+" baris untuk ID lintas akun.",passed?"ok":"err")}catch(e){show("isolation",errText(e),"err")}});
 </script>
 </body>
 </html>
