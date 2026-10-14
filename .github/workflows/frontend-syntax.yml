@@ -1,0 +1,28 @@
+name: EDUNEXUS Frontend Syntax
+on:
+  push:
+    branches: ["main", "feat/**"]
+  pull_request:
+    branches: ["main"]
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Parse module script from HTML
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("web/index.html").read_text()
+          scripts = re.findall(r'<script type="module">(.*?)</script>', html, re.S)
+          assert len(scripts) == 1, f"expected one module script, found {len(scripts)}"
+          Path("/tmp/edunexus-frontend-check.mjs").write_text(scripts[0])
+          for marker in ("goalForm", "loadLearning", "loadDevelopment", "loadCatalog", "ensure_my_profile"):
+              assert marker in html, f"missing expected feature marker: {marker}"
+          print("Frontend module extracted; learner workflow markers present.")
+          PY
+          node --check /tmp/edunexus-frontend-check.mjs
