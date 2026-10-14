@@ -45,9 +45,26 @@ footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
 <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" required></div>
 <div class="field"><label for="password">Password</label><input id="password" type="password" minlength="8" autocomplete="current-password" required></div>
 <div class="actions"><button id="loginBtn" type="submit">Masuk</button><button id="signupBtn" class="secondary" type="button">Buat akun</button></div>
-<div id="authStatus" class="status"></div>
+<div id="authStatus" class="status" role="status" aria-live="polite"></div>
+<button id="forgotPasswordBtn" class="secondary" type="button">Lupa Password?</button>
 </form>
 </div>
+</section>
+
+<section id="recoveryPanel" class="card" style="display:none;margin-bottom:18px" aria-labelledby="recoveryTitle">
+<h2 id="recoveryTitle">Pemulihan akun EDUNEXUS</h2>
+<p id="recoveryDescription" class="muted">Masukkan email akun Anda. Jika akun tersedia, petunjuk pemulihan akan dikirimkan ke email tersebut.</p>
+<form id="recoveryRequestForm">
+<div class="field"><label for="recoveryEmail">Email akun</label><input id="recoveryEmail" type="email" autocomplete="email" required></div>
+<div class="actions"><button id="requestResetBtn" type="submit">Kirim tautan pemulihan</button><button id="recoveryBackBtn" class="secondary" type="button">Kembali ke login</button></div>
+<div id="recoveryRequestStatus" class="status" role="status" aria-live="polite"></div>
+</form>
+<form id="recoveryResetForm" style="display:none">
+<div class="field"><label for="newPassword">Kata sandi baru</label><input id="newPassword" type="password" minlength="8" autocomplete="new-password" required></div>
+<div class="field"><label for="confirmPassword">Ulangi kata sandi baru</label><input id="confirmPassword" type="password" minlength="8" autocomplete="new-password" required></div>
+<div class="actions"><button id="resetPasswordBtn" type="submit">Simpan kata sandi baru</button></div>
+<div id="recoveryResetStatus" class="status" role="status" aria-live="polite"></div>
+</form>
 </section>
 
 <section id="app">
@@ -99,9 +116,15 @@ const $=id=>document.getElementById(id);
 function setStatus(el,msg,error=false){el.textContent=localizeError(msg);el.className="status "+(error?"error":"ok")}
 function localizeStatus(status){const map={in_progress:"Sedang berlangsung",submitted:"Dikirim",completed:"Selesai",reviewed:"Ditinjau",cancelled:"Dibatalkan"};return map[status]||status}
 function localizeError(msg){
+ const raw=String(msg||"");
+ const lower=raw.toLowerCase();
+ if(lower.includes("invalid email or password")||lower.includes("invalid credentials")||lower.includes("invalid password")||lower.includes("email or password is incorrect")||lower.includes("invalid_email_or_password")){
+  return "Email atau kata sandi tidak valid. Jika akun dibuat sebelum migrasi ke Neon, kredensial lama mungkin belum tersedia di sistem baru. Coba Lupa Password; jika email pemulihan tidak diterima, hubungi administrator untuk pemulihan identitas akun.";
+ }
+ if(lower.includes("invalid token")||lower.includes("token expired")||lower.includes("expired token")||lower.includes("invalid_token")){
+  return "Tautan pemulihan tidak valid atau sudah kedaluwarsa. Minta tautan pemulihan baru.";
+ }
  const map={
-  "Invalid email or password":"Email atau kata sandi tidak valid.",
-  "Invalid password":"Kata sandi tidak valid.",
   "User already exists":"Email sudah terdaftar.",
   "User already registered":"Email sudah terdaftar.",
   "Password should be at least 8 characters":"Kata sandi minimal 8 karakter.",
@@ -111,7 +134,7 @@ function localizeError(msg){
   "API request failed":"Permintaan ke server gagal.",
   "Practice finalization failed":"Penyelesaian praktik gagal."
  };
- return map[msg]||msg;
+ return map[raw]||raw;
 }
 function escapeHtml(v){return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
 async function getJwtToken(forceRefresh=false){
@@ -237,11 +260,93 @@ $("signupBtn").addEventListener("click",async()=>{
   setStatus($("authStatus"),"Akun berhasil dibuat. Silakan masuk menggunakan email dan kata sandi Anda.");
  }catch(err){setStatus($("authStatus"),err.message,true)}
 });
+function showRecoveryRequest(){
+ $("auth").style.display="none";
+ $("app").style.display="none";
+ $("recoveryPanel").style.display="block";
+ $("recoveryRequestForm").style.display="grid";
+ $("recoveryResetForm").style.display="none";
+ $("recoveryTitle").textContent="Lupa Password";
+ $("recoveryDescription").textContent="Masukkan email akun Anda. Jika akun tersedia, petunjuk pemulihan akan dikirimkan ke email tersebut.";
+ $("recoveryRequestStatus").textContent="";
+ $("recoveryEmail").value=$("email").value.trim();
+}
+function showLogin(){
+ $("recoveryPanel").style.display="none";
+ $("auth").style.display="grid";
+ $("app").style.display="none";
+ const url=new URL(window.location.href);
+ url.searchParams.delete("token");
+ url.searchParams.delete("error");
+ window.history.replaceState({}, "", url.pathname+url.hash);
+}
+$("forgotPasswordBtn").addEventListener("click",showRecoveryRequest);
+$("recoveryBackBtn").addEventListener("click",showLogin);
+$("recoveryRequestForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const email=$("recoveryEmail").value.trim();
+ $("requestResetBtn").disabled=true;
+ setStatus($("recoveryRequestStatus"),"Memproses permintaan pemulihan…");
+ try{
+  if(typeof auth.requestPasswordReset!=="function")throw new Error("Fitur pemulihan kata sandi belum tersedia pada klien autentikasi. Silakan hubungi administrator.");
+  const redirectTo=window.location.origin+window.location.pathname;
+  const result=await auth.requestPasswordReset({email,redirectTo});
+  if(result?.error)throw result.error;
+  setStatus($("recoveryRequestStatus"),"Jika email tersebut terdaftar, petunjuk pemulihan akan dikirimkan. Periksa kotak masuk dan folder spam.");
+ }catch(err){
+  setStatus($("recoveryRequestStatus"),"Permintaan belum dapat diproses. Periksa koneksi lalu coba lagi. Jika masalah berlanjut, hubungi administrator.",true);
+  console.warn("EDUNEXUS password recovery request failed:",String(err?.message||err).slice(0,180));
+ }finally{$("requestResetBtn").disabled=false}
+});
+$("recoveryResetForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const token=new URLSearchParams(window.location.search).get("token");
+ const password=$("newPassword").value;
+ if(!token){setStatus($("recoveryResetStatus"),"Token pemulihan tidak ditemukan. Minta tautan pemulihan baru.",true);return}
+ if(password.length<8){setStatus($("recoveryResetStatus"),"Kata sandi minimal 8 karakter.",true);return}
+ if(password!==$("confirmPassword").value){setStatus($("recoveryResetStatus"),"Kedua kata sandi belum sama.",true);return}
+ $("resetPasswordBtn").disabled=true;
+ setStatus($("recoveryResetStatus"),"Menyimpan kata sandi baru…");
+ try{
+  if(typeof auth.resetPassword!=="function")throw new Error("Fitur reset kata sandi belum tersedia pada klien autentikasi.");
+  const result=await auth.resetPassword({newPassword:password,token});
+  if(result?.error)throw result.error;
+  setStatus($("recoveryResetStatus"),"Kata sandi berhasil diperbarui. Silakan masuk menggunakan kata sandi baru.");
+  $("recoveryResetForm").reset();
+  $("resetPasswordBtn").disabled=true;
+  const resetStatus=$("recoveryResetStatus");
+  const back=document.createElement("button");
+  back.type="button";back.className="secondary";back.textContent="Kembali ke login";
+  back.addEventListener("click",showLogin);
+  $("recoveryResetForm").appendChild(back);
+  $("recoveryTitle").textContent="Kata sandi diperbarui";
+  $("recoveryDescription").textContent="Akun Anda siap digunakan kembali.";
+ }catch(err){
+  setStatus($("recoveryResetStatus"),localizeError(err?.message||"Tautan pemulihan tidak valid atau sudah kedaluwarsa."),true);
+ }finally{$("resetPasswordBtn").disabled=false}
+});
+function initializeRecoveryRoute(){
+ const params=new URLSearchParams(window.location.search);
+ if(params.has("token")){
+  $("auth").style.display="none";
+  $("app").style.display="none";
+  $("recoveryPanel").style.display="block";
+  $("recoveryRequestForm").style.display="none";
+  $("recoveryResetForm").style.display="grid";
+  $("recoveryTitle").textContent="Buat kata sandi baru";
+  $("recoveryDescription").textContent="Gunakan kata sandi baru minimal 8 karakter.";
+ }else if(params.has("error")){
+  $("authStatus").textContent="Tautan autentikasi tidak valid atau sudah kedaluwarsa. Silakan minta tautan pemulihan baru.";
+  $("authStatus").className="status error";
+ }
+}
+initializeRecoveryRoute();
 $("logout").addEventListener("click",async()=>{
  try{await auth.signOut()}catch(_){}
  state.session=null;state.user=null;state.businessUserId=null;location.reload();
 });
 async function bootstrapSession(){
+ if(new URLSearchParams(window.location.search).has("token"))return;
  try{
   const result=await auth.getSession();
   if(result?.error)throw result.error;
