@@ -2,7 +2,7 @@
 
 ## Included in this release
 
-This release registers a curated set of public educational and skills-framework references, adds four original courses, eight modules and sixteen lessons, and extends the in-app source directory. It does not claim to crawl every internet source.
+This release registers a curated set of public educational and skills-framework references, adds four original courses, eight modules and sixteen lessons, and extends the in-app source directory. The multi-agent retrieval corpus now contains 51 curated chunks, including product baseline, agent/security guidance, external framework summaries, and original lesson summaries/exercises. It does not claim to crawl every internet source.
 
 ### Source handling
 
@@ -45,4 +45,4 @@ Each course has two modules and each module two lessons. Lessons contain summari
 
 ## Next stage for multi-agent AI
 
-This migration gives the agent system source metadata and original structured lesson content to retrieve through authenticated database access. It does not, by itself, turn on external model inference, full-text crawling, semantic embeddings, or the full 15-agent orchestration. Those require a verified server-side model provider, an ingestion pipeline, and evaluation/security tests.
+The deployed agent runtime uses a versioned curated knowledge file with lexical retrieval, JWT-verified caller authentication, specialist routing, source citations, request limits, and a retrieval-only mode when no model secret is configured. The 51-chunk corpus is available to the existing specialist agents. It does not, by itself, turn on external model inference, full-text crawling, semantic embeddings, or every planned role in the 15-agent architecture. Those require a verified server-side model provider, an ingestion pipeline, and evaluation/security tests.
