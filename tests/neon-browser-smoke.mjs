@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 
-const base = process.env.SMOKE_BASE_URL || "http://127.0.0.1:4173/neon-cutover-smoke.html";
+const base = process.env.SMOKE_BASE_URL || "http://127.0.0.1:4173/tests/fixtures/neon-cutover-smoke.html";
 const email = `edunexus-smoke-${Date.now()}-${Math.random().toString(16).slice(2)}@example.com`;
 const password = `N3on-Smoke-${Date.now()}!a`;
 const browser = await chromium.launch({ headless: true });
