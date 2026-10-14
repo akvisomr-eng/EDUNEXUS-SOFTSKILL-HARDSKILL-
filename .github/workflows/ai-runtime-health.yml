@@ -6,6 +6,11 @@ on:
     paths:
       - "neon/functions/edunexusai/**"
       - ".github/workflows/ai-runtime-health.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "neon/functions/edunexusai/**"
+      - ".github/workflows/ai-runtime-health.yml"
   workflow_dispatch:
 
 permissions:
