@@ -57,3 +57,27 @@ jobs:
           path: web
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify live Pages and Neon AI runtime
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          AI_URL: https://br-bitter-king-azb11lde-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error "$PAGE_URL" -o /tmp/edunexus-live.html; then break; fi
+            sleep 3
+          done
+          grep -q "EDUNEXUS" /tmp/edunexus-live.html
+          grep -q "EDUNEXUS MULTI-AGENT AI" /tmp/edunexus-live.html
+          curl --fail --silent --show-error "$AI_URL/health" -o /tmp/edunexus-ai-health.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("/tmp/edunexus-ai-health.json").read_text())
+          assert data.get("service") == "edunexus-ai", data
+          assert data.get("status") == "ok", data
+          assert data.get("authConfigured") is True, data
+          print("EDUNEXUS live Pages and authenticated AI runtime health: PASS")
+          if data.get("inferenceConfigured") is not True:
+              print("NOTICE: model inference is not configured; add MODEL_API_KEY as a server-side Neon Function secret.")
+          PY
