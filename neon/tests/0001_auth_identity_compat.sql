@@ -24,6 +24,21 @@ BEGIN
     RAISE EXCEPTION 'mapped identity mismatch: expected %, got %', v_legacy_user, v_actual;
   END IF;
 
+  -- Neon Data API may expose JWT claims as a JSON object rather than an individual sub setting.
+  PERFORM set_config('request.jwt.claim.sub', '', true);
+  PERFORM set_config('request.jwt.claims', json_build_object('sub', v_neon_user)::text, true);
+  SELECT auth.uid() INTO v_actual;
+  IF v_actual IS DISTINCT FROM v_legacy_user THEN
+    RAISE EXCEPTION 'JSON claims mapped identity mismatch: expected %, got %', v_legacy_user, v_actual;
+  END IF;
+
+  PERFORM set_config('request.jwt.claim.sub', '', true);
+  PERFORM set_config('request.jwt.claims', json_build_object('sub', v_probe)::text, true);
+  SELECT auth.uid() INTO v_actual;
+  IF v_actual IS DISTINCT FROM v_probe THEN
+    RAISE EXCEPTION 'JSON claims fallback mismatch: expected %, got %', v_probe, v_actual;
+  END IF;
+
   PERFORM set_config('request.jwt.claim.sub', v_probe::text, true);
   SELECT auth.uid() INTO v_actual;
   IF v_actual IS DISTINCT FROM v_probe THEN
