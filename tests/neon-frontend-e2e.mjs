@@ -20,6 +20,18 @@ try {
   if (!(await page.locator("#recoveryTitle").innerText()).includes("Lupa Password")) {
     throw new Error("Forgot-password panel did not open.");
   }
+  // A unique address with no account should get the generic response and send no email.
+  await page.locator("#recoveryEmail").fill(`edunexus-no-account-${Date.now()}@example.com`);
+  await page.locator("#requestResetBtn").click();
+  await page.waitForFunction(() => {
+    const text = document.querySelector("#recoveryRequestStatus")?.textContent || "";
+    return text.includes("Jika email tersebut terdaftar") || text.includes("Permintaan belum dapat diproses");
+  }, null, { timeout: 30000 });
+  const requestStatus = (await page.locator("#recoveryRequestStatus").innerText()).trim();
+  if (!requestStatus.includes("Jika email tersebut terdaftar")) {
+    throw new Error("Password reset request did not return the expected generic success response: " + requestStatus);
+  }
+  console.log("PASSWORD_RESET_REQUEST=PASS; generic response for nonexistent account");
   await page.locator("#recoveryBackBtn").click();
   await page.locator("#authForm").waitFor({ state: "visible", timeout: 10000 });
 
