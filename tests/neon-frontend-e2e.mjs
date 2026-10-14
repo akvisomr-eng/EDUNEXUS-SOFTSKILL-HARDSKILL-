@@ -7,6 +7,13 @@ const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext();
 const page = await context.newPage();
 const diagnostics = [];
+let observedJwt = null;
+page.on("request", request => {
+  if (request.url().includes("apirest.c-3.ap-southeast-1.aws.neon.tech") && !observedJwt) {
+    const authorization = request.headers().authorization || "";
+    if (authorization.startsWith("Bearer ") && authorization.split(".").length === 3) observedJwt = authorization.slice(7);
+  }
+});
 page.on("pageerror", error => diagnostics.push("PAGEERROR: " + error.message));
 page.on("console", msg => { if (msg.type() === "error") diagnostics.push("CONSOLE: " + msg.text()); });
 page.on("requestfailed", request => diagnostics.push("REQUEST FAILED: " + request.method() + " " + request.url() + " — " + (request.failure()?.errorText || "unknown")));
@@ -99,6 +106,20 @@ try {
   await page.locator("#completeLessonBtn").click();
   await page.waitForFunction(() => document.querySelector("#lessonProgressStatus")?.textContent.includes("Progres tersimpan: pelajaran selesai"), null, { timeout: 30000 });
   console.log("FRONTEND_LEARNING_WORKFLOW=PASS; enrolled, opened lesson, and persisted completion for " + lessonTitle);
+
+  if (!observedJwt) throw new Error("Could not capture authenticated test-branch JWT for AI runtime E2E.");
+  const aiResponse = await fetch("https://br-quiet-frost-azemctlk-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech/chat", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + observedJwt, "Content-Type": "application/json", "Origin": "https://akvisomr-eng.github.io" },
+    body: JSON.stringify({ message: "Jelaskan literasi AI yang bertanggung jawab dan cara memverifikasi hasil AI." }),
+    signal: AbortSignal.timeout(20000)
+  });
+  const aiData = await aiResponse.json().catch(() => ({}));
+  if (!aiResponse.ok) throw new Error("Authenticated EDUNEXUS knowledge retrieval failed: HTTP " + aiResponse.status + " " + JSON.stringify(aiData));
+  if (!aiData.answer || !Array.isArray(aiData.agents) || !Array.isArray(aiData.sources) || !aiData.mode.includes("retrieval")) {
+    throw new Error("AI runtime did not return grounded retrieval structure: " + JSON.stringify(aiData));
+  }
+  console.log("AI_KNOWLEDGE_RETRIEVAL=PASS; mode=" + aiData.mode + "; sources=" + aiData.sources.length + "; specialists=" + aiData.agents.length);
 
   await page.locator("#scenarios button[data-scenario]").first().click();
 

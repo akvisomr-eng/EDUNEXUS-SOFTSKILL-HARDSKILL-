@@ -56,10 +56,10 @@ test("curated knowledge corpus has source provenance and unique chunk ids", asyn
     assert.ok(chunk.title && chunk.url && chunk.text && chunk.trust_tier);
     assert.match(chunk.url, /^https:\/\//);
   }
-  for (const id of ["CURRICULUM-ID-KEMENDIKDASMEN","UNESCO-AI-STUDENT","UNESCO-GENAI-EDUCATION","ONET-SKILLS","ESCO-API","OWASP-LLM-TOP10"]) {
+  for (const id of ["CURRICULUM-ID-KEMENDIKDASMEN","UNESCO-AI-STUDENT","UNESCO-GENAI-EDUCATION","ONET-SKILLS","ESCO-API","OWASP-LLM-TOP10","CURR-AI-VERIFY","CURR-SECURE-PHISHING","CURR-CAREER-PORTFOLIO"]) {
     assert.ok(ids.includes(id), "missing expected knowledge source " + id);
   }
-  assert.equal(corpus.version, "edunexus-curated-knowledge-2026-10-14-v2");
+  assert.equal(corpus.version, "edunexus-curated-knowledge-2026-10-14-v3");
 });
 
 test("knowledge-only fallback is transparent and grounded in retrieved chunks", () => {

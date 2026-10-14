@@ -1,6 +1,6 @@
 {
-  "version": "2026-10-14",
-  "policy": "Curated public reference registry, not a claim of exhaustive internet ingestion. Store metadata and original summaries; fetch only where permitted. Verify each source/version/license before reuse.",
+  "version": "2026-10-14-v2",
+  "policy": "Curated public reference registry, not an exhaustive crawl. Source metadata and original EDUNEXUS lesson syntheses are indexed; full-text ingestion and embeddings are only claimed where explicitly verified. Check each source's license before reuse.",
   "sources": [
     {
       "id": "id-kurikulum-cp-atp",
@@ -262,6 +262,122 @@
         "knowledge_steward",
         "learning_designer",
         "hard_skill_tutor"
+      ]
+    },
+    {
+      "id": "oer-commons-curated",
+      "title": "OER Commons — Open Educational Resources",
+      "publisher": "Institute for the Study of Knowledge Management in Education",
+      "url": "https://www.oercommons.org/",
+      "domain": "sumber-belajar-terbuka",
+      "trust": "B",
+      "use": "Temukan materi pembelajaran berdasarkan jenjang, mata pelajaran, dan jenis sumber; verifikasi lisensi pada setiap item sebelum menggunakan ulang.",
+      "license": "Setiap item memiliki hak penggunaan berbeda; akses gratis tidak otomatis mengizinkan penyalinan atau adaptasi",
+      "agentRoles": [
+        "knowledge_steward",
+        "learning_designer"
+      ]
+    },
+    {
+      "id": "openlearn-courses",
+      "title": "OpenLearn — Free Courses",
+      "publisher": "The Open University",
+      "url": "https://www.open.edu/openlearn/free-courses",
+      "domain": "kursus-terbuka",
+      "trust": "B",
+      "use": "Temukan kursus dengan hasil belajar yang dinyatakan, termasuk keterampilan kerja dan belajar sepanjang hayat; gunakan sebagai referensi dan tautkan sumber aslinya.",
+      "license": "Banyak materi milik OU berlisensi CC BY-NC-SA; cek pembatasan setiap kursus dan materi pihak ketiga",
+      "agentRoles": [
+        "knowledge_steward",
+        "learning_designer",
+        "soft_skill_coach"
+      ]
+    },
+    {
+      "id": "khan-academy-terms",
+      "title": "Khan Academy — Content Use Guidance",
+      "publisher": "Khan Academy",
+      "url": "https://support.khanacademy.org/hc/en-us/articles/42929097425037-What-s-allowed-and-not-allowed-under-Khan-Academy-s-Terms-of-Service",
+      "domain": "hak-cipta-pembelajaran",
+      "trust": "A",
+      "use": "Metadata dan tautan penemuan saja. Kebijakan membatasi scraping, penyalinan komersial, dan penggunaan konten/data untuk melatih AI; jangan lakukan ingestion otomatis.",
+      "license": "Ikuti Terms of Service dan lisensi spesifik; minta izin untuk penggunaan di luar izin eksplisit",
+      "agentRoles": [
+        "knowledge_steward",
+        "safety_privacy_evaluation"
+      ]
+    },
+    {
+      "id": "esco-skills-api",
+      "title": "ESCO — Skills and Occupations API",
+      "publisher": "European Commission",
+      "url": "https://esco.ec.europa.eu/en/use-esco/use-esco-services-api",
+      "domain": "taksonomi-keterampilan",
+      "trust": "A",
+      "use": "Sumber API resmi untuk klasifikasi keterampilan dan pekerjaan multibahasa bagi pemetaan keterampilan dan karier.",
+      "license": "Simpan versi dan atribusi; tinjau ketentuan dataset dan API yang berlaku",
+      "agentRoles": [
+        "career_intelligence",
+        "knowledge_steward",
+        "development_mastery"
+      ]
+    },
+    {
+      "id": "onet-database",
+      "title": "O*NET Database",
+      "publisher": "National Center for O*NET Development",
+      "url": "https://www.onetcenter.org/database.html",
+      "domain": "taksonomi-keterampilan",
+      "trust": "A",
+      "use": "Referensi pekerjaan, keterampilan, kemampuan, aktivitas kerja, dan konteks pekerjaan; periksa edisi dataset sebelum integrasi.",
+      "license": "Tinjau lisensi/atribusi versi database yang digunakan",
+      "agentRoles": [
+        "career_intelligence",
+        "knowledge_steward"
+      ]
+    },
+    {
+      "id": "digcomp-framework",
+      "title": "DigComp — Digital Competence Framework",
+      "publisher": "European Commission Joint Research Centre",
+      "url": "https://joint-research-centre.ec.europa.eu/digcomp/digcomp-framework_en",
+      "domain": "literasi-digital",
+      "trust": "A",
+      "use": "Rujukan untuk literasi informasi/data, komunikasi digital, pembuatan konten, keamanan, dan pemecahan masalah.",
+      "license": "Periksa lisensi dan versi publikasi sebelum menyalin tabel atau materi",
+      "agentRoles": [
+        "learning_designer",
+        "hard_skill_tutor",
+        "assessment_rubric"
+      ]
+    },
+    {
+      "id": "mit-ocw-courses",
+      "title": "MIT OpenCourseWare",
+      "publisher": "Massachusetts Institute of Technology",
+      "url": "https://ocw.mit.edu/",
+      "domain": "kursus-terbuka",
+      "trust": "A",
+      "use": "Menelusuri silabus, bahan kuliah, tugas, dan struktur kursus untuk perencanaan pembelajaran; periksa lisensi per kursus.",
+      "license": "Banyak materi CC BY-NC-SA dan untuk nonkomersial; jangan menganggap semua materi berlisensi sama",
+      "agentRoles": [
+        "knowledge_steward",
+        "learning_designer",
+        "hard_skill_tutor"
+      ]
+    },
+    {
+      "id": "openstax-license-v2",
+      "title": "OpenStax — Textbook Licensing",
+      "publisher": "OpenStax / Rice University",
+      "url": "https://help.openstax.org/s/article/Licensing-information-of-OpenStax-textbooks",
+      "domain": "hak-cipta-pembelajaran",
+      "trust": "A",
+      "use": "Rujukan lisensi buku teks terbuka; tidak mengimpor isi buku secara massal.",
+      "license": "CC BY-NC-SA 4.0: nonkomersial, atribusi, dan share-alike; izin terpisah untuk penggunaan komersial",
+      "agentRoles": [
+        "knowledge_steward",
+        "safety_privacy_evaluation"
       ]
     }
   ]

@@ -8,7 +8,15 @@ const DEFAULT_APP_ORIGIN = "https://akvisomr-eng.github.io";
 const APP_PATH = "/EDUNEXUS-SOFTSKILL-HARDSKILL-/";
 let jwksCache = { expiresAt: 0, keys: [] };
 const requestCounts = new Map();
-const knowledgePromise = readFile(new URL("./knowledge.json", import.meta.url), "utf8").then((raw) => JSON.parse(raw)).catch(() => ({ version: "unavailable", chunks: [] }));
+const CORPUS_URL = process.env.KNOWLEDGE_CORPUS_URL || "https://akvisomr-eng.github.io/EDUNEXUS-SOFTSKILL-HARDSKILL-/knowledge-corpus.json";
+const knowledgePromise = readFile(new URL("./knowledge.json", import.meta.url), "utf8")
+  .then((raw) => JSON.parse(raw))
+  .catch(async () => {
+    const response = await fetch(CORPUS_URL, { headers: { accept: "application/json" }, signal: AbortSignal.timeout(10000) });
+    if (!response.ok) throw new Error("knowledge_corpus_unavailable");
+    return response.json();
+  })
+  .catch(() => ({ version: "unavailable", chunks: [] }));
 
 const AGENTS = {
   knowledge: {
