@@ -50,6 +50,14 @@ try {
     fields: [...form.querySelectorAll("textarea[data-key]")].map(field => ({key: field.dataset.key, length: field.value.length, valid: field.checkValidity()}))
   }));
   console.log("FRONTEND_FORM_VALIDITY=" + JSON.stringify(validity));
+  const buttonInfo = await page.locator("#submitPractice").evaluate(button => ({
+    type: button.type,
+    disabled: button.disabled,
+    formId: button.form?.id || null,
+    parentForm: button.closest("form")?.id || null,
+    formAttemptId: button.closest("form")?.dataset.attemptId || null
+  }));
+  console.log("FRONTEND_SUBMIT_BUTTON=" + JSON.stringify(buttonInfo));
   if (!validity.valid) throw new Error("Practice form invalid before submit: " + JSON.stringify(validity));
   await page.locator("#submitPractice").click();
   await page.waitForFunction(() => {
