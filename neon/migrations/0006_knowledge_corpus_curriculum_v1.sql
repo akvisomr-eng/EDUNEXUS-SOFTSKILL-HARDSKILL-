@@ -35,8 +35,8 @@ VALUES
 ('openstax-license','OpenStax Textbook Licensing','https://help.openstax.org/s/article/Licensing-information-of-OpenStax-textbooks','OpenStax / Rice University','A','CC BY-NC-SA 4.0; non-commercial, attribution and share-alike requirements.','License reference for rights-aware use of open textbooks.',now(),now(),now()),
 ('khan-academy-terms','Khan Academy Content Use Guidance','https://support.khanacademy.org/hc/en-us/articles/42929097425037-What-s-allowed-and-not-allowed-under-Khan-Academy-s-Terms-of-Service','Khan Academy','A','Metadata/link only; no scraping, copying or AI training on content under current terms.','Rights and restrictions that make bulk ingestion inappropriate without permission.',now(),now(),now()),
 ('oer-open-licensing','OER Licensing Guide','https://help.oercommons.org/support/solutions/articles/42000046846-introduction-to-oer','OER Commons Help Center','B','Per-resource license review is mandatory.','Distinguishes free access from open licenses that permit reuse and adaptation.',now(),now(),now())
-ON CONFLICT (source_key) DO UPDATE SET
- title=EXCLUDED.title,url=EXCLUDED.url,publisher=EXCLUDED.publisher,trust_tier=EXCLUDED.trust_tier,
+ON CONFLICT (url) DO UPDATE SET
+ title=EXCLUDED.title,publisher=EXCLUDED.publisher,trust_tier=EXCLUDED.trust_tier,
  license_note=EXCLUDED.license_note,summary=EXCLUDED.summary,reviewed_at=now(),updated_at=now();
 
 INSERT INTO public.programs(name,slug,description)
