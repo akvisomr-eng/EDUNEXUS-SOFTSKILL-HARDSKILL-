@@ -55,3 +55,5 @@ jobs:
         run: node tests/neon-browser-smoke.mjs
       - name: Test production frontend against disposable Neon branch
         run: node tests/neon-frontend-e2e.mjs
+      - name: Test two-account cross-session RLS isolation
+        run: node tests/neon-rls-isolation.mjs
