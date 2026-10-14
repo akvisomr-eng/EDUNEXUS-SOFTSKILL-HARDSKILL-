@@ -9,7 +9,7 @@
 - 41 public tables were inspected on production; all 41 currently have RLS enabled.
 - The Neon database contains 2 practice scenarios.
 - The identity migration table has one mapping, and the mapped Supabase and Neon user UUIDs differ.
-- Neon Function `edunexusapi` deployment 4 failed because the bundle could not resolve package `pg`; deployment 2 remains the active deployment.
+- Neon Function `edunexusapi` deployment 4 previously failed because the bundle could not resolve package `pg`; this unused function is not on the production frontend request path, which now uses Neon Data API directly.
 - GitHub Pages production frontend has been migrated to Neon Auth and Neon Data API; live Pages smoke test returned HTTP 200 and confirmed the Neon frontend markers with no Supabase endpoint reference.
 - Production migrations 0001–0004 were applied transactionally and the Neon Data API schema cache was refreshed. Supabase remains enabled only as a rollback source; it was not disabled.
 
