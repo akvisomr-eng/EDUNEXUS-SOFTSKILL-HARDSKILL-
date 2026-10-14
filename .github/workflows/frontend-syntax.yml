@@ -21,13 +21,18 @@ jobs:
           scripts = re.findall(r'<script type="module">(.*?)</script>', html, re.S)
           assert len(scripts) == 1, f"expected one module script, found {len(scripts)}"
           Path("/tmp/edunexus-frontend-check.mjs").write_text(scripts[0])
-          for marker in ("goalForm", "loadLearning", "loadDevelopment", "openLesson", "completeLesson", "Sumber dan bacaan lanjutan", "Catatan sumber dan lisensi", "knowledgeLibrary", "loadKnowledgeSources", "loadCatalog", "ensure_my_profile"):
+          for marker in ("goalForm", "loadLearning", "loadDevelopment", "openLesson", "completeLesson", "Sumber dan bacaan lanjutan", "Catatan sumber dan lisensi", "knowledgeLibrary", "knowledgeNotes", "loadKnowledgeSources", "loadCatalog", "ensure_my_profile"):
               assert marker in html, f"missing expected feature marker: {marker}"
-          for migration in ("neon/migrations/0005_initial_curriculum_seed.sql", "neon/migrations/0006_curated_open_curriculum.sql", "neon/migrations/0006_curated_knowledge_curriculum_v2.sql", "neon/migrations/0007_knowledge_source_registry.sql", "neon/migrations/0008_knowledge_lexical_search.sql", "supabase/migrations/20261014140000_initial_curriculum_seed.sql", "supabase/migrations/20261014150000_curated_open_curriculum.sql", "supabase/migrations/20261014170000_curated_knowledge_curriculum_v2.sql", "supabase/migrations/20261014180000_knowledge_source_registry.sql", "supabase/migrations/20261014190000_knowledge_lexical_search.sql"):
+          for migration in ("neon/migrations/0005_initial_curriculum_seed.sql", "neon/migrations/0006_curated_open_curriculum.sql", "neon/migrations/0006_curated_knowledge_curriculum_v2.sql", "neon/migrations/0007_knowledge_source_registry.sql", "neon/migrations/0008_knowledge_lexical_search.sql", "neon/migrations/0006_curated_knowledge_hub.sql", "supabase/migrations/20261014140000_initial_curriculum_seed.sql", "supabase/migrations/20261014150000_curated_open_curriculum.sql", "supabase/migrations/20261014170000_curated_knowledge_curriculum_v2.sql", "supabase/migrations/20261014180000_knowledge_source_registry.sql", "supabase/migrations/20261014190000_knowledge_lexical_search.sql", "supabase/migrations/20261015060000_curated_knowledge_hub.sql"):
               assert Path(migration).exists(), f"missing migration: {migration}"
           assert Path("docs/CURATED_OPEN_CURRICULUM.md").exists()
           assert Path("docs/EDUNEXUS_CURATED_KNOWLEDGE_CORPUS_V2.md").exists()
-          assert Path("web/knowledge-sources.json").exists()
-          print("Frontend module, source attribution UI, and curriculum migrations present.")
+          import json
+          corpus = json.loads(Path("web/knowledge-sources.json").read_text())
+          assert len(corpus.get("sources", [])) >= 28
+          assert len(corpus.get("knowledgeChunks", [])) >= 18
+          assert corpus.get("knowledgeStats", {}).get("fullTextDocumentsDownloaded") == 0
+          assert Path("docs/KNOWLEDGE_HUB_V3.md").exists()
+          print("Frontend, migrations, curated sources and knowledge notes validated.")
           PY
           node --check /tmp/edunexus-frontend-check.mjs
