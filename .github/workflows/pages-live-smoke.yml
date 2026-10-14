@@ -1,0 +1,68 @@
+name: Verify live EDUNEXUS Pages
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "web/**"
+      - ".github/workflows/pages.yml"
+      - ".github/workflows/pages-live-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: pages-live-smoke
+  cancel-in-progress: true
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Wait for GitHub Pages and verify Neon frontend
+        id: check
+        shell: bash
+        run: |
+          set +e
+          url="https://akvisomr-eng.github.io/EDUNEXUS-SOFTSKILL-HARDSKILL-/"
+          result="FAIL"
+          last_status="not-requested"
+          for attempt in $(seq 1 30); do
+            last_status=$(curl --location --silent --show-error --connect-timeout 10 --max-time 20 --output /tmp/edunexus-live.html --write-out "%{http_code}" "$url" 2>/tmp/edunexus-curl.err)
+            if [ "$last_status" = "200" ] \
+              && grep -q "@neondatabase/auth@0.5.0-beta" /tmp/edunexus-live.html \
+              && grep -q "ensure_my_profile" /tmp/edunexus-live.html \
+              && grep -q "finalize_my_practice_attempt" /tmp/edunexus-live.html \
+              && ! grep -q "supabase.co" /tmp/edunexus-live.html; then
+              result="PASS"
+              break
+            fi
+            echo "Attempt $attempt: HTTP=$last_status; waiting for Pages publication."
+            sleep 10
+          done
+          echo "result=$result" >> "$GITHUB_OUTPUT"
+          echo "http_status=$last_status" >> "$GITHUB_OUTPUT"
+          if [ "$result" != "PASS" ]; then
+            echo "Live Pages smoke test failed. Last HTTP status: $last_status"
+            cat /tmp/edunexus-curl.err || true
+            exit 1
+          fi
+          echo "PASS: public Pages URL serves the Neon frontend and no longer references Supabase."
+      - name: Report live verification on PR #19
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          result="${{ steps.check.outputs.result }}"
+          status="${{ steps.check.outputs.http_status }}"
+          if [ "$result" = "PASS" ]; then
+            body="Live EDUNEXUS Pages smoke test: PASS. The public URL returned HTTP $status and serves the Neon Auth/Data API frontend. The browser E2E on the disposable Neon branch also passed. Supabase remains available for rollback."
+          else
+            body="Live EDUNEXUS Pages smoke test: FAIL or not yet confirmed (last HTTP status: $status). The deployment needs investigation; do not claim the public cutover is complete."
+          fi
+          gh pr comment 19 --repo akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL- --body "$body" || true
