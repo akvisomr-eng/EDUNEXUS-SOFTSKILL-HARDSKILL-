@@ -29,6 +29,14 @@ jobs:
           AI_URL: https://br-quiet-frost-azemctlk-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech
         run: |
           node --input-type=module <<'NODE'
+          const corpusUrl = "https://akvisomr-eng.github.io/EDUNEXUS-SOFTSKILL-HARDSKILL-/knowledge-corpus.json";
+          const corpusResponse = await fetch(corpusUrl, { signal: AbortSignal.timeout(15000) });
+          if (!corpusResponse.ok) throw new Error("Published corpus HTTP " + corpusResponse.status);
+          const corpus = await corpusResponse.json();
+          if (!String(corpus.version).includes("v3") || !Array.isArray(corpus.chunks) || corpus.chunks.length < 51) {
+            throw new Error("Published corpus invalid: " + JSON.stringify({ version: corpus.version, chunks: corpus.chunks?.length }));
+          }
+          console.log("PUBLISHED_CORPUS=PASS; version=" + corpus.version + "; chunks=" + corpus.chunks.length);
           const base = process.env.AI_URL;
           const health = await fetch(base + "/health", { signal: AbortSignal.timeout(15000) });
           if (!health.ok) throw new Error("AI health HTTP " + health.status);
