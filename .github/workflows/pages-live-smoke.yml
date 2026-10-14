@@ -37,6 +37,9 @@ jobs:
               && grep -q "@neondatabase/auth@0.5.0-beta" /tmp/edunexus-live.html \
               && grep -q "ensure_my_profile" /tmp/edunexus-live.html \
               && grep -q "finalize_my_practice_attempt" /tmp/edunexus-live.html \
+              && grep -q "forgotPasswordBtn" /tmp/edunexus-live.html \
+              && grep -q "requestPasswordReset" /tmp/edunexus-live.html \
+              && grep -q "auth.resetPassword" /tmp/edunexus-live.html \
               && ! grep -q "supabase.co" /tmp/edunexus-live.html; then
               result="PASS"
               break
