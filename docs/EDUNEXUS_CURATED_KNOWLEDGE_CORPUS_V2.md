@@ -77,3 +77,7 @@ Migration `neon/migrations/0006_curated_knowledge_curriculum_v2.sql` is idempote
 - MIT OpenCourseWare terms: https://ocw.mit.edu/pages/privacy-and-terms-of-use/
 
 **Commercial-use note:** OpenStax and MIT OpenCourseWare materials use CC BY-NC-SA terms, so the content should not be copied/adapted into a commercial product without a separate permission path. EDUNEXUS only registers those sources as references and license guidance. CASEL and Skills Builder resources also require checking their own attribution/permission terms before reproducing detailed frameworks.
+
+## Querying the registry
+
+Migration `neon/migrations/0008_knowledge_lexical_search.sql` adds `public.search_edunexus_knowledge(search_query, max_results)`, a bounded lexical retrieval function over registered titles, publisher, domain, intended use, license notes, agent roles, and original editorial summaries. It is tested on the disposable Neon branch. It is **not vector search**, and because current source rows are `metadata_registered`, results must not be represented as full-text-ingested sources. The AI runtime still needs an explicit server-side integration to call this function before it can use these records in chat responses.
