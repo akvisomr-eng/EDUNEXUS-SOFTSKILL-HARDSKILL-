@@ -11,7 +11,7 @@
 <body>
 <div class="wrap">
 <h1>EDUNEXUS · Uji Migrasi Neon</h1>
-<p class="muted">Halaman diagnostik untuk branch pengujian saja. Tidak membuat atau mengubah data bisnis. Akun yang didaftarkan di sini hanya berada pada lingkungan auth branch pengujian.</p>
+<p class="muted">Halaman diagnostik untuk branch pengujian saja. Membuat akun uji, profil minimal, satu sesi dan satu attempt praktik, lalu menguji finalisasi serta bukti pada data branch pengujian. Jangan gunakan akun production.</p>
 <div class="card">
 <h2>1. Autentikasi</h2>
 <div class="field"><label for="email">Email akun uji</label><input id="email" type="email" autocomplete="email"></div>
@@ -56,20 +56,47 @@ async function getJwtToken(){
  if(typeof token!=="string"||token.split(".").length!==3)throw new Error("Sesi Neon Auth belum memuat JWT valid untuk Data API; bentuk sesi: "+JSON.stringify(result?.data?.session?{sessionKeys:Object.keys(result.data.session),user:result.data.user?.email}:result).slice(0,300));
  return token;
 }
-async function api(path,token,options={}){return responseData(await fetch(DATA_URL+path,{...options,headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json",...(options.headers||{})}}))}
+async function api(path,token,options={}){return responseData(await fetch(DATA_URL+path,{...options,headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json","Prefer":options.method==="POST"||options.method==="PATCH"?"return=representation":"",...(options.headers||{})}}))}
 function check(name,ok,detail){const el=document.createElement("div");el.className="check";el.textContent=(ok?"LULUS · ":"PERLU DITINJAU · ")+name+" — "+detail;$("checks").append(el)}
 $("run").addEventListener("click",async()=>{const root=$("checks");root.replaceChildren();$("run").disabled=true;try{
  const token=await getJwtToken();
- const parts=token.split(".");check("JWT nyata dari Neon Auth",parts.length===3,"format JWT "+(parts.length===3?"terdeteksi":"tidak valid")); 
+ const parts=token.split(".");check("JWT nyata dari Neon Auth",parts.length===3,"format JWT "+(parts.length===3?"terdeteksi":"tidak valid"));
+ const provisioned=await api("/rpc/ensure_my_profile",token,{method:"POST",body:"{}"});
+ const provisionedId=typeof provisioned==="string"?provisioned:(Array.isArray(provisioned)?provisioned[0]:provisioned?.ensure_my_profile);
+ check("Profil sendiri dibuat aman",!!provisionedId,String(provisionedId||"respons kosong"));
  const identity=await api("/rpc/current_user_id",token,{method:"POST",body:"{}"});
  const uid=typeof identity==="string"?identity:(Array.isArray(identity)?identity[0]:identity?.current_user_id);
- check("RPC current_user_id",!!uid,String(uid||"respons kosong"));
- const scenarios=await api("/practice_scenarios?select=id,title&status=eq.active&limit=5",token);
- check("Baca katalog praktik",Array.isArray(scenarios),Array.isArray(scenarios)?scenarios.length+" skenario terlihat":"respons bukan daftar");
+ check("RPC current_user_id",!!uid&&String(uid)===String(provisionedId),String(uid||"respons kosong"));
+ const scenarios=await api("/practice_scenarios?select=id,title,instructions&status=eq.active&limit=5",token);
+ check("Baca katalog praktik",Array.isArray(scenarios)&&scenarios.length>0,Array.isArray(scenarios)?scenarios.length+" skenario terlihat":"respons bukan daftar");
+ let finalResult=null, sessionId=null;
+ try {
+   const scenario=scenarios[0];
+   const createdSession=await api("/practice_sessions",token,{method:"POST",body:JSON.stringify({user_id:uid,scenario_id:scenario.id,status:"in_progress",attempt_number:1,metadata:{client:"edunexus-neon-smoke",purpose:"disposable-e2e"}})});
+   sessionId=createdSession?.[0]?.id;
+   if(!sessionId)throw new Error("API tidak mengembalikan ID sesi baru: "+JSON.stringify(createdSession).slice(0,200));
+   const createdAttempt=await api("/practice_attempts",token,{method:"POST",body:JSON.stringify({session_id:sessionId,user_id:uid,attempt_number:1,status:"in_progress",response:{}})});
+   const attemptId=createdAttempt?.[0]?.id;
+   if(!attemptId)throw new Error("API tidak mengembalikan ID attempt baru: "+JSON.stringify(createdAttempt).slice(0,200));
+   const fields=scenario.instructions?.response_fields||[];
+   const response=Object.fromEntries(fields.map(field=>[field.key,"Automated practice response for "+(field.label||field.key)+" with sufficient detail to validate the submission workflow."]));
+   if(fields.length===0)throw new Error("Skenario uji tidak memiliki response_fields.");
+   const submittedAt=new Date().toISOString();
+   await api("/practice_attempts?id=eq."+encodeURIComponent(attemptId),token,{method:"PATCH",body:JSON.stringify({response,status:"submitted",submitted_at:submittedAt})});
+   await api("/practice_sessions?id=eq."+encodeURIComponent(sessionId),token,{method:"PATCH",body:JSON.stringify({status:"submitted",submitted_at:submittedAt})});
+   finalResult=await api("/rpc/finalize_my_practice_attempt",token,{method:"POST",body:JSON.stringify({p_attempt_id:attemptId})});
+   const resultOk=finalResult?.status==="completed"&&typeof finalResult?.score==="number"&&Array.isArray(finalResult?.evidence);
+   check("Alur praktik dan finalisasi tepercaya",resultOk,"status="+String(finalResult?.status)+"; skor="+String(finalResult?.score)+"; bukti="+String(finalResult?.evidence?.length));
+   check("Bukti praktik sebagai kandidat",Array.isArray(finalResult?.evidence)&&finalResult.evidence.length>0,Array.isArray(finalResult?.evidence)?finalResult.evidence.length+" bukti kandidat":"respons bukti tidak valid");
+ } catch (practiceError) {
+   check("Alur praktik dan finalisasi tepercaya",false,errText(practiceError));
+   check("Bukti praktik sebagai kandidat",false,"finalisasi belum menghasilkan bukti");
+ }
  const rows=await api("/practice_sessions?select=id,user_id,status&limit=100",token);
  const allOwned=Array.isArray(rows)&&rows.every(r=>String(r.user_id)===String(uid));
- check("RLS sesi praktik milik pengguna",Array.isArray(rows)&&allOwned,(Array.isArray(rows)?rows.length:"?")+" baris terlihat; semua user_id cocok dengan identitas terpetakan: "+allOwned);
- show("isolation","Pemeriksaan awal selesai. Untuk membuktikan penolakan lintas akun, jalankan tes ID sesi akun kedua di bawah.","ok");
+ const ownSessionVisible=Array.isArray(rows)&&rows.some(r=>String(r.id)===String(sessionId)&&String(r.user_id)===String(uid)&&r.status==="completed");
+ check("RLS sesi praktik milik pengguna",Array.isArray(rows)&&allOwned&&ownSessionVisible,(Array.isArray(rows)?rows.length:"?")+" baris terlihat; sesi uji selesai terlihat dan semua user_id cocok: "+allOwned);
+ show("isolation","Alur uji selesai. Uji lintas akun tambahan tetap tersedia di bawah.","ok");
 }catch(e){check("Pemeriksaan gagal",false,errText(e));show("isolation","Pemeriksaan gagal; jangan anggap cutover lolos.","err")}finally{$("run").disabled=false}});
 $("checkOther").addEventListener("click",async()=>{try{const id=$("otherSession").value.trim();if(!id)throw new Error("Masukkan ID sesi uji dari akun kedua.");if(!/^[0-9a-f-]{36}$/i.test(id))throw new Error("Format UUID tidak valid.");const token=await getJwtToken();const rows=await api("/practice_sessions?select=id,user_id&id=eq."+encodeURIComponent(id),token);const passed=Array.isArray(rows)&&rows.length===0;show("isolation",passed?"LULUS: API tidak mengembalikan sesi milik akun lain.":"GAGAL/PERLU DITINJAU: API mengembalikan "+(Array.isArray(rows)?rows.length:"respons non-daftar")+" baris untuk ID lintas akun.",passed?"ok":"err")}catch(e){show("isolation",errText(e),"err")}});
 </script>
