@@ -21,6 +21,12 @@ jobs:
           test -f neon/migrations/0002_trusted_practice_rpc.sql
           test -f neon/migrations/0003_ensure_my_profile.sql
           test -f neon/migrations/0004_trusted_practice_score_transition.sql
+          test -f neon/migrations/0005_initial_curriculum_seed.sql
+          test -f neon/migrations/0006_knowledge_registry_curriculum_v2.sql
+          test -f supabase/migrations/20261014150000_knowledge_registry_curriculum_v2.sql
+          test -f knowledge/sources.json
+          test -f scripts/ingest-public-knowledge.mjs
+          test -f docs/KNOWLEDGE_INGESTION_AND_CURRICULUM_V2.md
           test -f neon/tests/0001_auth_identity_compat.sql
           test -f neon/tests/0002_trusted_practice_rpc.sql
           test -f neon/tests/0003_ensure_my_profile.sql
