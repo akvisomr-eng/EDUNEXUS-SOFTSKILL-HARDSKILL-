@@ -33,4 +33,14 @@ jobs:
           grep -q "EDUNEXUS MULTI-AGENT AI" live.html
           grep -q "Mode basis pengetahuan aktif" live.html
           grep -q "knowledgeVersion" live.html
-          echo "Published EDUNEXUS Pages contains the source-grounded assistant UI."
+          curl --fail --silent --show-error --max-time 15 "${URL}knowledge-sources.json" -o knowledge-sources.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("knowledge-sources.json").read_text())
+          sources = data.get("sources", [])
+          assert len(sources) >= 18, f"expected at least 18 curated sources, got {len(sources)}"
+          assert all(item.get("url", "").startswith("https://") for item in sources)
+          print(f"Published knowledge registry verified: {len(sources)} HTTPS sources")
+          PY
+          echo "Published EDUNEXUS Pages contains the source-grounded assistant UI and curated source registry."
