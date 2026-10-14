@@ -3,13 +3,13 @@
 ## What this slice implements
 
 - A Neon Function using the web-standard `fetch(Request) -> Response` contract.
-- `GET /health` reports whether authentication and inference configuration exist; it never exposes secret values.
+- `GET /health` reports authentication, knowledge corpus readiness/version/chunk count and inference configuration; it never exposes secret values.
 - `POST /chat` requires a Bearer JWT whose RS256 signature is checked against Neon Auth JWKS, checks expiry, applies an in-memory per-user request cap, validates request size, and allows only the EDUNEXUS Pages origin by default.
 - A small specialist registry routes a request to at most two bounded specialists in parallel.
 - The model provider is OpenAI-compatible and configured only through server-side environment variables.
-- Fail-closed behavior: absent model configuration returns HTTP 503; no fabricated answer is produced.
-- A small curated corpus of EDUNEXUS product/security guidance and official external source summaries is bundled with the function; lexical-overlap retrieval selects up to four chunks and responses expose source IDs/URLs.
-- Retrieval is lexical, not embedding/vector search, and the corpus is not dynamically ingested from the web.
+- When a model key is absent, `POST /chat` returns an explicitly labeled curated-retrieval-only answer with matched source summaries and links. It does not pretend that an LLM generated the answer. When a model key is configured, the same route invokes the selected specialist model.
+- A 24-chunk curated corpus of EDUNEXUS product/security guidance and external source summaries is deployed with the production function; lexical-overlap retrieval selects up to four chunks and responses expose source IDs/URLs.
+- Retrieval is lexical, not embedding/vector search. A public allowlist registry has 14 source records. A weekly metadata-only refresh job records public page title/description/HTTP metadata and opens a review PR; it does not copy full pages or auto-promote unreviewed text into the runtime corpus.
 
 ## Required server-side environment
 
@@ -24,12 +24,12 @@ Do not set `NEON_AUTH_ISSUER` by guessing. Verify it against a legitimate sessio
 
 ## Deploy
 
-1. Confirm the exact Neon project and target branch ID before any deployment. The tested deployment in this change was performed directly through Neon Functions and is scoped to the disposable test branch.
+1. Confirm the exact Neon project and target branch ID before any deployment. The production function has been deployed to project `holy-breeze-21216615`, branch `production` (`br-bitter-king-azb11lde`), and the live `/health` endpoint was verified by GitHub Actions.
 2. Configure the server-side secrets in a private local environment file ignored by Git.
 3. Use the current Neon CLI or Neon Functions management API to deploy `neon/functions/edunexusai/index.mjs` plus `knowledge.json` to a non-production branch first. The ZIP must place both files at its root; the runtime does not install npm dependencies.
 4. Test `GET /health`, invalid/no-token rejection, real signed-in request, provider failure, origin rejection, and usage caps.
-5. Only after tests pass and the exact target is confirmed, deploy to the intended production branch and verify the returned invocation URL.
-6. Wire the Pages frontend to the verified function URL in a separate change. Never put provider credentials in Pages JavaScript.
+5. Production function deployment #4 completed. The live health probe confirms `status=ok`, authentication configured, and corpus version `edunexus-curated-knowledge-2026-10-14-v2` with 24 chunks.
+6. The GitHub Pages frontend is wired to the production function. The live Pages smoke test passed and confirmed the source-only assistant UI is published. Never put provider credentials in Pages JavaScript.
 
 ## Rp0 provider candidate
 
@@ -38,7 +38,7 @@ Google documents an OpenAI-compatible Gemini API endpoint at `https://generative
 ## Limits / not yet implemented
 
 - This is a bounded specialist-routing runtime, not proof that all 15 architecture roles are live.
-- Automated web ingestion, source licensing/review UI, embeddings/vector or semantic search, corpus version approval workflow, persistent rate limits, usage budgets, and frontend chat UI are not implemented by this slice.
+- Automated full-text web ingestion, source licensing/review UI, embeddings/vector or semantic search, persistent rate limits, and durable usage budgets are not implemented. Current automation refreshes only public metadata and opens review PRs.
 - In-memory rate limits are per isolate and are only a safety floor, not a durable abuse-control system.
 - Do not use dark-web sources by default. Use lawful, public, licensed, verifiable sources and human approval before indexing.
-- A model provider and its secret must be configured before inference can work. No provider key is currently committed or assumed.
+- Production model inference is not yet configured because `MODEL_API_KEY` is absent. The source-only assistant works without that key; model-generated multi-agent answers require a provider key stored as a Neon Function secret. No provider key is committed or assumed.
