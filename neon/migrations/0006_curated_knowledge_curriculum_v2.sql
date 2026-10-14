@@ -45,12 +45,23 @@ ON CONFLICT (course_id,position) DO UPDATE SET name=EXCLUDED.name;
 
 INSERT INTO public.lessons (module_id,title,content,position)
 SELECT m.id,v.title,jsonb_build_object(
-'source_ids',CASE v.course_slug
- WHEN 'literasi-informasi-berpikir-kritis' THEN jsonb_build_array('id-kurikulum-cp-atp','id-akm','digcomp')
- WHEN 'literasi-digital-keamanan-data' THEN jsonb_build_array('digcomp','unesco-genai-guidance')
- WHEN 'kecerdasan-buatan-dasar-etika-praktik' THEN jsonb_build_array('unesco-ai-students','unesco-ai-teachers','unesco-genai-guidance')
- WHEN 'perencanaan-karier-portofolio-keterampilan' THEN jsonb_build_array('oecd-learning-compass','esco','onet')
- ELSE jsonb_build_array('unesco-genai-guidance') END,
+'sources',CASE v.course_slug
+ WHEN 'literasi-informasi-berpikir-kritis' THEN jsonb_build_array(
+  jsonb_build_object('title','Kurikulum Nasional: CP & ATP','url','https://guru.kemendikdasmen.go.id/kurikulum/referensi-penerapan/capaian-pembelajaran/','note','Rujukan konteks kurikulum Indonesia; materi EDUNEXUS tetap sintesis orisinal.'),
+  jsonb_build_object('title','Asesmen Kompetensi Minimum','url','https://pusmendik.kemdikbud.go.id/an/akm?j=2&l=1','note','Referensi literasi membaca dan numerasi.'),
+  jsonb_build_object('title','DigComp 2.2','url','https://pact-for-skills.ec.europa.eu/community-resources/publications-and-documents/digcomp-22-digital-competence-framework-citizens_en','note','Kerangka kompetensi digital internasional; dikontekstualisasikan.'))
+ WHEN 'literasi-digital-keamanan-data' THEN jsonb_build_array(
+  jsonb_build_object('title','DigComp 2.2','url','https://pact-for-skills.ec.europa.eu/community-resources/publications-and-documents/digcomp-22-digital-competence-framework-citizens_en','note','Kerangka kompetensi digital; bukan regulasi Indonesia.'),
+  jsonb_build_object('title','Panduan UNESCO tentang GenAI dalam pendidikan','url','https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research','note','Rujukan pendekatan berpusat pada manusia dan perlindungan data.'))
+ WHEN 'kecerdasan-buatan-dasar-etika-praktik' THEN jsonb_build_array(
+  jsonb_build_object('title','UNESCO AI Competency Framework for Students','url','https://www.unesco.org/en/articles/ai-competency-framework-students','note','Kerangka literasi AI untuk pembelajar; pelajaran ini merupakan adaptasi orisinal.'),
+  jsonb_build_object('title','UNESCO AI Competency Framework for Teachers','url','https://www.unesco.org/en/articles/ai-competency-framework-teachers','note','Kompetensi pendidik terkait AI dan pedagogi.'),
+  jsonb_build_object('title','Panduan UNESCO tentang GenAI dalam pendidikan','url','https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research','note','Privasi, validasi pedagogis, dan penggunaan AI yang bertanggung jawab.'))
+ WHEN 'perencanaan-karier-portofolio-keterampilan' THEN jsonb_build_array(
+  jsonb_build_object('title','OECD Learning Compass 2030','url','https://www.oecd.org/en/data/tools/oecd-learning-compass-2030.html','note','Kerangka kompetensi masa depan; bukan standar wajib Indonesia.'),
+  jsonb_build_object('title','ESCO','url','https://esco.ec.europa.eu/en/use-esco','note','Taksonomi keterampilan dan pekerjaan untuk referensi lintas negara.'),
+  jsonb_build_object('title','O*NET Content License','url','https://www.onetonline.org/help/license','note','Rujukan keterampilan dan pekerjaan; perhatikan atribusi dan lisensi.'))
+ ELSE jsonb_build_array(jsonb_build_object('title','Panduan UNESCO tentang GenAI dalam pendidikan','url','https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research','note','Rujukan umum.')) END,
 'summary',v.summary,'objectives',jsonb_build_array(v.objective),'sections',jsonb_build_array(jsonb_build_object('heading','Materi inti','body',v.body),jsonb_build_object('heading','Praktik yang disarankan','body',v.practice)),'exercise',v.exercise),v.lesson_position
 FROM (VALUES
 ('literasi-informasi-berpikir-kritis',1,1,'Membuat Pertanyaan Pencarian yang Tajam','Pertanyaan yang spesifik membantu menemukan sumber yang relevan dan mengurangi hasil yang tidak terkait.','Mengubah topik luas menjadi pertanyaan yang dapat dijawab dengan bukti.','Tentukan kebutuhan informasi, kata kunci utama dan sinonim, rentang waktu, jenis sumber, dan batasan geografis. Ulangi pencarian dengan istilah berbeda; simpan tanggal akses dan URL sumber.','Bandingkan hasil dari sumber resmi, penelitian, dan media. Periksa apakah masing-masing benar-benar menjawab pertanyaan.','Buat tiga kueri pencarian berbeda untuk memeriksa klaim tentang suatu keterampilan kerja.'),
