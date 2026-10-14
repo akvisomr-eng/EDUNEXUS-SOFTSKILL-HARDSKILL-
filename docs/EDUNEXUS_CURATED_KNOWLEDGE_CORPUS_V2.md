@@ -15,7 +15,7 @@
 
 ## Sources registered
 
-The machine-readable list is `web/knowledge-sources.json`. Each entry includes the canonical URL, publisher, trust tier, intended use, license caution, and agent roles.
+The machine-readable list is `web/knowledge-sources.json`. Each entry includes the canonical URL, publisher, trust tier, intended use, license caution, and agent roles. Migration `neon/migrations/0007_knowledge_source_registry.sql` registers the 18 source records in Neon with `ingestion_status=metadata_registered`; the matching Supabase migration is `supabase/migrations/20261014180000_knowledge_source_registry.sql`. The database registry stores metadata and original editorial summaries, not full source text.
 
 - Indonesia CP & ATP: https://guru.kemendikdasmen.go.id/kurikulum/referensi-penerapan/capaian-pembelajaran/
 - Indonesia subject guides: https://kurikulum.kemendikdasmen.go.id/panduan-mapel
