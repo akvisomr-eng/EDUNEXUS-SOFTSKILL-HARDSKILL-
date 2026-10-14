@@ -13,6 +13,31 @@ page.on("requestfailed", request => diagnostics.push("REQUEST FAILED: " + reques
 
 try {
   await page.goto(base, { waitUntil: "domcontentloaded", timeout: 60000 });
+
+  // Verify the forgot-password UI is reachable without sending an email.
+  await page.locator("#forgotPasswordBtn").click();
+  await page.locator("#recoveryRequestForm").waitFor({ state: "visible", timeout: 10000 });
+  if (!(await page.locator("#recoveryTitle").innerText()).includes("Lupa Password")) {
+    throw new Error("Forgot-password panel did not open.");
+  }
+  await page.locator("#recoveryBackBtn").click();
+  await page.locator("#authForm").waitFor({ state: "visible", timeout: 10000 });
+
+  // A deliberately invalid token must be rejected by Neon Auth on the disposable branch.
+  await page.goto(base + "?token=invalid-reset-token-for-e2e", { waitUntil: "domcontentloaded", timeout: 60000 });
+  await page.locator("#recoveryResetForm").waitFor({ state: "visible", timeout: 10000 });
+  await page.locator("#newPassword").fill("New-EDUNEXUS-Test-Password-123!");
+  await page.locator("#confirmPassword").fill("New-EDUNEXUS-Test-Password-123!");
+  await page.locator("#resetPasswordBtn").click();
+  await page.waitForFunction(() => {
+    const el = document.querySelector("#recoveryResetStatus");
+    return Boolean(el?.textContent?.trim()) && el.classList.contains("error");
+  }, null, { timeout: 30000 });
+  const invalidTokenMessage = (await page.locator("#recoveryResetStatus").innerText()).trim();
+  if (!invalidTokenMessage) throw new Error("Invalid reset token did not produce a visible error.");
+  console.log("PASSWORD_RECOVERY_UI=PASS; invalid reset token rejected: " + invalidTokenMessage);
+
+  await page.goto(base, { waitUntil: "domcontentloaded", timeout: 60000 });
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(password);
   await page.locator("#signupBtn").click();

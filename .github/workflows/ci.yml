@@ -33,6 +33,10 @@ jobs:
           grep -q "DATA_API_URL" web/index.html
           grep -q "ensure_my_profile" web/index.html
           grep -q "finalize_my_practice_attempt" web/index.html
+          grep -q "forgotPasswordBtn" web/index.html
+          grep -q "requestPasswordReset" web/index.html
+          grep -q "auth.resetPassword" web/index.html
+          grep -q "PASSWORD_RECOVERY_UI" tests/neon-frontend-e2e.mjs
           ! grep -q "SUPABASE_URL" web/index.html
           ! test -f web/neon-cutover-smoke.html
           python3 - <<'PY'
