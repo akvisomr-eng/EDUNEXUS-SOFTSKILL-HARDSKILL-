@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 
-const base = process.env.FRONTEND_BASE_URL || "http://127.0.0.1:4173/neon-preview.html";
+const base = process.env.FRONTEND_BASE_URL || "http://127.0.0.1:4173/web/neon-preview.html";
 const email = `edunexus-ui-${Date.now()}-${Math.random().toString(16).slice(2)}@example.com`;
 const password = `N3on-UI-${Date.now()}!a`;
 const browser = await chromium.launch({ headless: true });
