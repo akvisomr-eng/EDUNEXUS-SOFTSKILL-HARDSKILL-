@@ -72,6 +72,21 @@ try {
   await page.locator("#scenarios button[data-scenario]").first().waitFor({ state: "visible", timeout: 30000 });
   const scenarioTitle = await page.locator("#scenarios .item h3").first().innerText();
   console.log("FRONTEND_CATALOG_SCENARIO=" + scenarioTitle);
+
+  const goalTitle = "E2E goal " + Date.now();
+  await page.locator("#goalTitle").fill(goalTitle);
+  await page.locator("#goalDescription").fill("Tujuan uji untuk memverifikasi alur simpan dan penyelesaian tujuan pembelajar.");
+  await page.locator("#saveGoalBtn").click();
+  await page.waitForFunction((title) => document.querySelector("#goalsList")?.textContent.includes(title), goalTitle, { timeout: 30000 });
+  const goalCard = page.locator("#goalsList .item").filter({ hasText: goalTitle });
+  await goalCard.locator("button[data-complete-goal]").click();
+  await page.waitForFunction((title) => {
+    const item = [...document.querySelectorAll("#goalsList .item")].find((el) => el.textContent.includes(title));
+    return Boolean(item?.textContent.includes("Selesai")) && !item.querySelector("[data-complete-goal]");
+  }, goalTitle, { timeout: 30000 });
+  await page.waitForFunction(() => !document.querySelector("#learningStatus")?.textContent.includes("Memuat katalog"), null, { timeout: 30000 });
+  console.log("FRONTEND_GOAL_WORKFLOW=PASS; goal created and completed; learning catalog loaded");
+
   await page.locator("#scenarios button[data-scenario]").first().click();
 
   await page.locator("#practice").waitFor({ state: "visible", timeout: 15000 });
