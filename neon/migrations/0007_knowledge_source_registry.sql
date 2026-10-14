@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS public.knowledge_source_registry (
 ALTER TABLE public.knowledge_source_registry ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS knowledge_source_registry_public_read ON public.knowledge_source_registry;
 CREATE POLICY knowledge_source_registry_public_read ON public.knowledge_source_registry FOR SELECT USING (true);
-GRANT SELECT ON public.knowledge_source_registry TO anon, authenticated;
+GRANT SELECT ON public.knowledge_source_registry TO anonymous, authenticated;
 INSERT INTO public.knowledge_source_registry
 (source_id,title,publisher,canonical_url,domain,trust_tier,intended_use,license_notes,agent_roles,editorial_summary,registry_version,ingestion_status)
 VALUES
