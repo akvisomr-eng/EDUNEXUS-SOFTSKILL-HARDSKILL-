@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "policy": "Fetch only allowlisted public URLs, store page metadata and a short meta description; do not crawl restricted content or copy full pages.",
+  "sources": [
+    {
+      "key": "CURRICULUM-ID-KEMENDIKDASMEN",
+      "title": "Panduan Mata Pelajaran dan Capaian Pembelajaran Indonesia",
+      "url": "https://kurikulum.kemendikdasmen.go.id/panduan-mapel",
+      "publisher": "Kementerian Pendidikan Dasar dan Menengah RI",
+      "trust_tier": "A",
+      "license_note": "metadata and link; check per-document license before reuse"
+    },
+    {
+      "key": "CURRICULUM-ID-PUSKUR",
+      "title": "Pusat Kurikulum dan Pembelajaran",
+      "url": "https://puskur.kemendikdasmen.go.id/",
+      "publisher": "Pusat Kurikulum dan Pembelajaran",
+      "trust_tier": "A",
+      "license_note": "metadata and link; check per-document license before reuse"
+    },
+    {
+      "key": "UNESCO-AI-STUDENT",
+      "title": "AI Competency Framework for Students",
+      "url": "https://www.unesco.org/en/articles/ai-competency-framework-students",
+      "publisher": "UNESCO",
+      "trust_tier": "A",
+      "license_note": "summary and link; check publication license"
+    },
+    {
+      "key": "UNESCO-AI-TEACHER",
+      "title": "AI Competency Framework for Teachers",
+      "url": "https://www.unesco.org/en/articles/ai-competency-framework-teachers",
+      "publisher": "UNESCO",
+      "trust_tier": "A",
+      "license_note": "summary and link; check publication license"
+    },
+    {
+      "key": "UNESCO-GENAI-EDUCATION",
+      "title": "Guidance for Generative AI in Education and Research",
+      "url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research",
+      "publisher": "UNESCO",
+      "trust_tier": "A",
+      "license_note": "summary and link; privacy safeguards apply"
+    },
+    {
+      "key": "OECD-LEARNING-COMPASS",
+      "title": "OECD Learning Compass 2030",
+      "url": "https://www.oecd.org/en/data/tools/oecd-learning-compass-2030.html",
+      "publisher": "OECD",
+      "trust_tier": "A",
+      "license_note": "summary and link; check OECD terms"
+    },
+    {
+      "key": "ONET-SKILLS",
+      "title": "O*NET Database",
+      "url": "https://www.onetcenter.org/database.html",
+      "publisher": "U.S. Department of Labor ETA",
+      "trust_tier": "A",
+      "license_note": "CC BY 4.0 except noted; attribution and indicate changes"
+    },
+    {
+      "key": "ESCO-API",
+      "title": "ESCO Skills, Competences, Qualifications and Occupations API",
+      "url": "https://esco.ec.europa.eu/en/use-esco/use-esco-services-api/esco-web-service-api",
+      "publisher": "European Commission",
+      "trust_tier": "A",
+      "license_note": "retain dataset/API version and follow ESCO license"
+    },
+    {
+      "key": "UNESCO-DIGITAL-LITERACY",
+      "title": "Digital Literacy Global Framework",
+      "url": "https://www.uis.unesco.org/en/gaml/monitoring-framework",
+      "publisher": "UNESCO Institute for Statistics",
+      "trust_tier": "A",
+      "license_note": "summary and link; check publication license"
+    },
+    {
+      "key": "WCAG-22",
+      "title": "Web Content Accessibility Guidelines 2.2",
+      "url": "https://www.w3.org/TR/WCAG22/",
+      "publisher": "W3C",
+      "trust_tier": "A",
+      "license_note": "reference the W3C recommendation"
+    },
+    {
+      "key": "MIT-OCW",
+      "title": "MIT OpenCourseWare",
+      "url": "https://ocw.mit.edu/get-started/",
+      "publisher": "MIT OpenCourseWare",
+      "trust_tier": "B",
+      "license_note": "CC BY-NC-SA; noncommercial, attribution, share-alike"
+    },
+    {
+      "key": "OPENSTAX-LICENSE",
+      "title": "OpenStax textbook licensing",
+      "url": "https://help.openstax.org/s/article/Openstax-textbook-licensing-and-customization",
+      "publisher": "OpenStax",
+      "trust_tier": "B",
+      "license_note": "CC BY-NC-SA; no commercial reuse without permission"
+    },
+    {
+      "key": "OWASP-LLM-TOP10",
+      "title": "OWASP Top 10 for Large Language Model Applications",
+      "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+      "publisher": "OWASP",
+      "trust_tier": "A",
+      "license_note": "security summary and link"
+    },
+    {
+      "key": "OER-LICENSE-PRACTICE",
+      "title": "Creative Commons licenses",
+      "url": "https://creativecommons.org/share-your-work/cclicenses/",
+      "publisher": "Creative Commons",
+      "trust_tier": "A",
+      "license_note": "follow each license's specific conditions"
+    }
+  ]
+}

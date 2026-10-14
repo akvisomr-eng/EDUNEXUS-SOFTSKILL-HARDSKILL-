@@ -54,4 +54,8 @@ test("curated knowledge corpus has source provenance and unique chunk ids", asyn
     assert.ok(chunk.title && chunk.url && chunk.text && chunk.trust_tier);
     assert.match(chunk.url, /^https:\/\//);
   }
+  for (const id of ["CURRICULUM-ID-KEMENDIKDASMEN","UNESCO-AI-STUDENT","UNESCO-GENAI-EDUCATION","ONET-SKILLS","ESCO-API","OWASP-LLM-TOP10"]) {
+    assert.ok(ids.includes(id), "missing expected knowledge source " + id);
+  }
+  assert.equal(corpus.version, "edunexus-curated-knowledge-2026-10-14-v2");
 });

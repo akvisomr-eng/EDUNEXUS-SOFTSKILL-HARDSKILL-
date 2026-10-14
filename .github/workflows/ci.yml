@@ -21,6 +21,14 @@ jobs:
           test -f neon/migrations/0002_trusted_practice_rpc.sql
           test -f neon/migrations/0003_ensure_my_profile.sql
           test -f neon/migrations/0004_trusted_practice_score_transition.sql
+          test -f neon/migrations/0005_initial_curriculum_seed.sql
+          test -f neon/migrations/0007_knowledge_registry_curriculum_v2.sql
+          test -f supabase/migrations/20261014170000_knowledge_registry_curriculum_v2.sql
+          test -f knowledge/sources.json
+          test -f scripts/ingest-public-knowledge.mjs
+          test -f docs/KNOWLEDGE_INGESTION_AND_CURRICULUM_V2.md
+          node --check scripts/ingest-public-knowledge.mjs
+          node -e "const r=require('./knowledge/sources.json'); if(r.sources.length < 10) process.exit(1); const urls=r.sources.map(s=>s.url); if(new Set(urls).size!==urls.length) process.exit(1); console.log('Public source registry validated:', r.sources.length)"
           test -f neon/tests/0001_auth_identity_compat.sql
           test -f neon/tests/0002_trusted_practice_rpc.sql
           test -f neon/tests/0003_ensure_my_profile.sql

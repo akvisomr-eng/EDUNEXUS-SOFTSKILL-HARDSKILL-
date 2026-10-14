@@ -1,0 +1,35 @@
+name: EDUNEXUS Public Knowledge Metadata Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Fetch allowlisted public metadata only
+        run: node scripts/ingest-public-knowledge.mjs
+      - name: Open reviewable update PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: automation/knowledge-source-refresh
+          delete-branch: true
+          commit-message: "chore(knowledge): refresh public source metadata"
+          title: "chore(knowledge): refresh public source metadata"
+          body: |
+            Automated weekly refresh of allowlisted public-source metadata only.
+            No full page text is stored. Review source identity, redirects, license notes and any metadata changes before integrating them into the AI corpus.
+          add-paths: |
+            knowledge/source-snapshots.json
