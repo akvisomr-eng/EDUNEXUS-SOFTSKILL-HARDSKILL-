@@ -50,12 +50,10 @@ $("signup").addEventListener("click",async()=>{try{const email=$("email").value.
 $("signin").addEventListener("click",async()=>{try{await signIn()}catch(e){show("authStatus",errText(e),"err")}});
 $("signout").addEventListener("click",async()=>{try{await auth.signOut();activeUser=null;$("run").disabled=true;$("checkOther").disabled=true;show("authStatus","Keluar dari akun uji.");$("checks").replaceChildren()}catch(e){show("authStatus",errText(e),"err")}});
 async function getJwtToken(){
- const getter=typeof auth.getJWTToken==="function"?auth.getJWTToken.bind(auth):null;
- if(!getter)throw new Error("SDK browser tidak menyediakan getJWTToken(); periksa versi Neon Auth.");
- const result=await Promise.race([getter(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("Pengambilan JWT melewati batas waktu 12 detik.")),12000))]);
- if(result?.error)throw new Error(result.error.message||"Gagal memperoleh JWT dari Neon Auth.");
- const token=typeof result==="string"?result:(result?.data?.token||result?.token);
- if(typeof token!=="string"||token.split(".").length!==3)throw new Error("getJWTToken() tidak mengembalikan JWT valid: "+JSON.stringify(result).slice(0,300));
+ const result=await Promise.race([auth.getSession(),new Promise((_,reject)=>setTimeout(()=>reject(new Error("Pengambilan sesi/JWT melewati batas waktu 12 detik.")),12000))]);
+ if(result?.error)throw new Error(result.error.message||"Gagal membaca sesi Neon Auth.");
+ const token=result?.data?.session?.token||result?.session?.token;
+ if(typeof token!=="string"||token.split(".").length!==3)throw new Error("Sesi Neon Auth belum memuat JWT valid untuk Data API; bentuk sesi: "+JSON.stringify(result?.data?.session?{sessionKeys:Object.keys(result.data.session),user:result.data.user?.email}:result).slice(0,300));
  return token;
 }
 async function api(path,token,options={}){return responseData(await fetch(DATA_URL+path,{...options,headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json",...(options.headers||{})}}))}
