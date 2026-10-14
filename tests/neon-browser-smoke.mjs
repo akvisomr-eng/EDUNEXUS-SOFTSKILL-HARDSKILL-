@@ -45,7 +45,10 @@ try {
     .catch(async error => { throw new Error("Neon Auth sign-in did not succeed: " + (await page.locator("#authStatus").innerText()) + "\n" + error.message); });
 
   await page.locator("#run").click();
-  await page.locator("#checks .check").nth(3).waitFor({ timeout: 45000 });
+  await page.waitForFunction(() => {
+    const rows = [...document.querySelectorAll("#checks .check")];
+    return rows.length >= 4 || rows.some(row => row.textContent.includes("Pemeriksaan gagal"));
+  }, null, { timeout: 20000 });
 
   const checks = await page.locator("#checks .check").allTextContents();
   console.log("SMOKE_CHECKS=" + JSON.stringify(checks));
