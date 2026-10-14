@@ -17,6 +17,11 @@ jobs:
           test -f docs/ARCHITECTURE.md
           test -f docs/DATABASE.md
           test -f docs/API.md
+          test -f neon/migrations/0001_auth_identity_compat.sql
+          test -f docs/NEON_CUTOVER.md
+          grep -q "current_user_id" neon/migrations/0001_auth_identity_compat.sql
+          grep -q "supabase_identity_migration" neon/migrations/0001_auth_identity_compat.sql
+          grep -q "41 public tables" docs/NEON_CUTOVER.md
           test -f supabase/migrations/0001_initial_foundation.sql
           test -f supabase/migrations/0002_rls_policy_design.sql
           test -f supabase/migrations/0003_identity_membership_rls_baseline.sql
@@ -50,4 +55,4 @@ jobs:
           grep -q "ingest_simulation_evidence" supabase/migrations/0014_practice_simulation_evidence_workflows.sql
           grep -q "service_role" supabase/migrations/0012_practice_attempt_trusted_scoring.sql
           grep -q "service_role" supabase/migrations/0013_simulation_trusted_result.sql
-          echo "EDUNEXUS foundation, security baseline, and learning core files present"
+          echo "EDUNEXUS foundation, security baseline, and Neon cutover checks passed"
