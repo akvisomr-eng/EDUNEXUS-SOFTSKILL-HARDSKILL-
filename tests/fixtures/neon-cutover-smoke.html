@@ -28,7 +28,7 @@
 <div class="field"><label for="otherSession">ID sesi uji milik akun kedua (opsional)</label><input id="otherSession" placeholder="UUID sesi yang dibuat akun uji kedua"></div>
 <button id="checkOther" class="secondary" disabled>Uji isolasi lintas akun</button>
 <p class="muted">Untuk uji dua akun, masuk dengan akun A dan catat ID sesi milik akun B yang dibuat terpisah pada branch uji. Permintaan filter ID harus mengembalikan nol baris untuk akun A. Jangan gunakan ID atau akun production.</p>
-<div id="isolation" class="status">Uji isolasi belum dijalankan.</div>
+<div id="createdSessionId" class="status">ID sesi akun ini belum tersedia.</div><div id="isolation" class="status">Uji isolasi belum dijalankan.</div>
 </div>
 <div class="card">
 <h2>Konfigurasi yang diuji</h2>
@@ -74,6 +74,7 @@ $("run").addEventListener("click",async()=>{const root=$("checks");root.replaceC
    const scenario=scenarios[0];
    const createdSession=await api("/practice_sessions",token,{method:"POST",body:JSON.stringify({user_id:uid,scenario_id:scenario.id,status:"in_progress",attempt_number:1,metadata:{client:"edunexus-neon-smoke",purpose:"disposable-e2e"}})});
    sessionId=createdSession?.[0]?.id;
+   if(sessionId)show("createdSessionId",sessionId,"ok");
    if(!sessionId)throw new Error("API tidak mengembalikan ID sesi baru: "+JSON.stringify(createdSession).slice(0,200));
    const createdAttempt=await api("/practice_attempts",token,{method:"POST",body:JSON.stringify({session_id:sessionId,user_id:uid,attempt_number:1,status:"in_progress",response:{}})});
    const attemptId=createdAttempt?.[0]?.id;
