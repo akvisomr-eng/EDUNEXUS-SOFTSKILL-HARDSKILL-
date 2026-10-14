@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import handler from "../neon/functions/edunexusai/index.mjs";
+import handler, { buildKnowledgeOnlyAnswer } from "../neon/functions/edunexusai/index.mjs";
 
 test("health endpoint exposes configuration state without secrets", async () => {
   const response = await handler.fetch(new Request("https://example.test/health"));
@@ -9,6 +9,8 @@ test("health endpoint exposes configuration state without secrets", async () => 
   const data = await response.json();
   assert.equal(data.service, "edunexus-ai");
   assert.equal(typeof data.inferenceConfigured, "boolean");
+  assert.equal(data.knowledgeConfigured, true);
+  assert.ok(data.knowledgeChunks >= 20);
   assert.equal("apiKey" in data, false);
 });
 
@@ -58,4 +60,12 @@ test("curated knowledge corpus has source provenance and unique chunk ids", asyn
     assert.ok(ids.includes(id), "missing expected knowledge source " + id);
   }
   assert.equal(corpus.version, "edunexus-curated-knowledge-2026-10-14-v2");
+});
+
+test("knowledge-only fallback is transparent and grounded in retrieved chunks", () => {
+  const answer = buildKnowledgeOnlyAnswer([{ title: "UNESCO AI Framework", text: "Verify AI outputs and protect learner privacy." }]);
+  assert.match(answer, /tanpa model generatif/i);
+  assert.match(answer, /UNESCO AI Framework/);
+  assert.match(answer, /protect learner privacy/);
+  assert.match(buildKnowledgeOnlyAnswer([]), /tidak dibuat-buat/i);
 });
