@@ -21,8 +21,10 @@ jobs:
           scripts = re.findall(r'<script type="module">(.*?)</script>', html, re.S)
           assert len(scripts) == 1, f"expected one module script, found {len(scripts)}"
           Path("/tmp/edunexus-frontend-check.mjs").write_text(scripts[0])
-          for marker in ("goalForm", "loadLearning", "loadDevelopment", "loadCatalog", "ensure_my_profile"):
+          for marker in ("goalForm", "loadLearning", "loadDevelopment", "openLesson", "completeLesson", "loadCatalog", "ensure_my_profile"):
               assert marker in html, f"missing expected feature marker: {marker}"
-          print("Frontend module extracted; learner workflow markers present.")
+          assert Path("neon/migrations/0005_initial_curriculum_seed.sql").exists()
+          assert Path("supabase/migrations/20261014140000_initial_curriculum_seed.sql").exists()
+          print("Frontend module and curriculum migration markers present.")
           PY
           node --check /tmp/edunexus-frontend-check.mjs
