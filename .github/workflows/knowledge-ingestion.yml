@@ -4,6 +4,12 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "17 3 * * 1"
+  push:
+    branches: ["main"]
+    paths:
+      - "knowledge/sources.json"
+      - "scripts/ingest-public-knowledge.mjs"
+      - ".github/workflows/knowledge-ingestion.yml"
 
 permissions:
   contents: write
