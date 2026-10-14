@@ -24,9 +24,9 @@ Do not set `NEON_AUTH_ISSUER` by guessing. Verify it against a legitimate sessio
 
 ## Deploy
 
-1. Review `neon.ts` and confirm the linked project/branch before any deployment.
+1. Confirm the exact Neon project and target branch ID before any deployment. The tested deployment in this change was performed directly through Neon Functions and is scoped to the disposable test branch.
 2. Configure the server-side secrets in a private local environment file ignored by Git.
-3. Use the current Neon CLI version and deploy the `edunexusai` function to a non-production branch first.
+3. Use the current Neon CLI or Neon Functions management API to deploy `neon/functions/edunexusai/index.mjs` plus `knowledge.json` to a non-production branch first. The ZIP must place both files at its root; the runtime does not install npm dependencies.
 4. Test `GET /health`, invalid/no-token rejection, real signed-in request, provider failure, origin rejection, and usage caps.
 5. Only after tests pass and the exact target is confirmed, deploy to the intended production branch and verify the returned invocation URL.
 6. Wire the Pages frontend to the verified function URL in a separate change. Never put provider credentials in Pages JavaScript.
