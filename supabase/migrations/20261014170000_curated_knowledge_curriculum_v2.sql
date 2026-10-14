@@ -44,7 +44,14 @@ SELECT c.id,v.name,v.position FROM public.courses c JOIN (VALUES
 ON CONFLICT (course_id,position) DO UPDATE SET name=EXCLUDED.name;
 
 INSERT INTO public.lessons (module_id,title,content,position)
-SELECT m.id,v.title,jsonb_build_object('summary',v.summary,'objectives',jsonb_build_array(v.objective),'sections',jsonb_build_array(jsonb_build_object('heading','Materi inti','body',v.body),jsonb_build_object('heading','Praktik yang disarankan','body',v.practice)),'exercise',v.exercise),v.lesson_position
+SELECT m.id,v.title,jsonb_build_object(
+'source_ids',CASE v.course_slug
+ WHEN 'literasi-informasi-berpikir-kritis' THEN jsonb_build_array('id-kurikulum-cp-atp','id-akm','digcomp')
+ WHEN 'literasi-digital-keamanan-data' THEN jsonb_build_array('digcomp','unesco-genai-guidance')
+ WHEN 'kecerdasan-buatan-dasar-etika-praktik' THEN jsonb_build_array('unesco-ai-students','unesco-ai-teachers','unesco-genai-guidance')
+ WHEN 'perencanaan-karier-portofolio-keterampilan' THEN jsonb_build_array('oecd-learning-compass','esco','onet')
+ ELSE jsonb_build_array('unesco-genai-guidance') END,
+'summary',v.summary,'objectives',jsonb_build_array(v.objective),'sections',jsonb_build_array(jsonb_build_object('heading','Materi inti','body',v.body),jsonb_build_object('heading','Praktik yang disarankan','body',v.practice)),'exercise',v.exercise),v.lesson_position
 FROM (VALUES
 ('literasi-informasi-berpikir-kritis',1,1,'Membuat Pertanyaan Pencarian yang Tajam','Pertanyaan yang spesifik membantu menemukan sumber yang relevan dan mengurangi hasil yang tidak terkait.','Mengubah topik luas menjadi pertanyaan yang dapat dijawab dengan bukti.','Tentukan kebutuhan informasi, kata kunci utama dan sinonim, rentang waktu, jenis sumber, dan batasan geografis. Ulangi pencarian dengan istilah berbeda; simpan tanggal akses dan URL sumber.','Bandingkan hasil dari sumber resmi, penelitian, dan media. Periksa apakah masing-masing benar-benar menjawab pertanyaan.','Buat tiga kueri pencarian berbeda untuk memeriksa klaim tentang suatu keterampilan kerja.'),
 ('literasi-informasi-berpikir-kritis',1,2,'Mencatat Sumber dan Konteks','Catatan sumber memungkinkan pembaca menelusuri asal klaim dan memahami konteksnya.','Mencatat penulis/lembaga, tanggal, judul, URL, lisensi, dan klaim yang didukung.','Pisahkan kutipan singkat, parafrasa, dan pendapat sendiri. Simpan konteks halaman serta tanggal pengambilan. Jangan menganggap hasil pencarian sebagai bukti penuh; buka sumber asli.','Buat catatan bibliografi untuk dua sumber dan tuliskan satu hal yang belum bisa dipastikan.','Buat kartu sumber berisi judul, lembaga, tanggal, URL, lisensi, ringkasan dan keterbatasan.'),
