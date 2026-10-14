@@ -189,6 +189,80 @@
         "safety_privacy_evaluation",
         "mentor_assistant"
       ]
+    },
+    {
+      "id": "unesco-mil",
+      "title": "Media and Information Literacy Curriculum for Teachers",
+      "publisher": "UNESCO",
+      "url": "https://www.unesco.org/en/articles/media-and-information-literacy-curriculum-teachers",
+      "domain": "literasi-media-informasi",
+      "trust": "A",
+      "use": "Kerangka literasi media dan informasi untuk pendidik; gunakan ringkasan orisinal dan rujuk publikasi asli.",
+      "license": "Periksa lisensi publikasi sebelum menyalin atau mengadaptasi modul",
+      "agentRoles": [
+        "learning_designer",
+        "hard_skill_tutor",
+        "knowledge_steward"
+      ]
+    },
+    {
+      "id": "skillsbuilder",
+      "title": "Universal Framework 2.0",
+      "publisher": "Skills Builder Partnership",
+      "url": "https://www.skillsbuilder.org/global/universal-framework",
+      "domain": "soft-skill",
+      "trust": "B",
+      "use": "Referensi progresi keterampilan komunikasi, kolaborasi, pemecahan masalah kreatif, dan manajemen diri. Jangan menyalin skala penuh tanpa memeriksa ketentuan penggunaan.",
+      "license": "Gunakan sesuai terms/izin; tautan dan ringkasan bukan izin menyalin seluruh framework",
+      "agentRoles": [
+        "soft_skill_coach",
+        "assessment_rubric",
+        "development_mastery"
+      ]
+    },
+    {
+      "id": "casel-sel",
+      "title": "CASEL Social and Emotional Learning Framework",
+      "publisher": "CASEL",
+      "url": "https://casel.org/fundamentals-of-sel/what--is-the-casel-framework/",
+      "domain": "soft-skill-kesejahteraan",
+      "trust": "B",
+      "use": "Kerangka kompetensi sosial-emosional untuk adaptasi konteks pendidikan; tidak digunakan untuk diagnosis atau pelabelan kepribadian.",
+      "license": "CASEL menyebut adaptasi dengan atribusi atau izin; ikuti syarat pada tiap resource",
+      "agentRoles": [
+        "soft_skill_coach",
+        "mentor_assistant",
+        "safety_privacy_evaluation"
+      ]
+    },
+    {
+      "id": "openstax-license",
+      "title": "OpenStax textbook licensing",
+      "publisher": "OpenStax",
+      "url": "https://help.openstax.org/s/article/Licensing-information-of-OpenStax-textbooks",
+      "domain": "sumber-belajar-terbuka",
+      "trust": "A",
+      "use": "Indeks buku teks terbuka untuk belajar konsep, tetapi perhatikan ketentuan nonkomersial dan share-alike sebelum memasukkan isi ke produk komersial.",
+      "license": "CC BY-NC-SA 4.0; tidak boleh digunakan untuk tujuan komersial tanpa izin terpisah",
+      "agentRoles": [
+        "knowledge_steward",
+        "learning_designer"
+      ]
+    },
+    {
+      "id": "mit-ocw-terms",
+      "title": "MIT OpenCourseWare Terms of Use",
+      "publisher": "Massachusetts Institute of Technology",
+      "url": "https://ocw.mit.edu/pages/privacy-and-terms-of-use/",
+      "domain": "sumber-belajar-terbuka",
+      "trust": "A",
+      "use": "Temukan materi kursus terbuka untuk referensi; penggunaan ulang dibatasi syarat nonkomersial, atribusi, dan share-alike.",
+      "license": "CC BY-NC-SA 4.0; jangan menyalin untuk produk komersial tanpa izin",
+      "agentRoles": [
+        "knowledge_steward",
+        "learning_designer",
+        "hard_skill_tutor"
+      ]
     }
   ]
 }
