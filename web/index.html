@@ -95,6 +95,12 @@ footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
 <div class="section-title"><div><h2>Program & kursus</h2><p class="muted">Katalog pembelajaran yang terhubung ke modul, pelajaran, dan progres tersimpan.</p></div></div>
 <div id="learningStatus" class="status" role="status" aria-live="polite">Memuat katalog…</div>
 <div id="coursesList" class="list"><div class="muted">Memuat kursus…</div></div>
+<div id="lessonReader" class="item" style="display:none;margin-top:16px" aria-live="polite">
+<div class="section-title"><div><div class="badge">RUANG BELAJAR</div><h3 id="lessonTitle">Pelajaran</h3></div><button id="closeLessonBtn" type="button" class="secondary">Tutup</button></div>
+<div id="lessonContent" class="list"></div>
+<div id="lessonProgressStatus" class="status"></div>
+<div class="actions"><button id="completeLessonBtn" type="button">Tandai pelajaran selesai</button></div>
+</div>
 </div>
 </div>
 
@@ -139,6 +145,8 @@ const NEON_AUTH_URL="https://ep-curly-bread-azog8hfw.neonauth.c-3.ap-southeast-1
 const DATA_API_URL="https://ep-curly-bread-azog8hfw.apirest.c-3.ap-southeast-1.aws.neon.tech/neondb/rest/v1";
 const auth=createAuthClient(NEON_AUTH_URL);
 const state={session:null,user:null,businessUserId:null,scenario:null,sessionId:null,attemptId:null};
+let learningCache={courses:[],modules:[],lessons:[],enrollments:[],progress:[]};
+let currentLessonId=null;
 const $=id=>document.getElementById(id);
 function setStatus(el,msg,error=false){el.textContent=localizeError(msg);el.className="status "+(error?"error":"ok")}
 function localizeStatus(status){const map={in_progress:"Sedang berlangsung",submitted:"Dikirim",completed:"Selesai",reviewed:"Ditinjau",cancelled:"Dibatalkan"};return map[status]||status}
@@ -230,21 +238,83 @@ async function loadLearning(){
    api("/courses?select=id,name,slug,description,program_id&order=name.asc"),
    api("/programs?select=id,name&order=name.asc"),
    api("/modules?select=id,course_id,name,position&order=position.asc"),
-   api("/lessons?select=id,module_id,title,position&order=position.asc"),
-   api("/course_enrollments?select=id,course_id,status&user_id=eq."+query)
+   api("/lessons?select=id,module_id,title,content,position&order=position.asc"),
+   api("/course_enrollments?select=id,course_id,status&user_id=eq."+query),
+   api("/lesson_progress?select=id,lesson_id,status,progress_percent,completed_at&user_id=eq."+query)
   ]);
-  const courses=results[0],programs=results[1],modules=results[2],lessons=results[3],enrollments=results[4];
-  $("learningStatus").textContent=courses.length?courses.length+" kursus dalam katalog. Progres hanya dicatat untuk kursus yang diikuti.":"Katalog terhubung, tetapi belum ada kursus yang diterbitkan.";
+  const courses=results[0],programs=results[1],modules=results[2],lessons=results[3],enrollments=results[4],progress=results[5];
+  learningCache={courses,modules,lessons,enrollments,progress};
+  $("learningStatus").textContent=courses.length?courses.length+" kursus dalam katalog. Buka pelajaran; daftar kursus untuk menyimpan progres.":"Katalog terhubung, tetapi belum ada kursus yang diterbitkan.";
   host.innerHTML=courses.length?courses.map(course=>{
    const courseModules=modules.filter(m=>m.course_id===course.id);
    const lessonCount=lessons.filter(l=>courseModules.some(m=>m.id===l.module_id)).length;
    const enrollment=enrollments.find(e=>e.course_id===course.id);
    const program=programs.find(p=>p.id===course.program_id);
    const status=enrollment?(enrollment.status==="completed"?"Selesai":enrollment.status==="paused"?"Dijeda":enrollment.status==="dropped"?"Dihentikan":"Diikuti"):null;
-   return '<div class="item"><div class="item-head"><div><h3>'+escapeHtml(course.name)+'</h3><div class="muted">'+escapeHtml(course.description||"Deskripsi kursus belum tersedia.")+'</div><div class="muted">'+escapeHtml(program?.name||"Program umum")+' · '+courseModules.length+' modul · '+lessonCount+' pelajaran</div></div><span class="pill">'+escapeHtml(status||"Tersedia")+'</span></div>'+(enrollment?'':'<div class="actions" style="margin-top:10px"><button type="button" data-enroll-course="'+escapeHtml(course.id)+'">Ikuti kursus</button></div>')+(courseModules.length?'<div class="muted" style="margin-top:10px">'+courseModules.map(m=>'<div>• '+escapeHtml(m.name)+' ('+lessons.filter(l=>l.module_id===m.id).length+' pelajaran)</div>').join("")+'</div>':'<div class="muted" style="margin-top:10px">Materi modul belum ditambahkan.</div>')+'</div>';
+   const moduleHtml=courseModules.length?courseModules.map(m=>{
+    const moduleLessons=lessons.filter(l=>l.module_id===m.id);
+    return '<div style="margin-top:10px"><b>'+escapeHtml(m.name)+'</b><div class="actions" style="margin-top:6px">'+moduleLessons.map(l=>{
+     const p=progress.find(item=>item.lesson_id===l.id);
+     return '<button type="button" class="secondary" data-open-lesson="'+escapeHtml(l.id)+'">'+escapeHtml(l.title)+' · '+(p?.status==="completed"?"Selesai":p?.status==="in_progress"?"Berjalan":"Buka")+'</button>';
+    }).join("")+'</div></div>';
+   }).join(""):'<div class="muted" style="margin-top:10px">Materi modul belum ditambahkan.</div>';
+   return '<div class="item"><div class="item-head"><div><h3>'+escapeHtml(course.name)+'</h3><div class="muted">'+escapeHtml(course.description||"Deskripsi kursus belum tersedia.")+'</div><div class="muted">'+escapeHtml(program?.name||"Program umum")+' · '+courseModules.length+' modul · '+lessonCount+' pelajaran</div></div><span class="pill">'+escapeHtml(status||"Tersedia")+'</span></div>'+(enrollment?'':'<div class="actions" style="margin-top:10px"><button type="button" data-enroll-course="'+escapeHtml(course.id)+'">Ikuti kursus</button></div>')+moduleHtml+'</div>';
   }).join(""):'<div class="empty muted">Belum ada kursus aktif. Setelah pengelola menerbitkan materi, kursus akan muncul di sini.</div>';
   host.querySelectorAll("[data-enroll-course]").forEach(b=>b.addEventListener("click",()=>enrollCourse(b.dataset.enrollCourse)));
+  host.querySelectorAll("[data-open-lesson]").forEach(b=>b.addEventListener("click",()=>openLesson(b.dataset.openLesson)));
  }catch(e){$("learningStatus").textContent="Katalog belum dapat dimuat.";host.innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'}
+}
+function renderLessonContent(content){
+ let value=content||{};
+ if(typeof value==="string"){try{value=JSON.parse(value)}catch{value={summary:value}}}
+ const parts=[];
+ if(value.summary)parts.push('<div class="item"><b>Ringkasan</b><p class="muted">'+escapeHtml(value.summary)+'</p></div>');
+ if(Array.isArray(value.objectives)&&value.objectives.length)parts.push('<div class="item"><b>Tujuan belajar</b><ul>'+value.objectives.map(x=>'<li>'+escapeHtml(x)+'</li>').join("")+'</ul></div>');
+ if(Array.isArray(value.sections))for(const section of value.sections)parts.push('<div class="item"><b>'+escapeHtml(section.heading||"Materi")+'</b><p class="muted">'+escapeHtml(section.body||"")+'</p></div>');
+ if(value.exercise)parts.push('<div class="item"><b>Latihan</b><p class="muted">'+escapeHtml(typeof value.exercise==="string"?value.exercise:JSON.stringify(value.exercise))+'</p></div>');
+ return parts.join("")||'<div class="empty muted">Konten pelajaran belum tersedia.</div>';
+}
+function openLesson(lessonId){
+ const lesson=learningCache.lessons.find(item=>item.id===lessonId);
+ if(!lesson)return;
+ currentLessonId=lessonId;
+ $("lessonTitle").textContent=lesson.title;
+ $("lessonContent").innerHTML=renderLessonContent(lesson.content);
+ $("lessonReader").style.display="block";
+ const module=learningCache.modules.find(item=>item.id===lesson.module_id);
+ const enrollment=module&&learningCache.enrollments.find(item=>item.course_id===module.course_id);
+ const progress=learningCache.progress.find(item=>item.lesson_id===lessonId);
+ if(!enrollment){
+  $("lessonProgressStatus").textContent="Untuk menyimpan progres, ikuti kursus terlebih dahulu.";
+  $("completeLessonBtn").disabled=true;
+ }else{
+  $("lessonProgressStatus").textContent=progress?.status==="completed"?"Pelajaran selesai pada "+(progress.completed_at?new Date(progress.completed_at).toLocaleString("id-ID"):"tanggal tidak tersedia")+".":progress?.status==="in_progress"?"Pelajaran sedang berjalan. Anda dapat menandainya selesai setelah membaca materi.":"Progres belum dicatat. Baca materi, lalu tandai selesai.";
+  $("completeLessonBtn").disabled=progress?.status==="completed";
+ }
+}
+async function completeLesson(){
+ const lesson=learningCache.lessons.find(item=>item.id===currentLessonId);
+ if(!lesson)return;
+ const module=learningCache.modules.find(item=>item.id===lesson.module_id);
+ const enrollment=module&&learningCache.enrollments.find(item=>item.course_id===module.course_id);
+ if(!enrollment){$("lessonProgressStatus").textContent="Ikuti kursus terlebih dahulu untuk menyimpan progres.";return;}
+ const existing=learningCache.progress.find(item=>item.lesson_id===lesson.id);
+ const now=new Date().toISOString();
+ $("completeLessonBtn").disabled=true;
+ $("lessonProgressStatus").textContent="Menyimpan progres…";
+ try{
+  if(existing){
+   await api("/lesson_progress?id=eq."+encodeURIComponent(existing.id)+"&user_id=eq."+encodeURIComponent(state.businessUserId),{method:"PATCH",body:JSON.stringify({status:"completed",progress_percent:100,completed_at:now,updated_at:now})});
+  }else{
+   await api("/lesson_progress",{method:"POST",body:JSON.stringify({lesson_id:lesson.id,user_id:state.businessUserId,status:"completed",progress_percent:100,started_at:now,completed_at:now})});
+  }
+  await loadLearning();
+  openLesson(lesson.id);
+  $("lessonProgressStatus").textContent="Progres tersimpan: pelajaran selesai.";
+ }catch(e){
+  $("lessonProgressStatus").textContent="Progres belum tersimpan: "+e.message;
+  $("completeLessonBtn").disabled=false;
+ }
 }
 async function enrollCourse(courseId){
  try{
@@ -316,6 +386,8 @@ $("practiceForm").addEventListener("submit",async e=>{
  }catch(e){setStatus($("practiceStatus"),e.message,true);$("submitPractice").disabled=false}
 });
 $("cancelPractice").addEventListener("click",()=>{$("practice").style.display="none";$("scenarios").style.display="grid";state.scenario=null;state.sessionId=null;state.attemptId=null});
+$("closeLessonBtn").addEventListener("click",()=>{$("lessonReader").style.display="none";currentLessonId=null});
+$("completeLessonBtn").addEventListener("click",completeLesson);
 $("goalForm").addEventListener("submit",async e=>{
  e.preventDefault();
  const title=$("goalTitle").value.trim(),description=$("goalDescription").value.trim();
