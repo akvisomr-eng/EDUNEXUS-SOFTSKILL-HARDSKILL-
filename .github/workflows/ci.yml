@@ -34,6 +34,15 @@ jobs:
           grep -q "ensure_my_profile" web/index.html
           grep -q "finalize_my_practice_attempt" web/index.html
           ! grep -q "SUPABASE_URL" web/index.html
+          ! test -f web/neon-cutover-smoke.html
+          python3 - <<'PY'
+          from pathlib import Path
+          html = Path("web/index.html").read_text()
+          assert html.count('<script type="module">') == 1
+          assert "</html>" in html
+          assert "supabase.co" not in html
+          print("EDUNEXUS Neon Pages artifact checks passed")
+          PY
           grep -q "neon-preview.html" .github/workflows/neon-browser-smoke.yml
           test -f .github/workflows/neon-browser-smoke.yml
           grep -q "playwright" .github/workflows/neon-browser-smoke.yml
