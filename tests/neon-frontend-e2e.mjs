@@ -57,7 +57,15 @@ try {
     return status.includes("Mengirim jawaban") || status.includes("berhasil diselesaikan") ||
       status.includes("gagal") || status.includes("HTTP ") || document.querySelector("#result")?.style.display === "block";
   }, null, { timeout: 15000 });
-  await page.locator("#result").waitFor({ state: "visible", timeout: 60000 });
+  await page.waitForFunction(() => {
+    const result = document.querySelector("#result");
+    const status = document.querySelector("#practiceStatus");
+    return (result && getComputedStyle(result).display !== "none") || status?.classList.contains("error");
+  }, null, { timeout: 70000 });
+  if (await page.locator("#practiceStatus").evaluate(el => el.classList.contains("error"))) {
+    throw new Error("Practice submission failed: " + (await page.locator("#practiceStatus").innerText()));
+  }
+  await page.locator("#result").waitFor({ state: "visible", timeout: 15000 });
   await page.waitForFunction(() => document.querySelector("#resultScore")?.textContent?.includes("/100"), null, { timeout: 15000 });
   const score = (await page.locator("#resultScore").innerText()).trim();
   const resultStatus = (await page.locator("#resultStatus").innerText()).trim();
