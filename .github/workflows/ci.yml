@@ -28,7 +28,7 @@ jobs:
           grep -q "playwright" .github/workflows/neon-browser-smoke.yml
           grep -q "auth.token()" web/neon-cutover-smoke.html
           grep -q "JWT nyata dari Neon Auth" tests/neon-browser-smoke.mjs
-          grep -q "@neondatabase/auth" web/neon-cutover-smoke.html
+          grep -q "@neondatabase/neon-js/auth" web/neon-cutover-smoke.html
           grep -q "auth.token()" web/neon-cutover-smoke.html
           ! grep -q "getJWTToken" web/neon-cutover-smoke.html
           grep -q "rpc/current_user_id" web/neon-cutover-smoke.html
