@@ -86,16 +86,23 @@ async function verifyCaller(request) {
   try {
     const header = decodePart(parts[0]);
     const claims = decodePart(parts[1]);
-    if (header.alg !== "RS256" || !header.kid || typeof claims.sub !== "string") return null;
+    const allowedAlgorithms = { RS256: "RSA-SHA256", ES256: "sha256", EdDSA: null };
+    if (!Object.prototype.hasOwnProperty.call(allowedAlgorithms, header.alg) || !header.kid || typeof claims.sub !== "string") return null;
     if (typeof claims.exp !== "number" || claims.exp <= Math.floor(Date.now() / 1000)) return null;
     if (claims.nbf && claims.nbf > Math.floor(Date.now() / 1000) + 30) return null;
     const expectedIssuer = process.env.NEON_AUTH_ISSUER;
     if (expectedIssuer && claims.iss !== expectedIssuer) return null;
     const jwks = await getJwks();
-    const jwk = jwks.find((key) => key.kid === header.kid && key.kty === "RSA" && key.use !== "enc");
+    const jwk = jwks.find((key) => key.kid === header.kid && key.use !== "enc" && (!key.alg || key.alg === header.alg));
     if (!jwk) return null;
+    if ((header.alg === "RS256" && jwk.kty !== "RSA") ||
+        (header.alg === "ES256" && (jwk.kty !== "EC" || jwk.crv !== "P-256")) ||
+        (header.alg === "EdDSA" && (jwk.kty !== "OKP" || jwk.crv !== "Ed25519"))) return null;
     const key = createPublicKey({ key: jwk, format: "jwk" });
-    const valid = verifySignature("RSA-SHA256", Buffer.from(parts[0] + "." + parts[1]), key, Buffer.from(parts[2], "base64url"));
+    const signingInput = Buffer.from(parts[0] + "." + parts[1]);
+    const signature = Buffer.from(parts[2], "base64url");
+    const verifierKey = header.alg === "ES256" ? { key, dsaEncoding: "ieee-p1363" } : key;
+    const valid = verifySignature(allowedAlgorithms[header.alg], signingInput, verifierKey, signature);
     return valid ? { id: claims.sub } : null;
   } catch {
     return null;
