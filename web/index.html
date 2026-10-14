@@ -178,11 +178,12 @@ async function startPractice(scenario){
   const attempt=await api("/practice_attempts",{method:"POST",body:JSON.stringify({session_id:state.sessionId,user_id:state.businessUserId,attempt_number:1,status:"in_progress",response:{}})});
   state.attemptId=attempt?.[0]?.id;
   if(!state.attemptId)throw new Error("Server tidak mengembalikan ID attempt praktik.");
+  $("practiceForm").dataset.attemptId=state.attemptId;
   setStatus($("practiceStatus"),"Sesi siap. Lengkapi seluruh jawaban lalu kirim.");
  }catch(e){setStatus($("practiceStatus"),e.message,true);$("practiceForm").querySelectorAll("textarea").forEach(x=>x.disabled=true);$("submitPractice").disabled=true}
 }
 $("practiceForm").addEventListener("submit",async e=>{
- e.preventDefault();if(!state.attemptId)return;
+ e.preventDefault();if(!state.attemptId){setStatus($("practiceStatus"),"Attempt praktik tidak tersedia. Mulai ulang sesi.",true);return;}
  $("submitPractice").disabled=true;setStatus($("practiceStatus"),"Mengirim jawaban dan menghitung hasil…");
  try{
   const response={};$("practiceForm").querySelectorAll("textarea[data-key]").forEach(x=>response[x.dataset.key]=x.value.trim());
