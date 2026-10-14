@@ -69,7 +69,7 @@ footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
 <div id="practice" class="practice">
 <div class="section-title"><div><h2 id="practiceTitle">Praktik</h2><p id="practiceDescription" class="muted"></p></div><button id="cancelPractice" class="secondary" type="button">Kembali</button></div>
 <form id="practiceForm" class="practice-grid"></form>
-<div class="actions" style="margin-top:14px"><button id="submitPractice" type="submit" form="practiceForm">Kirim praktik</button></div>
+<div class="actions" style="margin-top:14px"><button id="submitPractice" type="button">Kirim praktik</button></div>
 <div id="practiceStatus" class="status" style="margin-top:10px"></div>
 <div id="result" class="result card" style="padding:20px">
 <div class="badge">HASIL PRAKTIK TERPERCAYA</div>
@@ -180,6 +180,7 @@ async function startPractice(scenario){
   setStatus($("practiceStatus"),"Sesi siap. Lengkapi seluruh jawaban lalu kirim.");
  }catch(e){setStatus($("practiceStatus"),e.message,true);$("practiceForm").querySelectorAll("textarea").forEach(x=>x.disabled=true);$("submitPractice").disabled=true}
 }
+$("submitPractice").addEventListener("click",()=>{if(!$("submitPractice").disabled)$("practiceForm").requestSubmit()});
 $("practiceForm").addEventListener("submit",async e=>{
  e.preventDefault();if(!state.attemptId)return;
  $("submitPractice").disabled=true;setStatus($("practiceStatus"),"Mengirim jawaban dan menghitung hasil…");
