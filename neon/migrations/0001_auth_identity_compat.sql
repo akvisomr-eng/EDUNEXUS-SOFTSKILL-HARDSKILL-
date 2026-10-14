@@ -10,14 +10,20 @@ STABLE
 SECURITY DEFINER
 SET search_path = pg_catalog
 AS $function$
+  WITH jwt_identity AS (
+    SELECT COALESCE(
+      NULLIF(current_setting('request.jwt.claim.sub', true), ''),
+      NULLIF(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'
+    ) AS subject
+  )
   SELECT COALESCE(
     (
       SELECT m.source_user_id
       FROM private.supabase_identity_migration AS m
-      WHERE m.neon_auth_user_id =
-        NULLIF(current_setting('request.jwt.claim.sub', true), '')::uuid
+      CROSS JOIN jwt_identity AS j
+      WHERE m.neon_auth_user_id = NULLIF(j.subject, '')::uuid
     ),
-    NULLIF(current_setting('request.jwt.claim.sub', true), '')::uuid
+    (SELECT NULLIF(subject, '')::uuid FROM jwt_identity)
   );
 $function$;
 
