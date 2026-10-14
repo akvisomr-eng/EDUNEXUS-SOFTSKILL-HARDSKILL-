@@ -45,7 +45,18 @@ try {
     await fields.nth(i).fill("Jawaban uji otomatis dengan penjelasan yang cukup rinci untuk menunjukkan proses berpikir, contoh konkret, dan langkah tindak lanjut yang relevan.");
   }
 
+  const validity = await page.locator("#practiceForm").evaluate(form => ({
+    valid: form.checkValidity(),
+    fields: [...form.querySelectorAll("textarea[data-key]")].map(field => ({key: field.dataset.key, length: field.value.length, valid: field.checkValidity()}))
+  }));
+  console.log("FRONTEND_FORM_VALIDITY=" + JSON.stringify(validity));
+  if (!validity.valid) throw new Error("Practice form invalid before submit: " + JSON.stringify(validity));
   await page.locator("#submitPractice").click();
+  await page.waitForFunction(() => {
+    const status = document.querySelector("#practiceStatus")?.textContent || "";
+    return status.includes("Mengirim jawaban") || status.includes("berhasil diselesaikan") ||
+      status.includes("gagal") || status.includes("HTTP ") || document.querySelector("#result")?.style.display === "block";
+  }, null, { timeout: 15000 });
   await page.locator("#result").waitFor({ state: "visible", timeout: 60000 });
   await page.waitForFunction(() => document.querySelector("#resultScore")?.textContent?.includes("/100"), null, { timeout: 15000 });
   const score = (await page.locator("#resultScore").innerText()).trim();
