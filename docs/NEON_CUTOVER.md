@@ -17,6 +17,7 @@
 - `neon/migrations/0002_trusted_practice_rpc.sql` exposes a narrowly scoped Data API RPC for trusted practice finalization. It checks authenticated ownership and submitted status, keeps scoring/evidence functions private, and grants execution only to `authenticated`.
 - `neon/tests/0001_auth_identity_compat.sql` checks identity mapping and grants.
 - `neon/tests/0002_trusted_practice_rpc.sql` checks function security and grants.
+- Both SQL test scripts were executed successfully against disposable branch `edunexus-cutover-test-20261014` on 2026-10-14. The identity SQL test simulates the JWT subject via a transaction-local setting; it is not a substitute for the pending real browser JWT test.
 - `web/neon-cutover-smoke.html` is a read-only browser diagnostic for the disposable branch. It uses the Neon Auth SDK to obtain an actual JWT, reads the mapped user identity and active practice catalog, checks visible practice sessions against the mapped identity, and optionally tests that a session ID belonging to a second test account returns no rows.
 
 The browser smoke page is intentionally pinned to the disposable branch's Neon Auth and Data API endpoints. It must not be pointed at production or used with production accounts. The page creates an auth account only when the tester explicitly selects “Buat akun uji”; its database checks are read-only. It has been added to the PR but has not yet been run in a real browser, so the JWT and RLS checks remain pending runtime evidence.
