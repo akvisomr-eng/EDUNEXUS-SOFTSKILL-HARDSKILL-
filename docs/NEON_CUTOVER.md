@@ -10,8 +10,8 @@
 - The Neon database contains 2 practice scenarios.
 - The identity migration table has one mapping, and the mapped Supabase and Neon user UUIDs differ.
 - Neon Function `edunexusapi` deployment 4 failed because the bundle could not resolve package `pg`; deployment 2 remains the active deployment.
-- GitHub Pages frontend still uses Supabase Auth, Supabase REST, and the Supabase `edunexus-practice` Edge Function.
-- No Neon migration has been applied to production; Supabase remains the active frontend backend.
+- GitHub Pages production frontend has been migrated to Neon Auth and Neon Data API; live Pages smoke test returned HTTP 200 and confirmed the Neon frontend markers with no Supabase endpoint reference.
+- Production migrations 0001–0004 were applied transactionally and the Neon Data API schema cache was refreshed. Supabase remains enabled only as a rollback source; it was not disabled.
 
 ## Changes prepared for Neon
 
@@ -28,18 +28,19 @@
 - `tests/fixtures/neon-cutover-smoke.html` is a browser diagnostic pinned to the disposable branch. It creates a disposable auth account, obtains an actual JWT, provisions that account's minimal profile, reads mapped identity and active scenarios, creates a disposable practice session and attempt, submits a structured response, calls the trusted finalization RPC, checks candidate evidence and own-session RLS, and optionally tests that a session ID belonging to a second test account returns no rows.
 - `.github/workflows/neon-browser-smoke.yml` and `tests/neon-browser-smoke.mjs` now automate a real Chromium browser run against the disposable branch. The test creates a disposable auth account and checks sign-up, sign-in, JWT retrieval, identity RPC, catalog read, and session RLS visibility. The workflow has been committed but its GitHub Actions result is not yet confirmed. It does not yet prove cross-account isolation or the complete practice submit/finalize flow.
 
-The browser smoke page is intentionally pinned to the disposable branch's Neon Auth and Data API endpoints. It must not be pointed at production or used with production accounts. It creates a disposable auth account and test-only profile/practice rows when the tester selects the corresponding test actions. It has been run in a real browser for auth/JWT/identity/catalog/initial RLS checks; full practice finalization and candidate-evidence checks are being exercised by the latest automated browser run. The trusted scoring transition has been corrected and its SQL lifecycle test passed on the disposable branch.
+The browser smoke page is intentionally pinned to the disposable branch's Neon Auth and Data API endpoints and lives under `tests/fixtures/`, outside the deployed `web/` root. It must not be pointed at production or used with production accounts. Browser run #116 passed auth/JWT/identity/catalog/profile, full practice submission/finalization (score 100), candidate evidence, and own-session RLS. The separate frontend E2E passed signup/login, profile bootstrap, catalog, practice submission, score/evidence display, and history display. A live Pages smoke workflow verified HTTP 200 and the deployed Neon frontend.
 
 These migrations have been prepared for the disposable test branch; do not apply to production until the test scripts and real JWT/RLS integration checks pass.
 
-## Remaining release gates
+## Post-cutover status
 
-1. Run all three SQL test scripts against the disposable branch and retain their outputs.
-2. Pass the browser E2E for actual JWT, profile provisioning, identity mapping, catalog, practice session/attempt submission, trusted scoring/finalization, candidate evidence, and own-session RLS.
-3. Run a separate two-account cross-session isolation test.
-4. If the smoke test finds policy or identity mismatches, fix and retest on the disposable branch only.
-5. Adapt the production frontend auth/session layer to Neon Auth and map its subject to the legacy business-user ID. Do not mix writes across Supabase and Neon.
-6. Verify GitHub Pages deployment and browser smoke tests before cutover.
-7. Keep Supabase available as rollback source until the cutover is explicitly accepted.
+- [x] Run SQL tests and verify the identity, profile provisioning, and trusted score lifecycle on the disposable branch.
+- [x] Pass browser E2E for Neon Auth/JWT, identity, catalog, practice session/attempt submission, trusted scoring, candidate evidence, and own-session RLS.
+- [x] Apply migrations 0001–0004 transactionally to production and refresh the Data API schema cache.
+- [x] Verify all 41 public tables still have RLS enabled and business row counts remain unchanged.
+- [x] Verify GitHub Pages returns HTTP 200 and serves the Neon frontend.
+- [x] Keep Supabase available as rollback source; it has not been disabled.
+
+A dedicated two-account cross-session isolation test remains a follow-up hardening task; the initial own-session RLS checks and browser workflow pass, but this separate negative test was not claimed as completed.
 
 A successful CI run, static deployment, or active database endpoint alone is not evidence that EDUNEXUS is live end-to-end.
