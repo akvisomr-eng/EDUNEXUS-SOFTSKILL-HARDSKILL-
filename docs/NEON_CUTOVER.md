@@ -11,6 +11,8 @@
 - The identity migration table has one mapping, and the mapped Supabase and Neon user UUIDs differ.
 - Neon Function `edunexusapi` deployment 4 previously failed because the bundle could not resolve package `pg`; this unused function is not on the production frontend request path, which now uses Neon Data API directly.
 - GitHub Pages production frontend has been migrated to Neon Auth and Neon Data API; live Pages smoke test returned HTTP 200 and confirmed the Neon frontend markers with no Supabase endpoint reference.
+- Password recovery UI is being added using Neon Auth's `requestPasswordReset({ email, redirectTo })` and `resetPassword({ newPassword, token })` APIs. The production Neon Auth config currently lists `https://akvisomr-eng.github.io` as a trusted origin and the shared Neon Auth email provider. Browser tests verify the recovery panel and reject an invalid reset token on the disposable branch. Delivery to a real user's inbox is not claimed until a real inbox flow is tested.
+- Login error handling now explains that credentials from before the Supabase-to-Neon cutover may not be usable in Neon Auth. Supabase remains enabled as rollback; no passwords are copied, guessed, or reset outside Neon Auth.
 - Production migrations 0001–0004 were applied transactionally and the Neon Data API schema cache was refreshed. Supabase remains enabled only as a rollback source; it was not disabled.
 
 ## Changes prepared for Neon
