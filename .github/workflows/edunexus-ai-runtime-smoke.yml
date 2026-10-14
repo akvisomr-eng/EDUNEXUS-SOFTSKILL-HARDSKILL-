@@ -1,0 +1,47 @@
+name: EDUNEXUS AI Runtime Smoke Test
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/edunexus-ai-runtime-smoke.yml"
+      - "neon/migrations/**"
+      - "web/knowledge-sources.json"
+      - "docs/KNOWLEDGE_CORPUS_CURRICULUM_V1.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ai-runtime-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify deployed Neon function health and fail-closed auth
+        env:
+          AI_URL: https://br-quiet-frost-azemctlk-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech
+        run: |
+          node --input-type=module <<'NODE'
+          const base = process.env.AI_URL;
+          const health = await fetch(base + "/health", { signal: AbortSignal.timeout(15000) });
+          if (!health.ok) throw new Error("AI health HTTP " + health.status);
+          const body = await health.json();
+          if (body.ok !== true || body.authConfigured !== true || body.knowledgeConfigured !== true) {
+            throw new Error("AI health configuration invalid: " + JSON.stringify(body));
+          }
+          if (body.mode !== "curated_retrieval_only_v2" || body.modelConfigured !== false) {
+            throw new Error("Expected honest retrieval-only mode without provider key: " + JSON.stringify(body));
+          }
+          const unauth = await fetch(base + "/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Origin": "https://akvisomr-eng.github.io" },
+            body: JSON.stringify({ message: "test" }),
+            signal: AbortSignal.timeout(15000)
+          });
+          if (unauth.status !== 401) throw new Error("Unauthenticated chat must fail closed; got HTTP " + unauth.status);
+          console.log("AI_RUNTIME_HEALTH=PASS; KNOWLEDGE_CONFIGURED=PASS; MODEL_MODE=RETRIEVAL_ONLY; UNAUTHENTICATED_CHAT=401");
+          NODE
