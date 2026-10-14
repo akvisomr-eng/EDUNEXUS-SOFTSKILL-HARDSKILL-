@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import handler from "../neon/functions/edunexusai/index.mjs";
 
 test("health endpoint exposes configuration state without secrets", async () => {
@@ -42,4 +43,15 @@ test("disallowed origins cannot invoke chat", async () => {
     body: JSON.stringify({ message: "Belajar" }),
   }));
   assert.equal(response.status, 403);
+});
+
+test("curated knowledge corpus has source provenance and unique chunk ids", async () => {
+  const corpus = JSON.parse(await readFile(new URL("../neon/functions/edunexusai/knowledge.json", import.meta.url), "utf8"));
+  assert.ok(Array.isArray(corpus.chunks) && corpus.chunks.length >= 8);
+  const ids = corpus.chunks.map((chunk) => chunk.id);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const chunk of corpus.chunks) {
+    assert.ok(chunk.title && chunk.url && chunk.text && chunk.trust_tier);
+    assert.match(chunk.url, /^https:\/\//);
+  }
 });
