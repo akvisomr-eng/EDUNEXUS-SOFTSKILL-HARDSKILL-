@@ -40,7 +40,15 @@ jobs:
           html=Path("web/index.html").read_text()
           assert html.count('<script type="module">') == 1
           assert "</html>" in html
-          print("EDUNEXUS Neon frontend smoke validation passed")
+          assert 'id="knowledgeNotes"' in html
+          import json
+          corpus=json.loads(Path("web/knowledge-sources.json").read_text())
+          canonical=[s for s in corpus.get("sources",[]) if not s.get("isKnowledgeChunk")]
+          assert len(canonical) >= 28, len(canonical)
+          assert len(corpus.get("knowledgeChunks",[])) >= 18
+          assert corpus.get("knowledgeStats",{}).get("fullTextDocumentsDownloaded") == 0
+          assert corpus.get("knowledgeStats",{}).get("embeddingsCreated") == 0
+          print(f"EDUNEXUS Neon frontend + knowledge corpus validation passed: {len(canonical)} sources, {len(corpus['knowledgeChunks'])} editorial notes")
           PY
 
   deploy:
