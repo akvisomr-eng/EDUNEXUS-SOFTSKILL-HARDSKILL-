@@ -26,7 +26,7 @@ jobs:
           test -f neon/tests/0003_ensure_my_profile.sql
           test -f neon/tests/0004_trusted_practice_score_transition.sql
           test -f docs/NEON_CUTOVER.md
-          test -f web/neon-cutover-smoke.html
+          test -f tests/fixtures/neon-cutover-smoke.html
           test -f tests/neon-browser-smoke.mjs
           test -f tests/neon-frontend-e2e.mjs
           grep -q "NEON_AUTH_URL" web/index.html
