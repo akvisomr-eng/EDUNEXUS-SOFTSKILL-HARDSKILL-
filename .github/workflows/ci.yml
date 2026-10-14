@@ -19,8 +19,10 @@ jobs:
           test -f docs/API.md
           test -f neon/migrations/0001_auth_identity_compat.sql
           test -f neon/migrations/0002_trusted_practice_rpc.sql
+          test -f neon/migrations/0003_ensure_my_profile.sql
           test -f neon/tests/0001_auth_identity_compat.sql
           test -f neon/tests/0002_trusted_practice_rpc.sql
+          test -f neon/tests/0003_ensure_my_profile.sql
           test -f docs/NEON_CUTOVER.md
           test -f web/neon-cutover-smoke.html
           test -f tests/neon-browser-smoke.mjs
@@ -31,6 +33,9 @@ jobs:
           grep -q "getSession()" web/neon-cutover-smoke.html
           grep -q "data?.session?.token" web/neon-cutover-smoke.html
           grep -q "rpc/current_user_id" web/neon-cutover-smoke.html
+          grep -q "rpc/ensure_my_profile" web/neon-cutover-smoke.html
+          grep -q "ensure_my_profile" neon/migrations/0003_ensure_my_profile.sql
+          grep -q "Bukti praktik sebagai kandidat" tests/neon-browser-smoke.mjs
           grep -q "Uji isolasi lintas akun" web/neon-cutover-smoke.html
           grep -q "current_user_id" neon/migrations/0001_auth_identity_compat.sql
           grep -q "supabase_identity_migration" neon/migrations/0001_auth_identity_compat.sql
