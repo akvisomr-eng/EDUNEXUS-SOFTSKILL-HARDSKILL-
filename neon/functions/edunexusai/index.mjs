@@ -146,9 +146,9 @@ export function buildKnowledgeOnlyAnswer(knowledge) {
   if (!Array.isArray(knowledge) || knowledge.length === 0) {
     return "Belum ditemukan sumber yang cukup cocok di basis pengetahuan terkurasi EDUNEXUS. Coba gunakan istilah yang lebih spesifik atau periksa sumber resmi secara langsung. Jawaban tidak dibuat-buat.";
   }
-  return "Mode basis pengetahuan terkurasi (tanpa model generatif). Berikut ringkasan sumber yang paling relevan untuk ditelaah:\\n\\n" +
-    knowledge.map((source, index) => "[" + (index + 1) + "] " + source.title + "\\n" + source.text).join("\\n\\n") +
-    "\\n\\nRingkasan ini bukan pengganti pemeriksaan sumber asli. Gunakan tautan rujukan yang disertakan untuk memverifikasi detail.";
+  return "Mode basis pengetahuan terkurasi (tanpa model generatif). Berikut ringkasan sumber yang paling relevan untuk ditelaah:\n\n" +
+    knowledge.map((source, index) => "[" + (index + 1) + "] " + source.title + "\n" + source.text).join("\n\n") +
+    "\n\nRingkasan ini bukan pengganti pemeriksaan sumber asli. Gunakan tautan rujukan yang disertakan untuk memverifikasi detail.";
 }
 async function callModel({ message, agent, locale, knowledge }) {
   const apiKey = process.env.MODEL_API_KEY;
