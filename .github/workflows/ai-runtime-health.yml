@@ -1,0 +1,38 @@
+name: EDUNEXUS AI Runtime Production Health
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "neon/functions/edunexusai/**"
+      - ".github/workflows/ai-runtime-health.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check deployed production runtime
+        env:
+          AI_HEALTH_URL: https://br-bitter-king-azb11lde-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech/health
+        run: |
+          set -eu
+          curl --fail --silent --show-error --max-time 20 "$AI_HEALTH_URL" -o health.json
+          cat health.json
+          node -e '
+            const fs = require("node:fs");
+            const health = JSON.parse(fs.readFileSync("health.json", "utf8"));
+            if (health.service !== "edunexus-ai" || health.status !== "ok" || health.authConfigured !== true) {
+              console.error("Production AI runtime health/auth check failed.");
+              process.exit(1);
+            }
+            if (health.inferenceConfigured !== true) {
+              console.log("Runtime and authentication are healthy, but model inference is not configured; MODEL_API_KEY is still required.");
+            } else {
+              console.log("Runtime, authentication and model inference are configured.");
+            }
+          '
