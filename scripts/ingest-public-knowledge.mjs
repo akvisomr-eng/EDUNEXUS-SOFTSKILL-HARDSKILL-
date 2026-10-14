@@ -9,12 +9,12 @@ function decode(value = "") {
     .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ").trim();
 }
 function meta(html, name) {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const patterns = [
-    new RegExp('<meta[^>]+(?:name|property)=["\\']' + escaped + '["\\'][^>]+content=["\\']([^"\\']*)["\\']', "i"),
-    new RegExp('<meta[^>]+content=["\\']([^"\\']*)["\\'][^>]+(?:name|property)=["\\']' + escaped + '["\\']', "i"),
-  ];
-  for (const pattern of patterns) { const found = html.match(pattern); if (found) return decode(found[1]).slice(0, 360); }
+  for (const tag of (html.match(/<meta\b[^>]*>/gi) || [])) {
+    const key = tag.match(/\b(?:name|property)\s*=\s*["']([^"']+)["']/i)?.[1]?.toLowerCase();
+    if (key !== name.toLowerCase()) continue;
+    const value = tag.match(/\bcontent\s*=\s*["']([^"']*)["']/i)?.[1];
+    if (value) return decode(value).slice(0, 360);
+  }
   return "";
 }
 for (const source of registry.sources) {
@@ -29,7 +29,7 @@ for (const source of registry.sources) {
     snapshot.last_modified = response.headers.get("last-modified") || null;
     if (response.ok && /text\/html|application\/xhtml\+xml/i.test(snapshot.content_type)) {
       const html = (await response.text()).slice(0, 1_000_000);
-      snapshot.page_title = decode((html.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/i) || [,""])[1].replace(/<[^>]+>/g, " ")).slice(0, 240);
+      snapshot.page_title = decode((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [,""])[1].replace(/<[^>]+>/g, " ")).slice(0, 240);
       snapshot.description = meta(html, "description") || meta(html, "og:description");
       snapshot.status = "metadata_fetched";
     } else snapshot.status = response.ok ? "non_html_metadata_only" : "http_error";
