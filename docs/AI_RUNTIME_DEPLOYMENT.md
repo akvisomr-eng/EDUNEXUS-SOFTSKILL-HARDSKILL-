@@ -8,7 +8,8 @@
 - A small specialist registry routes a request to at most two bounded specialists in parallel.
 - The model provider is OpenAI-compatible and configured only through server-side environment variables.
 - Fail-closed behavior: absent model configuration returns HTTP 503; no fabricated answer is produced.
-- The response explicitly warns that this first slice has no RAG citations yet.
+- A small curated corpus of EDUNEXUS product/security guidance and official external source summaries is bundled with the function; lexical-overlap retrieval selects up to four chunks and responses expose source IDs/URLs.
+- Retrieval is lexical, not embedding/vector search, and the corpus is not dynamically ingested from the web.
 
 ## Required server-side environment
 
@@ -30,10 +31,14 @@ Do not set `NEON_AUTH_ISSUER` by guessing. Verify it against a legitimate sessio
 5. Only after tests pass and the exact target is confirmed, deploy to the intended production branch and verify the returned invocation URL.
 6. Wire the Pages frontend to the verified function URL in a separate change. Never put provider credentials in Pages JavaScript.
 
+## Rp0 provider candidate
+
+Google documents an OpenAI-compatible Gemini API endpoint at `https://generativelanguage.googleapis.com/v1beta/openai/`; obtain a key in Google AI Studio and verify a currently available model ID before use. Set `MODEL_API_BASE_URL`, `MODEL_API_KEY`, and `MODEL_ID` only as server-side function environment variables. Do not commit the key. Free-tier terms may permit use of submitted data to improve products; do not send personal, confidential, or identifiable learner data unless a privacy review confirms the provider terms are appropriate. Official references: https://ai.google.dev/gemini-api/docs/openai and https://ai.google.dev/gemini-api/docs/pricing.md.
+
 ## Limits / not yet implemented
 
-- This is a specialist-routing runtime, not proof that all 15 architecture roles are live.
-- RAG corpus ingestion, source chunking, citations, admin review workflow, persistent rate limits, usage budgets, and frontend chat UI are not implemented by this slice.
+- This is a bounded specialist-routing runtime, not proof that all 15 architecture roles are live.
+- Automated web ingestion, source licensing/review UI, embeddings/vector or semantic search, corpus version approval workflow, persistent rate limits, usage budgets, and frontend chat UI are not implemented by this slice.
 - In-memory rate limits are per isolate and are only a safety floor, not a durable abuse-control system.
 - Do not use dark-web sources by default. Use lawful, public, licensed, verifiable sources and human approval before indexing.
 - A model provider and its secret must be configured before inference can work. No provider key is currently committed or assumed.
