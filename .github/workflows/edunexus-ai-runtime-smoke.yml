@@ -10,6 +10,12 @@ on:
       - "web/knowledge-sources.json"
       - "web/knowledge-corpus.json"
       - "docs/KNOWLEDGE_CORPUS_CURRICULUM_V1.md"
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/edunexus-ai-runtime-smoke.yml"
+      - "web/knowledge-corpus.json"
+      - "neon/functions/edunexusai/**"
   workflow_dispatch:
 
 permissions:
@@ -27,6 +33,7 @@ jobs:
       - name: Verify deployed Neon function health and fail-closed auth
         env:
           AI_URL: https://br-quiet-frost-azemctlk-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech
+          PROD_AI_URL: https://br-bitter-king-azb11lde-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech
         run: |
           node --input-type=module <<'NODE'
           const corpusUrl = "https://akvisomr-eng.github.io/EDUNEXUS-SOFTSKILL-HARDSKILL-/knowledge-corpus.json";
@@ -54,5 +61,12 @@ jobs:
             signal: AbortSignal.timeout(15000)
           });
           if (unauth.status !== 401) throw new Error("Unauthenticated chat must fail closed; got HTTP " + unauth.status);
-          console.log("AI_RUNTIME_HEALTH=PASS; KNOWLEDGE_CHUNKS=" + body.knowledgeChunks + "; MODEL_MODE=RETRIEVAL_ONLY; UNAUTHENTICATED_CHAT=401");
+          console.log("AI_RUNTIME_HEALTH_TEST_BRANCH=PASS; KNOWLEDGE_CHUNKS=" + body.knowledgeChunks + "; MODEL_MODE=RETRIEVAL_ONLY; UNAUTHENTICATED_CHAT=401");
+          const prodHealthResponse = await fetch(process.env.PROD_AI_URL + "/health", { signal: AbortSignal.timeout(15000) });
+          if (!prodHealthResponse.ok) throw new Error("Production AI health HTTP " + prodHealthResponse.status);
+          const prodHealth = await prodHealthResponse.json();
+          if (prodHealth.status !== "ok" || prodHealth.authConfigured !== true || prodHealth.knowledgeConfigured !== true || prodHealth.knowledgeChunks < 51 || !String(prodHealth.knowledgeVersion).includes("v3")) {
+            throw new Error("Production AI runtime/corpus invalid: " + JSON.stringify(prodHealth));
+          }
+          console.log("AI_RUNTIME_HEALTH_PRODUCTION=PASS; version=" + prodHealth.knowledgeVersion + "; chunks=" + prodHealth.knowledgeChunks + "; inferenceConfigured=" + prodHealth.inferenceConfigured);
           NODE
