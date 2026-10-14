@@ -319,8 +319,8 @@ async function completeLesson(){
 async function enrollCourse(courseId){
  try{
   await api("/course_enrollments",{method:"POST",body:JSON.stringify({course_id:courseId,user_id:state.businessUserId,status:"active"})});
-  $("learningStatus").textContent="Pendaftaran kursus tersimpan.";
   await loadLearning();
+  $("learningStatus").textContent="Pendaftaran kursus tersimpan. "+learningCache.courses.length+" kursus dalam katalog.";
  }catch(e){$("learningStatus").textContent="Pendaftaran belum berhasil: "+e.message}
 }
 async function loadDevelopment(){
