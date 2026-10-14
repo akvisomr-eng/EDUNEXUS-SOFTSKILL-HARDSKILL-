@@ -80,6 +80,24 @@ footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
 </div>
 </div>
 
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:18px;align-items:start">
+<div class="card">
+<div class="section-title"><div><h2>Tujuan pengembangan</h2><p class="muted">Tetapkan target keterampilan dan tandai progres saat tujuan tercapai.</p></div></div>
+<form id="goalForm">
+<div class="field"><label for="goalTitle">Nama tujuan</label><input id="goalTitle" maxlength="160" required placeholder="Contoh: menyampaikan presentasi dengan jelas"></div>
+<div class="field"><label for="goalDescription">Deskripsi (opsional)</label><textarea id="goalDescription" rows="2" maxlength="1000" placeholder="Apa yang ingin dikuasai dan bagaimana mengukurnya?"></textarea></div>
+<button type="submit" id="saveGoalBtn">Simpan tujuan</button>
+<div id="goalStatus" class="status" role="status" aria-live="polite"></div>
+</form>
+<div id="goalsList" class="list"><div class="muted">Memuat tujuan…</div></div>
+</div>
+<div class="card">
+<div class="section-title"><div><h2>Program & kursus</h2><p class="muted">Katalog pembelajaran yang terhubung ke modul, pelajaran, dan progres tersimpan.</p></div></div>
+<div id="learningStatus" class="status" role="status" aria-live="polite">Memuat katalog…</div>
+<div id="coursesList" class="list"><div class="muted">Memuat kursus…</div></div>
+</div>
+</div>
+
 <div class="card" style="margin-top:18px">
 <div class="section-title"><div><h2>Katalog praktik</h2><p class="muted">Selesaikan tugas praktik terstruktur dan hasilkan bukti yang dapat ditelusuri.</p></div></div>
 <div id="scenarios" class="list"><div class="muted">Memuat…</div></div>
@@ -100,6 +118,15 @@ footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
 <div class="card" style="margin-top:18px">
 <div class="section-title"><div><h2>Bukti pengembangan</h2><p class="muted">Bukti yang telah diverifikasi nantinya dapat memperbarui penguasaan dan Paspor Keterampilan.</p></div></div>
 <div id="history" class="list"><div class="muted">Memuat…</div></div>
+</div>
+
+<div class="card" style="margin-top:18px">
+<div class="section-title"><div><h2>Paspor keterampilan & perkembangan</h2><p class="muted">Ringkasan penguasaan berdasarkan data tersimpan. Tingkat dan bukti tetap harus mengikuti rubrik serta proses verifikasi.</p></div></div>
+<div id="passportStatus" class="status" role="status" aria-live="polite">Memuat data pengembangan…</div>
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;align-items:start">
+<div><h3>Penguasaan keterampilan</h3><div id="masteryList" class="list"><div class="muted">Memuat…</div></div></div>
+<div><h3>Linimasa pengembangan</h3><div id="timelineList" class="list"><div class="muted">Memuat…</div></div></div>
+</div>
 </div>
 </section>
 <footer>EDUNEXUS · Platform Kecerdasan & Pengembangan Keterampilan · GitHub + Neon</footer>
@@ -180,6 +207,71 @@ async function loadHistory(){
   $("history").innerHTML=rows.length?rows.map(r=>'<div class="item"><div class="item-head"><div><b>'+escapeHtml(r.practice_scenarios?.title||"Praktik")+'</b><div class="muted">'+escapeHtml(localizeStatus(r.status))+' · '+new Date(r.started_at).toLocaleString()+'</div></div><span class="pill">'+escapeHtml(localizeStatus(r.status))+'</span></div></div>').join(""):'<div class="empty muted">Belum ada sesi praktik.</div>';
  }catch(e){$("history").innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'}
 }
+async function loadGoals(){
+ const host=$("goalsList");
+ try{
+  const rows=await api("/goals?select=id,title,description,status,created_at&user_id=eq."+encodeURIComponent(state.businessUserId)+"&order=created_at.desc&limit=12");
+  host.innerHTML=rows.length?rows.map(g=>'<div class="item"><div class="item-head"><div><b>'+escapeHtml(g.title)+'</b><div class="muted">'+escapeHtml(g.description||"Tanpa deskripsi")+'</div><div class="muted">Dibuat '+new Date(g.created_at).toLocaleDateString("id-ID")+'</div></div><span class="pill">'+escapeHtml(g.status==="completed"?"Selesai":g.status==="archived"?"Diarsipkan":"Aktif")+'</span></div>'+(g.status==="active"?'<div class="actions" style="margin-top:10px"><button type="button" class="secondary" data-complete-goal="'+escapeHtml(g.id)+'">Tandai selesai</button></div>':"")+'</div>').join(""):'<div class="empty muted">Belum ada tujuan. Tambahkan tujuan pertama Anda di atas.</div>';
+  host.querySelectorAll("[data-complete-goal]").forEach(b=>b.addEventListener("click",()=>completeGoal(b.dataset.completeGoal)));
+ }catch(e){host.innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'}
+}
+async function completeGoal(id){
+ try{
+  await api("/goals?id=eq."+encodeURIComponent(id)+"&user_id=eq."+encodeURIComponent(state.businessUserId),{method:"PATCH",body:JSON.stringify({status:"completed",updated_at:new Date().toISOString()})});
+  setStatus($("goalStatus"),"Tujuan ditandai selesai.");
+  await loadGoals();
+ }catch(e){setStatus($("goalStatus"),e.message,true)}
+}
+async function loadLearning(){
+ const host=$("coursesList");
+ try{
+  const query=encodeURIComponent(state.businessUserId);
+  const results=await Promise.all([
+   api("/courses?select=id,name,slug,description,program_id&order=name.asc"),
+   api("/programs?select=id,name&order=name.asc"),
+   api("/modules?select=id,course_id,name,position&order=position.asc"),
+   api("/lessons?select=id,module_id,title,position&order=position.asc"),
+   api("/course_enrollments?select=id,course_id,status&user_id=eq."+query)
+  ]);
+  const courses=results[0],programs=results[1],modules=results[2],lessons=results[3],enrollments=results[4];
+  $("learningStatus").textContent=courses.length?courses.length+" kursus dalam katalog. Progres hanya dicatat untuk kursus yang diikuti.":"Katalog terhubung, tetapi belum ada kursus yang diterbitkan.";
+  host.innerHTML=courses.length?courses.map(course=>{
+   const courseModules=modules.filter(m=>m.course_id===course.id);
+   const lessonCount=lessons.filter(l=>courseModules.some(m=>m.id===l.module_id)).length;
+   const enrollment=enrollments.find(e=>e.course_id===course.id);
+   const program=programs.find(p=>p.id===course.program_id);
+   const status=enrollment?(enrollment.status==="completed"?"Selesai":enrollment.status==="paused"?"Dijeda":enrollment.status==="dropped"?"Dihentikan":"Diikuti"):null;
+   return '<div class="item"><div class="item-head"><div><h3>'+escapeHtml(course.name)+'</h3><div class="muted">'+escapeHtml(course.description||"Deskripsi kursus belum tersedia.")+'</div><div class="muted">'+escapeHtml(program?.name||"Program umum")+' · '+courseModules.length+' modul · '+lessonCount+' pelajaran</div></div><span class="pill">'+escapeHtml(status||"Tersedia")+'</span></div>'+(enrollment?'':'<div class="actions" style="margin-top:10px"><button type="button" data-enroll-course="'+escapeHtml(course.id)+'">Ikuti kursus</button></div>')+(courseModules.length?'<div class="muted" style="margin-top:10px">'+courseModules.map(m=>'<div>• '+escapeHtml(m.name)+' ('+lessons.filter(l=>l.module_id===m.id).length+' pelajaran)</div>').join("")+'</div>':'<div class="muted" style="margin-top:10px">Materi modul belum ditambahkan.</div>')+'</div>';
+  }).join(""):'<div class="empty muted">Belum ada kursus aktif. Setelah pengelola menerbitkan materi, kursus akan muncul di sini.</div>';
+  host.querySelectorAll("[data-enroll-course]").forEach(b=>b.addEventListener("click",()=>enrollCourse(b.dataset.enrollCourse)));
+ }catch(e){$("learningStatus").textContent="Katalog belum dapat dimuat.";host.innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'}
+}
+async function enrollCourse(courseId){
+ try{
+  await api("/course_enrollments",{method:"POST",body:JSON.stringify({course_id:courseId,user_id:state.businessUserId,status:"active"})});
+  $("learningStatus").textContent="Pendaftaran kursus tersimpan.";
+  await loadLearning();
+ }catch(e){$("learningStatus").textContent="Pendaftaran belum berhasil: "+e.message}
+}
+async function loadDevelopment(){
+ try{
+  const uid=encodeURIComponent(state.businessUserId);
+  const results=await Promise.all([
+   api("/skills?select=id,name,domain&order=name.asc"),
+   api("/mastery_records?select=id,skill_id,level_id,score,evidence_count,assessed_at&user_id=eq."+uid+"&order=assessed_at.desc&limit=12"),
+   api("/skill_passports?select=id,version,updated_at&user_id=eq."+uid+"&order=updated_at.desc&limit=1"),
+   api("/development_events?select=id,event_type,summary,occurred_at&user_id=eq."+uid+"&order=occurred_at.desc&limit=8")
+  ]);
+  const skills=results[0],mastery=results[1],passports=results[2],events=results[3];
+  const skillById=new Map(skills.map(s=>[s.id,s]));
+  $("masteryList").innerHTML=mastery.length?mastery.map(m=>{
+   const skill=skillById.get(m.skill_id);
+   return '<div class="item"><div class="item-head"><div><b>'+escapeHtml(skill?.name||"Keterampilan")+'</b><div class="muted">'+escapeHtml(skill?.domain==="soft_skill"?"Soft skill":skill?.domain==="hard_skill"?"Hard skill":"Domain belum tersedia")+' · '+m.evidence_count+' bukti</div></div><span class="pill">L'+escapeHtml(m.level_id)+'</span></div><div class="muted">Skor: '+(m.score==null?"Belum dinilai":escapeHtml(Number(m.score).toLocaleString("id-ID")+"/100"))+'</div></div>';
+  }).join(""):'<div class="empty muted">Belum ada catatan penguasaan terverifikasi. Selesaikan praktik dan ikuti proses tinjauan bukti.</div>';
+  $("timelineList").innerHTML=events.length?events.map(ev=>'<div class="item"><b>'+escapeHtml(ev.summary)+'</b><div class="muted">'+escapeHtml(ev.event_type)+' · '+new Date(ev.occurred_at).toLocaleDateString("id-ID")+'</div></div>').join(""):'<div class="empty muted">Linimasa akan terisi setelah ada peristiwa pengembangan yang tersimpan.</div>';
+  $("passportStatus").textContent=passports.length?"Snapshot Paspor Keterampilan v"+passports[0].version+" · diperbarui "+new Date(passports[0].updated_at).toLocaleString("id-ID")+".":"Belum ada snapshot Paspor Keterampilan. Data ini tidak dibuat otomatis dari skor yang belum ditinjau.";
+ }catch(e){$("passportStatus").textContent="Data pengembangan belum dapat dimuat."; $("masteryList").innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'; $("timelineList").innerHTML='<div class="empty muted">Linimasa tidak tersedia.</div>'}
+}
 async function loadCatalog(){
  const scenarios=await api("/practice_scenarios?select=id,title,description,scenario_type,difficulty,instructions&status=eq.active&order=created_at.desc");
  $("scenarioCount").textContent=scenarios.length;
@@ -224,6 +316,20 @@ $("practiceForm").addEventListener("submit",async e=>{
  }catch(e){setStatus($("practiceStatus"),e.message,true);$("submitPractice").disabled=false}
 });
 $("cancelPractice").addEventListener("click",()=>{$("practice").style.display="none";$("scenarios").style.display="grid";state.scenario=null;state.sessionId=null;state.attemptId=null});
+$("goalForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const title=$("goalTitle").value.trim(),description=$("goalDescription").value.trim();
+ if(!title){setStatus($("goalStatus"),"Nama tujuan wajib diisi.",true);return;}
+ $("saveGoalBtn").disabled=true;
+ setStatus($("goalStatus"),"Menyimpan tujuan…");
+ try{
+  await api("/goals",{method:"POST",body:JSON.stringify({user_id:state.businessUserId,title,description:description||null,status:"active"})});
+  $("goalForm").reset();
+  setStatus($("goalStatus"),"Tujuan berhasil disimpan.");
+  await loadGoals();
+ }catch(err){setStatus($("goalStatus"),err.message,true)}
+ finally{$("saveGoalBtn").disabled=false}
+});
 async function loadApp(){
  $("auth").style.display="none";$("app").style.display="block";
  $("sessionBadge").textContent=state.user?.email||"Sudah masuk";
@@ -233,6 +339,7 @@ async function loadApp(){
   await loadCatalog();
   $("health").textContent="OK";
   await loadHistory();
+  await Promise.all([loadGoals(),loadLearning(),loadDevelopment()]);
  }catch(e){
   $("health").textContent="GAGAL";
   $("scenarios").innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>';
