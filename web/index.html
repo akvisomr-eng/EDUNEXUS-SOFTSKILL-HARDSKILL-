@@ -108,6 +108,8 @@ footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
 <div class="section-title"><div><div class="badge">PUSTAKA RUJUKAN</div><h2>Sumber pengetahuan EDUNEXUS</h2><p class="muted">Referensi resmi dan kerangka terbuka yang digunakan untuk menyusun materi orisinal. Tautan terdaftar bukan berarti seluruh dokumen sudah diunduh atau diindeks.</p></div></div>
 <div id="knowledgeStatus" class="status" role="status" aria-live="polite">Memuat daftar sumber…</div>
 <div id="knowledgeSourcesList" class="list"><div class="muted">Memuat…</div></div>
+<div class="section-title" style="margin-top:18px"><div><h3>Catatan pengetahuan terkurasi</h3><p class="muted">Ringkasan orisinal EDUNEXUS dengan tautan sumber; bukan salinan penuh dokumen eksternal.</p></div></div>
+<div id="knowledgeNotes" class="list"><div class="muted">Memuat catatan…</div></div>
 </div>
 
 <div class="card" style="margin-top:18px">
@@ -198,7 +200,12 @@ async function loadKnowledgeSources(){
   const registry=await response.json();
   const sources=Array.isArray(registry.sources)?registry.sources:[];
   host.innerHTML=sources.map(source=>'<div class="item"><div class="item-head"><div><h3>'+escapeHtml(source.title)+'</h3><div class="muted">'+escapeHtml(source.publisher)+' · '+escapeHtml(source.domain)+'</div></div><span class="pill">Trust '+escapeHtml(source.trust)+'</span></div><p class="muted">'+escapeHtml(source.use)+'</p><p class="muted"><b>Lisensi:</b> '+escapeHtml(source.license)+'</p><a href="'+escapeHtml(source.url)+'" target="_blank" rel="noopener noreferrer">Buka sumber asli ↗</a></div>').join("");
-  $("knowledgeStatus").textContent=sources.length+" sumber terkurasi terdaftar · snapshot "+escapeHtml(registry.version||"versi tidak diketahui")+".";
+  const notes=Array.isArray(registry.knowledgeChunks)?registry.knowledgeChunks:[];
+  $("knowledgeNotes").innerHTML=notes.map(note=>{
+   const source=sources.find(s=>s.id===note.sourceId);
+   return '<div class="item"><div class="item-head"><div><h3>'+escapeHtml(note.title)+'</h3><div class="muted">'+escapeHtml(note.domain)+' · agen: '+escapeHtml((note.agentRoles||[]).join(", "))+'</div></div><span class="pill">Trust '+escapeHtml(note.trust)+'</span></div><p class="muted">'+escapeHtml(note.text)+'</p>'+(source?'<a href="'+escapeHtml(source.url)+'" target="_blank" rel="noopener noreferrer">Buka sumber pendukung ↗</a>':'')+'</div>';
+  }).join("")||'<div class="muted">Belum ada catatan pengetahuan.</div>';
+  $("knowledgeStatus").textContent=sources.length+" sumber · "+notes.length+" catatan pengetahuan orisinal · snapshot "+escapeHtml(registry.version||"versi tidak diketahui")+". Full-text unduhan: "+(registry.knowledgeStats?.fullTextDocumentsDownloaded??0)+"; embedding: "+(registry.knowledgeStats?.embeddingsCreated??0)+".";
  }catch(e){
   $("knowledgeStatus").textContent="Daftar sumber belum dapat dimuat.";
   host.innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>';
