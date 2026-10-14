@@ -26,6 +26,13 @@ jobs:
           test -f docs/NEON_CUTOVER.md
           test -f web/neon-cutover-smoke.html
           test -f tests/neon-browser-smoke.mjs
+          test -f tests/neon-frontend-e2e.mjs
+          grep -q "NEON_AUTH_URL" web/index.html
+          grep -q "DATA_API_URL" web/index.html
+          grep -q "ensure_my_profile" web/index.html
+          grep -q "finalize_my_practice_attempt" web/index.html
+          ! grep -q "SUPABASE_URL" web/index.html
+          grep -q "neon-preview.html" .github/workflows/neon-browser-smoke.yml
           test -f .github/workflows/neon-browser-smoke.yml
           grep -q "playwright" .github/workflows/neon-browser-smoke.yml
           grep -q "JWT nyata dari Neon Auth" tests/neon-browser-smoke.mjs
