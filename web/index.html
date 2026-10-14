@@ -114,17 +114,24 @@ function localizeError(msg){
  return map[msg]||msg;
 }
 function escapeHtml(v){return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
-async function getJwtToken(){
+async function getJwtToken(forceRefresh=false){
+ let token=state.session?.token;
+ if(!forceRefresh&&typeof token==="string"&&token.split(".").length===3)return token;
  const result=await auth.getSession();
  if(result?.error)throw new Error(result.error.message||"Sesi Neon Auth tidak dapat dibaca.");
- const token=result?.data?.session?.token;
+ state.session=result?.data?.session||state.session;
+ token=state.session?.token;
  if(typeof token!=="string"||token.split(".").length!==3)throw new Error("Sesi login tidak menyediakan JWT Data API. Silakan keluar lalu masuk kembali.");
  return token;
 }
 async function api(path,options={}){
  const token=await getJwtToken();
  const headers={"Authorization":"Bearer "+token,"Content-Type":"application/json","Prefer":options.method==="POST"||options.method==="PATCH"?"return=representation":"",...(options.headers||{})};
- const r=await fetch(DATA_API_URL+path,{...options,headers});
+ let r=await fetch(DATA_API_URL+path,{...options,headers});
+ if(r.status===401){
+  const refreshedToken=await getJwtToken(true);
+  r=await fetch(DATA_API_URL+path,{...options,headers:{...headers,"Authorization":"Bearer "+refreshedToken}});
+ }
  const text=await r.text();let data=null;
  try{data=text?JSON.parse(text):null}catch{data=text}
  if(!r.ok)throw new Error(data?.message||data?.details||data?.hint||data?.error||("HTTP "+r.status));
