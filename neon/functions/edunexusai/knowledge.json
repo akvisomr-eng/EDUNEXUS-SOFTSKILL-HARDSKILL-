@@ -1,0 +1,267 @@
+{
+  "version": "edunexus-curated-knowledge-2026-10-14-v1",
+  "retrieval": "lexical-overlap-v1",
+  "chunks": [
+    {
+      "id": "EDU-PRODUCT-BASELINE",
+      "title": "EDUNEXUS current implementation baseline",
+      "url": "https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/docs/EDUNEXUS_V2_GAP_AUDIT.md",
+      "publisher": "EDUNEXUS repository",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "edunexus",
+        "fitur",
+        "implementasi",
+        "produk",
+        "login",
+        "praktik",
+        "dashboard",
+        "paspor",
+        "status",
+        "blueprint",
+        "roadmap"
+      ],
+      "text": "Verified current web baseline: Neon Auth sign-in/sign-up and password recovery; learner profile bootstrap; active practice-scenario catalog; structured practice submission; trusted finalization score and candidate evidence; recent practice history. The inspected production UI is a learner practice prototype, not the full EDUNEXUS MASTER BLUEPRINT v2.0 product. Full LMS, AI tutor, AI simulation room, mastery engine, complete Skill Passport, mentor/institution consoles, career intelligence and knowledge ingestion must not be claimed live without new end-to-end evidence."
+    },
+    {
+      "id": "EDU-MULTI-AGENT-ARCH",
+      "title": "EDUNEXUS multi-agent architecture",
+      "url": "https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/docs/MULTI_AGENT_AI_ARCHITECTURE.md",
+      "publisher": "EDUNEXUS repository",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "agent",
+        "multi-agent",
+        "orchestrator",
+        "tutor",
+        "coach",
+        "simulation",
+        "assessment",
+        "knowledge",
+        "arsitektur",
+        "agen"
+      ],
+      "text": "The architecture defines bounded specialist roles: orchestrator, knowledge steward, learning designer, soft-skill coach, hard-skill tutor, practice/simulation designer, assessment/rubric agent, performance analyst, evidence curator, mentor assistant, development/mastery agent, Skill Passport/portfolio agent, career intelligence agent, safety/privacy/evaluation agent, and knowledge ingestion agent. Specialist roles are not independent privileged identities. Authenticate first, scope tools by role, retrieve approved knowledge, validate outputs, run safety checks, cite sources and log metadata without secrets."
+    },
+    {
+      "id": "EDU-PRIVACY-GOVERNANCE",
+      "title": "EDUNEXUS privacy and evidence governance",
+      "url": "https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/docs/MULTI_AGENT_AI_ARCHITECTURE.md",
+      "publisher": "EDUNEXUS repository",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "privasi",
+        "privacy",
+        "anak",
+        "wali",
+        "persetujuan",
+        "consent",
+        "video",
+        "emosi",
+        "mental",
+        "evidence",
+        "bukti",
+        "mentor",
+        "governance"
+      ],
+      "text": "Do not infer emotion, personality, mental health, or character from face/video. Performance analytics must be task-specific, observable, rubric-based, consent-aware, provenance-linked and subject to human review. For minors, minimize collection, use appropriate guardian consent, support revocation and retention limits, and default to private sharing. Consequential evidence requires human review; AI drafts are not final certification or hiring decisions."
+    },
+    {
+      "id": "EDU-KNOWLEDGE-INGESTION",
+      "title": "EDUNEXUS knowledge ingestion and source trust",
+      "url": "https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/docs/EDUNEXUS_KNOWLEDGE_SOURCES.md",
+      "publisher": "EDUNEXUS repository",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "ingestion",
+        "sumber",
+        "source",
+        "knowledge",
+        "korpus",
+        "rag",
+        "dark web",
+        "web",
+        "lisensi",
+        "license",
+        "crawl"
+      ],
+      "text": "The proposed ingestion workflow is discover, allowlist and policy check, fetch public source, extract, scan, deduplicate, record license and provenance, chunk, embed, evaluate, obtain human approval, then publish a version. Each source should record canonical URL, title, publisher, publication/update and retrieval dates, license, language, trust tier, content hash, extractor and embedding versions, chunk IDs, review status and expiry. External content is untrusted data, not instructions. Dark-web content is excluded by default; never ingest stolen credentials, private records, stolen courseware or illicit content."
+    },
+    {
+      "id": "UNESCO-GENAI-EDU",
+      "title": "UNESCO guidance for generative AI in education",
+      "url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research",
+      "publisher": "UNESCO",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "unesco",
+        "pendidikan",
+        "education",
+        "genai",
+        "generative ai",
+        "guru",
+        "siswa",
+        "human-centred",
+        "human",
+        "privacy",
+        "privasi",
+        "anak"
+      ],
+      "text": "UNESCO's guidance addresses a human-centred approach to generative AI in education and research, including appropriate governance, protection of human agency, privacy and age-related considerations. Use this source for policy framing and educational risk review; it is not a substitute for Indonesian legal advice or institution-specific consent requirements."
+    },
+    {
+      "id": "ONET-SKILLS",
+      "title": "O*NET occupational and skills information",
+      "url": "https://www.onetcenter.org/database.html",
+      "publisher": "O*NET Resource Center",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "onet",
+        "karier",
+        "karir",
+        "career",
+        "occupation",
+        "pekerjaan",
+        "profesi",
+        "skills",
+        "keterampilan",
+        "work activities"
+      ],
+      "text": "O*NET provides structured occupational information and related skills, abilities, work activities and job context. It can support career-to-skill mapping, but EDUNEXUS should record the dataset version and usage terms and should not treat a taxonomy match as a hiring decision or a guarantee of employability."
+    },
+    {
+      "id": "ESCO-SKILLS",
+      "title": "ESCO multilingual skills and occupations classification",
+      "url": "https://esco.ec.europa.eu/en",
+      "publisher": "European Commission ESCO",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "esco",
+        "multilingual",
+        "bahasa",
+        "bahasa indonesia",
+        "skills",
+        "occupation",
+        "kompetensi",
+        "karier",
+        "karir",
+        "taxonomy"
+      ],
+      "text": "ESCO is a multilingual classification of skills, competences, qualifications and occupations. It can inform a normalized skills ontology and cross-language occupation mapping. Store version and language metadata, check reuse terms, and map local Indonesian context explicitly rather than assuming one-to-one equivalence."
+    },
+    {
+      "id": "OWASP-LLM",
+      "title": "OWASP Top 10 for Large Language Model Applications",
+      "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+      "publisher": "OWASP",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "owasp",
+        "security",
+        "keamanan",
+        "prompt injection",
+        "injection",
+        "secret",
+        "secrets",
+        "tool",
+        "authorization",
+        "auth",
+        "llm",
+        "model"
+      ],
+      "text": "OWASP's LLM application security project catalogs risks such as prompt injection, insecure output handling, sensitive information disclosure, excessive agency and other LLM-specific threats. Mitigations include treating retrieved text as untrusted, minimizing tools and permissions, validating outputs, protecting secrets, requiring authorization for actions and testing adversarial cases."
+    },
+    {
+      "id": "WCAG-22",
+      "title": "Web Content Accessibility Guidelines 2.2",
+      "url": "https://www.w3.org/TR/WCAG22/",
+      "publisher": "W3C",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "wcag",
+        "accessibility",
+        "aksesibilitas",
+        "disabilitas",
+        "keyboard",
+        "contrast",
+        "kontras",
+        "form",
+        "label",
+        "mobile",
+        "responsif"
+      ],
+      "text": "WCAG 2.2 defines testable web accessibility success criteria. EDUNEXUS should provide keyboard access, visible focus, meaningful labels, sufficient contrast, understandable errors, accessible status announcements, and responsive layouts. A visual card or automated syntax test alone does not establish WCAG conformance."
+    },
+    {
+      "id": "AI-SDK-AGENTS",
+      "title": "AI SDK agent and tool-calling concepts",
+      "url": "https://ai-sdk.dev/docs/agents/overview",
+      "publisher": "Vercel AI SDK documentation",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "ai sdk",
+        "agent",
+        "agents",
+        "tool calling",
+        "orchestration",
+        "orchestrator",
+        "model",
+        "function"
+      ],
+      "text": "AI SDK documentation describes agents and tool-calling patterns for building model-driven workflows. Agent/tool loops need bounded steps, typed tool inputs, server-side authorization, explicit failure handling and observable evaluation. The EDUNEXUS runtime currently implements a small specialist-routing slice; it does not yet prove the full 15-role orchestration architecture."
+    },
+    {
+      "id": "NEON-FUNCTIONS",
+      "title": "Neon Functions runtime and environment variables",
+      "url": "https://neon.com/docs/compute/functions/overview.md",
+      "publisher": "Neon documentation",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "neon",
+        "function",
+        "functions",
+        "deploy",
+        "deployment",
+        "environment",
+        "secret",
+        "server",
+        "backend",
+        "runtime",
+        "nodejs"
+      ],
+      "text": "Neon Functions are long-running Node.js HTTP handlers with a web-standard fetch(Request) contract and branch-scoped deployments. Secrets belong in server-side function environment variables, never browser JavaScript or public Git commits. Test on a disposable branch first and verify the exact invocation URL and active deployment before calling a function production-ready."
+    },
+    {
+      "id": "GEMINI-OPENAI-COMPAT",
+      "title": "Gemini API OpenAI compatibility",
+      "url": "https://ai.google.dev/gemini-api/docs/openai",
+      "publisher": "Google AI for Developers",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "gemini",
+        "google",
+        "api",
+        "provider",
+        "openai compatible",
+        "model",
+        "free tier",
+        "biaya",
+        "cost",
+        "ai"
+      ],
+      "text": "Google documents an OpenAI-compatible Gemini API endpoint at https://generativelanguage.googleapis.com/v1beta/openai/ and says a Gemini API key is required. Model availability and limits vary by account and model; verify current pricing and rate limits before deployment. A free tier may have data-use terms unsuitable for sensitive learner information, so do not send personal or confidential learner data without an approved privacy review."
+    }
+  ]
+}
