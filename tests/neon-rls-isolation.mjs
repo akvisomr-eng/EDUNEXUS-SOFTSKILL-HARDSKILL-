@@ -41,7 +41,8 @@ try {
   await pageB.locator("#run").click();
   await pageB.waitForFunction(() => {
     const checks = [...document.querySelectorAll("#checks .check")];
-    return checks.some(el => el.textContent.includes("Alur praktik dan finalisasi tepercaya")) &&\n      checks.some(el => el.textContent.includes("RLS sesi praktik milik pengguna"));
+    return checks.some(el => el.textContent.includes("Alur praktik dan finalisasi tepercaya")) &&
+      checks.some(el => el.textContent.includes("RLS sesi praktik milik pengguna"));
   }, null, { timeout: 60000 });
   const checksB = await pageB.locator("#checks .check").allTextContents();
   const lifecycleB = checksB.find(t => t.includes("Alur praktik dan finalisasi tepercaya")) || "";
