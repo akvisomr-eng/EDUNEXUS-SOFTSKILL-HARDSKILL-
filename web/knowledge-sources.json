@@ -1,0 +1,194 @@
+{
+  "version": "2026-10-14",
+  "policy": "Curated public reference registry, not a claim of exhaustive internet ingestion. Store metadata and original summaries; fetch only where permitted. Verify each source/version/license before reuse.",
+  "sources": [
+    {
+      "id": "id-kurikulum-cp-atp",
+      "title": "Kurikulum Nasional: CP & ATP",
+      "publisher": "Kementerian Pendidikan Dasar dan Menengah RI",
+      "url": "https://guru.kemendikdasmen.go.id/kurikulum/referensi-penerapan/capaian-pembelajaran/",
+      "domain": "kurikulum-indonesia",
+      "trust": "A",
+      "use": "Rujukan nasional untuk capaian pembelajaran dan contoh alur tujuan pembelajaran; periksa keputusan dan versi terbaru sebelum menyatakan kepatuhan.",
+      "license": "Tinjau syarat tiap dokumen; jangan menyalin modul tanpa izin",
+      "agentRoles": [
+        "learning_designer",
+        "assessment_rubric",
+        "knowledge_steward"
+      ]
+    },
+    {
+      "id": "id-panduan-mapel",
+      "title": "Panduan Mata Pelajaran",
+      "publisher": "Sistem Informasi Kurikulum Nasional",
+      "url": "https://kurikulum.kemendikdasmen.go.id/panduan-mapel",
+      "domain": "kurikulum-indonesia",
+      "trust": "A",
+      "use": "Menerjemahkan CP ke pembelajaran; gunakan sebagai referensi dan kontekstualisasikan.",
+      "license": "Periksa lisensi dokumen individual",
+      "agentRoles": [
+        "learning_designer",
+        "assessment_rubric"
+      ]
+    },
+    {
+      "id": "id-kurikulum-prinsip",
+      "title": "Tentang Kurikulum Merdeka",
+      "publisher": "Guru Kemendikdasmen",
+      "url": "https://guru.kemendikdasmen.go.id/kurikulum-merdeka",
+      "domain": "kurikulum-indonesia",
+      "trust": "A",
+      "use": "Prinsip pembelajaran berpusat pada murid, CP, ATP dan profil pelajar.",
+      "license": "Periksa lisensi halaman/dokumen",
+      "agentRoles": [
+        "learning_designer",
+        "soft_skill_coach"
+      ]
+    },
+    {
+      "id": "id-akm",
+      "title": "Asesmen Kompetensi Minimum",
+      "publisher": "Pusat Asesmen dan Pembelajaran",
+      "url": "https://pusmendik.kemdikbud.go.id/an/akm?j=2&l=1",
+      "domain": "literasi-numerasi",
+      "trust": "A",
+      "use": "Contoh kerangka literasi membaca dan numerasi bertahap; bukan pengganti asesmen kelas.",
+      "license": "Sumber pemerintah; verifikasi ketentuan pemakaian",
+      "agentRoles": [
+        "assessment_rubric",
+        "hard_skill_tutor"
+      ]
+    },
+    {
+      "id": "unesco-ai-students",
+      "title": "AI Competency Framework for Students (2024)",
+      "publisher": "UNESCO",
+      "url": "https://www.unesco.org/en/articles/ai-competency-framework-students",
+      "domain": "literasi-ai",
+      "trust": "A",
+      "use": "Empat dimensi kompetensi AI dan progresi understand/apply/create; parafrasa, atribusi, adaptasi lokal.",
+      "license": "CC BY-SA 3.0 IGO publication; verify exact edition terms",
+      "agentRoles": [
+        "hard_skill_tutor",
+        "safety_privacy_evaluation",
+        "learning_designer"
+      ]
+    },
+    {
+      "id": "unesco-ai-teachers",
+      "title": "AI Competency Framework for Teachers (2024)",
+      "publisher": "UNESCO",
+      "url": "https://www.unesco.org/en/articles/ai-competency-framework-teachers",
+      "domain": "literasi-ai",
+      "trust": "A",
+      "use": "Kompetensi pendidik terkait AI, etika, pedagogi, dan pengembangan profesional.",
+      "license": "CC BY-SA 3.0 IGO publication; verify exact edition terms",
+      "agentRoles": [
+        "mentor_assistant",
+        "learning_designer",
+        "safety_privacy_evaluation"
+      ]
+    },
+    {
+      "id": "unesco-genai-guidance",
+      "title": "Guidance for Generative AI in Education and Research",
+      "publisher": "UNESCO",
+      "url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research",
+      "domain": "governance-ai",
+      "trust": "A",
+      "use": "Pendekatan human-centred, privasi, usia, validasi pedagogis dan kebijakan AI.",
+      "license": "Review publication license before copying text",
+      "agentRoles": [
+        "safety_privacy_evaluation",
+        "knowledge_steward"
+      ]
+    },
+    {
+      "id": "oecd-learning-compass",
+      "title": "OECD Learning Compass 2030",
+      "publisher": "OECD",
+      "url": "https://www.oecd.org/en/data/tools/oecd-learning-compass-2030.html",
+      "domain": "kompetensi",
+      "trust": "A",
+      "use": "Kerangka orientasi kompetensi, agency, pengetahuan, keterampilan, sikap dan nilai; kontekstualisasikan secara lokal.",
+      "license": "Copyright applies; use citation and original synthesis, do not bulk-copy",
+      "agentRoles": [
+        "learning_designer",
+        "development_mastery",
+        "career_intelligence"
+      ]
+    },
+    {
+      "id": "oecd-teaching-compass",
+      "title": "OECD Teaching Compass",
+      "publisher": "OECD",
+      "url": "https://www.oecd.org/en/publications/oecd-teaching-compass_8297a24a-en.html",
+      "domain": "pengembangan-pendidik",
+      "trust": "A",
+      "use": "Peran pendidik sebagai perancang pembelajaran dan pembelajar profesional.",
+      "license": "Copyright applies; use citation and original synthesis",
+      "agentRoles": [
+        "mentor_assistant",
+        "learning_designer"
+      ]
+    },
+    {
+      "id": "esco",
+      "title": "ESCO Skills, Competences, Qualifications and Occupations",
+      "publisher": "European Commission",
+      "url": "https://esco.ec.europa.eu/en/use-esco",
+      "domain": "taksonomi-keterampilan",
+      "trust": "A",
+      "use": "Taksonomi skill dan pekerjaan untuk pemetaan karier; adaptasi bahasa dan konteks Indonesia.",
+      "license": "Check ESCO dataset terms and version; API software licenses do not automatically cover every dataset use",
+      "agentRoles": [
+        "career_intelligence",
+        "knowledge_steward",
+        "development_mastery"
+      ]
+    },
+    {
+      "id": "onet",
+      "title": "O*NET OnLine Content License and Database",
+      "publisher": "U.S. Department of Labor / ETA",
+      "url": "https://www.onetonline.org/help/license",
+      "domain": "taksonomi-keterampilan",
+      "trust": "A",
+      "use": "Contoh taksonomi keterampilan dan pekerjaan; beri atribusi CC BY 4.0 dan nyatakan perubahan.",
+      "license": "CC BY 4.0 for O*NET OnLine content subject to stated exceptions",
+      "agentRoles": [
+        "career_intelligence",
+        "knowledge_steward"
+      ]
+    },
+    {
+      "id": "digcomp",
+      "title": "DigComp 2.2: Digital Competence Framework for Citizens",
+      "publisher": "European Commission / Joint Research Centre",
+      "url": "https://pact-for-skills.ec.europa.eu/community-resources/publications-and-documents/digcomp-22-digital-competence-framework-citizens_en",
+      "domain": "literasi-digital",
+      "trust": "A",
+      "use": "Kompetensi digital, keselamatan, evaluasi informasi, dan penggunaan AI; buat konten pembelajaran orisinal.",
+      "license": "Check publication's license before reproducing tables or text",
+      "agentRoles": [
+        "hard_skill_tutor",
+        "assessment_rubric",
+        "safety_privacy_evaluation"
+      ]
+    },
+    {
+      "id": "who-education-wellbeing",
+      "title": "Teaching with Care: support mental health and well-being in schools",
+      "publisher": "WHO, UNICEF, UNESCO",
+      "url": "https://www.who.int/publications/i/item/9789240124912",
+      "domain": "kesejahteraan-pembelajaran",
+      "trust": "A",
+      "use": "Lingkungan belajar aman dan dukungan yang sesuai; tidak untuk diagnosis otomatis atau inferensi kepribadian.",
+      "license": "Check the publication's terms before reproducing content",
+      "agentRoles": [
+        "safety_privacy_evaluation",
+        "mentor_assistant"
+      ]
+    }
+  ]
+}
