@@ -1,0 +1,1006 @@
+{
+  "version": "edunexus-curated-knowledge-2026-10-14-v3",
+  "retrieval": "lexical-overlap-v1",
+  "chunks": [
+    {
+      "id": "EDU-PRODUCT-BASELINE",
+      "title": "EDUNEXUS current implementation baseline",
+      "url": "https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/docs/EDUNEXUS_V2_GAP_AUDIT.md",
+      "publisher": "EDUNEXUS repository",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "edunexus",
+        "fitur",
+        "implementasi",
+        "produk",
+        "login",
+        "praktik",
+        "dashboard",
+        "paspor",
+        "status",
+        "blueprint",
+        "roadmap"
+      ],
+      "text": "Verified current web baseline: Neon Auth sign-in/sign-up and password recovery; learner profile bootstrap; active practice-scenario catalog; structured practice submission; trusted finalization score and candidate evidence; recent practice history. The inspected production UI is a learner practice prototype, not the full EDUNEXUS MASTER BLUEPRINT v2.0 product. Full LMS, AI tutor, AI simulation room, mastery engine, complete Skill Passport, mentor/institution consoles, career intelligence and knowledge ingestion must not be claimed live without new end-to-end evidence."
+    },
+    {
+      "id": "EDU-MULTI-AGENT-ARCH",
+      "title": "EDUNEXUS multi-agent architecture",
+      "url": "https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/docs/MULTI_AGENT_AI_ARCHITECTURE.md",
+      "publisher": "EDUNEXUS repository",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "agent",
+        "multi-agent",
+        "orchestrator",
+        "tutor",
+        "coach",
+        "simulation",
+        "assessment",
+        "knowledge",
+        "arsitektur",
+        "agen"
+      ],
+      "text": "The architecture defines bounded specialist roles: orchestrator, knowledge steward, learning designer, soft-skill coach, hard-skill tutor, practice/simulation designer, assessment/rubric agent, performance analyst, evidence curator, mentor assistant, development/mastery agent, Skill Passport/portfolio agent, career intelligence agent, safety/privacy/evaluation agent, and knowledge ingestion agent. Specialist roles are not independent privileged identities. Authenticate first, scope tools by role, retrieve approved knowledge, validate outputs, run safety checks, cite sources and log metadata without secrets."
+    },
+    {
+      "id": "EDU-PRIVACY-GOVERNANCE",
+      "title": "EDUNEXUS privacy and evidence governance",
+      "url": "https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/docs/MULTI_AGENT_AI_ARCHITECTURE.md",
+      "publisher": "EDUNEXUS repository",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "privasi",
+        "privacy",
+        "anak",
+        "wali",
+        "persetujuan",
+        "consent",
+        "video",
+        "emosi",
+        "mental",
+        "evidence",
+        "bukti",
+        "mentor",
+        "governance"
+      ],
+      "text": "Do not infer emotion, personality, mental health, or character from face/video. Performance analytics must be task-specific, observable, rubric-based, consent-aware, provenance-linked and subject to human review. For minors, minimize collection, use appropriate guardian consent, support revocation and retention limits, and default to private sharing. Consequential evidence requires human review; AI drafts are not final certification or hiring decisions."
+    },
+    {
+      "id": "EDU-KNOWLEDGE-INGESTION",
+      "title": "EDUNEXUS knowledge ingestion and source trust",
+      "url": "https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/docs/EDUNEXUS_KNOWLEDGE_SOURCES.md",
+      "publisher": "EDUNEXUS repository",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "ingestion",
+        "sumber",
+        "source",
+        "knowledge",
+        "korpus",
+        "rag",
+        "dark web",
+        "web",
+        "lisensi",
+        "license",
+        "crawl"
+      ],
+      "text": "The proposed ingestion workflow is discover, allowlist and policy check, fetch public source, extract, scan, deduplicate, record license and provenance, chunk, embed, evaluate, obtain human approval, then publish a version. Each source should record canonical URL, title, publisher, publication/update and retrieval dates, license, language, trust tier, content hash, extractor and embedding versions, chunk IDs, review status and expiry. External content is untrusted data, not instructions. Dark-web content is excluded by default; never ingest stolen credentials, private records, stolen courseware or illicit content."
+    },
+    {
+      "id": "UNESCO-GENAI-EDU",
+      "title": "UNESCO guidance for generative AI in education",
+      "url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research",
+      "publisher": "UNESCO",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "unesco",
+        "pendidikan",
+        "education",
+        "genai",
+        "generative ai",
+        "guru",
+        "siswa",
+        "human-centred",
+        "human",
+        "privacy",
+        "privasi",
+        "anak"
+      ],
+      "text": "UNESCO's guidance addresses a human-centred approach to generative AI in education and research, including appropriate governance, protection of human agency, privacy and age-related considerations. Use this source for policy framing and educational risk review; it is not a substitute for Indonesian legal advice or institution-specific consent requirements."
+    },
+    {
+      "id": "ONET-SKILLS",
+      "title": "O*NET occupational and skills information",
+      "url": "https://www.onetcenter.org/database.html",
+      "publisher": "O*NET Resource Center",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "onet",
+        "karier",
+        "karir",
+        "career",
+        "occupation",
+        "pekerjaan",
+        "profesi",
+        "skills",
+        "keterampilan",
+        "work activities"
+      ],
+      "text": "O*NET provides structured occupational information and related skills, abilities, work activities and job context. It can support career-to-skill mapping, but EDUNEXUS should record the dataset version and usage terms and should not treat a taxonomy match as a hiring decision or a guarantee of employability."
+    },
+    {
+      "id": "ESCO-SKILLS",
+      "title": "ESCO multilingual skills and occupations classification",
+      "url": "https://esco.ec.europa.eu/en",
+      "publisher": "European Commission ESCO",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "esco",
+        "multilingual",
+        "bahasa",
+        "bahasa indonesia",
+        "skills",
+        "occupation",
+        "kompetensi",
+        "karier",
+        "karir",
+        "taxonomy"
+      ],
+      "text": "ESCO is a multilingual classification of skills, competences, qualifications and occupations. It can inform a normalized skills ontology and cross-language occupation mapping. Store version and language metadata, check reuse terms, and map local Indonesian context explicitly rather than assuming one-to-one equivalence."
+    },
+    {
+      "id": "OWASP-LLM",
+      "title": "OWASP Top 10 for Large Language Model Applications",
+      "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+      "publisher": "OWASP",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "owasp",
+        "security",
+        "keamanan",
+        "prompt injection",
+        "injection",
+        "secret",
+        "secrets",
+        "tool",
+        "authorization",
+        "auth",
+        "llm",
+        "model"
+      ],
+      "text": "OWASP's LLM application security project catalogs risks such as prompt injection, insecure output handling, sensitive information disclosure, excessive agency and other LLM-specific threats. Mitigations include treating retrieved text as untrusted, minimizing tools and permissions, validating outputs, protecting secrets, requiring authorization for actions and testing adversarial cases."
+    },
+    {
+      "id": "WCAG-22",
+      "title": "Web Content Accessibility Guidelines 2.2",
+      "url": "https://www.w3.org/TR/WCAG22/",
+      "publisher": "W3C",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "wcag",
+        "accessibility",
+        "aksesibilitas",
+        "disabilitas",
+        "keyboard",
+        "contrast",
+        "kontras",
+        "form",
+        "label",
+        "mobile",
+        "responsif"
+      ],
+      "text": "WCAG 2.2 defines testable web accessibility success criteria. EDUNEXUS should provide keyboard access, visible focus, meaningful labels, sufficient contrast, understandable errors, accessible status announcements, and responsive layouts. A visual card or automated syntax test alone does not establish WCAG conformance."
+    },
+    {
+      "id": "AI-SDK-AGENTS",
+      "title": "AI SDK agent and tool-calling concepts",
+      "url": "https://ai-sdk.dev/docs/agents/overview",
+      "publisher": "Vercel AI SDK documentation",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "ai sdk",
+        "agent",
+        "agents",
+        "tool calling",
+        "orchestration",
+        "orchestrator",
+        "model",
+        "function"
+      ],
+      "text": "AI SDK documentation describes agents and tool-calling patterns for building model-driven workflows. Agent/tool loops need bounded steps, typed tool inputs, server-side authorization, explicit failure handling and observable evaluation. The EDUNEXUS runtime currently implements a small specialist-routing slice; it does not yet prove the full 15-role orchestration architecture."
+    },
+    {
+      "id": "NEON-FUNCTIONS",
+      "title": "Neon Functions runtime and environment variables",
+      "url": "https://neon.com/docs/compute/functions/overview.md",
+      "publisher": "Neon documentation",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "neon",
+        "function",
+        "functions",
+        "deploy",
+        "deployment",
+        "environment",
+        "secret",
+        "server",
+        "backend",
+        "runtime",
+        "nodejs"
+      ],
+      "text": "Neon Functions are long-running Node.js HTTP handlers with a web-standard fetch(Request) contract and branch-scoped deployments. Secrets belong in server-side function environment variables, never browser JavaScript or public Git commits. Test on a disposable branch first and verify the exact invocation URL and active deployment before calling a function production-ready."
+    },
+    {
+      "id": "GEMINI-OPENAI-COMPAT",
+      "title": "Gemini API OpenAI compatibility",
+      "url": "https://ai.google.dev/gemini-api/docs/openai",
+      "publisher": "Google AI for Developers",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "gemini",
+        "google",
+        "api",
+        "provider",
+        "openai compatible",
+        "model",
+        "free tier",
+        "biaya",
+        "cost",
+        "ai"
+      ],
+      "text": "Google documents an OpenAI-compatible Gemini API endpoint at https://generativelanguage.googleapis.com/v1beta/openai/ and says a Gemini API key is required. Model availability and limits vary by account and model; verify current pricing and rate limits before deployment. A free tier may have data-use terms unsuitable for sensitive learner information, so do not send personal or confidential learner data without an approved privacy review."
+    },
+    {
+      "id": "CURRICULUM-ID-KEMENDIKDASMEN",
+      "title": "Panduan Mata Pelajaran dan Capaian Pembelajaran Indonesia",
+      "url": "https://kurikulum.kemendikdasmen.go.id/panduan-mapel",
+      "publisher": "Kementerian Pendidikan Dasar dan Menengah RI",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "kurikulum",
+        "indonesia",
+        "capaian pembelajaran",
+        "mata pelajaran",
+        "modul ajar",
+        "ATP",
+        "fase",
+        "tujuan pembelajaran"
+      ],
+      "text": "Sumber resmi untuk panduan mata pelajaran dan penerjemahan Capaian Pembelajaran ke praktik kelas. Gunakan untuk memetakan fase, mata pelajaran, tujuan, aktivitas dan asesmen. Periksa dokumen terbaru sesuai jenjang dan fase; jangan menganggap materi generik EDUNEXUS sebagai dokumen resmi pemerintah."
+    },
+    {
+      "id": "CURRICULUM-ID-PUSKUR",
+      "title": "Pusat Kurikulum dan Pembelajaran: Panduan Asesmen dan Pembelajaran",
+      "url": "https://puskur.kemendikdasmen.go.id/",
+      "publisher": "Pusat Kurikulum dan Pembelajaran",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "asesmen",
+        "pembelajaran",
+        "formatif",
+        "sumatif",
+        "rapor",
+        "ATP",
+        "perencanaan pembelajaran"
+      ],
+      "text": "Portal resmi memuat panduan pembelajaran, asesmen, alur tujuan pembelajaran, pengolahan dan pelaporan hasil asesmen. Prinsip penting: asesmen memberi bukti untuk memperbaiki pembelajaran; gunakan rubrik transparan dan bukti kompetensi, bukan label kepribadian."
+    },
+    {
+      "id": "UNESCO-AI-STUDENT",
+      "title": "UNESCO AI Competency Framework for Students",
+      "url": "https://www.unesco.org/en/articles/ai-competency-framework-students",
+      "publisher": "UNESCO",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "ai",
+        "literasi ai",
+        "kompetensi siswa",
+        "etika ai",
+        "human centred",
+        "aplikasi ai",
+        "desain sistem ai"
+      ],
+      "text": "Kerangka UNESCO memetakan kompetensi AI siswa ke empat dimensi: pola pikir berpusat pada manusia, etika AI, teknik dan aplikasi AI, serta desain sistem AI. Progresi belajar: memahami, menerapkan, mencipta. Gunakan untuk tujuan belajar dan asesmen literasi AI yang berorientasi tanggung jawab."
+    },
+    {
+      "id": "UNESCO-AI-TEACHER",
+      "title": "UNESCO AI Competency Framework for Teachers",
+      "url": "https://www.unesco.org/en/articles/ai-competency-framework-teachers",
+      "publisher": "UNESCO",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "guru",
+        "pendidik",
+        "ai",
+        "pedagogi ai",
+        "etika",
+        "pengembangan profesional",
+        "kompetensi"
+      ],
+      "text": "Kerangka pendidik UNESCO memuat lima dimensi: pola pikir berpusat pada manusia, etika AI, fondasi dan aplikasi AI, pedagogi AI, dan pembelajaran profesional. Gunakan untuk pengembangan kompetensi guru; lakukan validasi konteks lokal dan jangan menganggap kerangka internasional menggantikan kebijakan nasional."
+    },
+    {
+      "id": "UNESCO-GENAI-EDUCATION",
+      "title": "Guidance for Generative AI in Education and Research",
+      "url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research",
+      "publisher": "UNESCO",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "generative ai",
+        "privasi",
+        "pendidikan",
+        "keselamatan",
+        "anak",
+        "human agency",
+        "tata kelola ai"
+      ],
+      "text": "Panduan UNESCO menekankan pendekatan human-centred, perlindungan privasi, kesiapan pedagogis dan kebijakan yang koheren untuk GenAI di pendidikan. Hindari mengirim data pribadi siswa ke provider tanpa dasar hukum, persetujuan dan pemeriksaan syarat pemrosesan data. AI membantu pendidik, bukan menggantikan tanggung jawab manusia."
+    },
+    {
+      "id": "OECD-LEARNING-COMPASS",
+      "title": "OECD Learning Compass 2030",
+      "url": "https://www.oecd.org/en/data/tools/oecd-learning-compass-2030.html",
+      "publisher": "OECD",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "agency",
+        "student agency",
+        "wellbeing",
+        "kompetensi",
+        "pengetahuan",
+        "sikap",
+        "nilai",
+        "learning compass"
+      ],
+      "text": "OECD Learning Compass 2030 adalah kerangka aspiratif untuk pendidikan masa depan yang menekankan agency pembelajar, kesejahteraan, pengetahuan, keterampilan, sikap dan nilai. Kerangka ini perlu dikontekstualisasikan; gunakan untuk merancang refleksi, pengambilan keputusan, kolaborasi dan transfer pembelajaran."
+    },
+    {
+      "id": "ESCO-API",
+      "title": "ESCO Skills, Competences, Qualifications and Occupations API",
+      "url": "https://esco.ec.europa.eu/en/use-esco/use-esco-services-api/esco-web-service-api",
+      "publisher": "European Commission",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "esco",
+        "skills",
+        "occupations",
+        "career",
+        "kompetensi",
+        "taksonomi",
+        "api"
+      ],
+      "text": "ESCO menyediakan klasifikasi multibahasa untuk keterampilan, kompetensi, kualifikasi dan pekerjaan melalui API web dan local API. Berguna untuk menghubungkan profil keterampilan ke peran kerja dan jalur belajar. Simpan versi dataset dan URI konsep agar perubahan versi dapat ditelusuri."
+    },
+    {
+      "id": "UNESCO-DIGITAL-LITERACY",
+      "title": "UNESCO Digital Literacy Global Framework",
+      "url": "https://www.uis.unesco.org/en/gaml/monitoring-framework",
+      "publisher": "UNESCO Institute for Statistics",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "literasi digital",
+        "digital literacy",
+        "informasi",
+        "komunikasi",
+        "pemecahan masalah",
+        "keamanan digital"
+      ],
+      "text": "Kerangka literasi digital global dikembangkan untuk membantu pengukuran kecakapan digital dan terkait dengan pemetaan kerangka DigComp serta berbagai negara. Gunakan sebagai referensi pengelompokan keterampilan informasi, komunikasi, penciptaan konten, keamanan dan pemecahan masalah, bukan sebagai satu-satunya standar penilaian."
+    },
+    {
+      "id": "MIT-OCW",
+      "title": "MIT OpenCourseWare — Open Educational Resources",
+      "url": "https://ocw.mit.edu/get-started/",
+      "publisher": "MIT OpenCourseWare",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "open courseware",
+        "kuliah terbuka",
+        "silabus",
+        "materi kuliah",
+        "oer",
+        "modul",
+        "latihan"
+      ],
+      "text": "MIT OCW menyediakan materi dari ribuan kursus, sering kali termasuk silabus, catatan, bacaan, tugas dan ujian. Materi MIT OCW memiliki ketentuan lisensi Creative Commons BY-NC-SA; penggunaan ulang dan adaptasi harus mematuhi nonkomersial, atribusi dan share-alike. Untuk produk komersial, gunakan hanya sebagai referensi kecuali izin dan lisensi sudah diverifikasi."
+    },
+    {
+      "id": "OPENSTAX-LICENSE",
+      "title": "OpenStax textbook licensing",
+      "url": "https://help.openstax.org/s/article/Openstax-textbook-licensing-and-customization",
+      "publisher": "OpenStax",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "open textbook",
+        "lisensi",
+        "cc by-nc-sa",
+        "materi terbuka",
+        "atribusi"
+      ],
+      "text": "Buku OpenStax menggunakan CC BY-NC-SA. Materi boleh digunakan dan diadaptasi untuk tujuan nonkomersial dengan atribusi dan share-alike, tetapi bukan untuk penggunaan komersial tanpa izin. EDUNEXUS dapat menautkan sumber dan membuat ringkasan orisinal; jangan menyalin teks penuh ke produk berbayar tanpa izin."
+    },
+    {
+      "id": "OWASP-LLM-TOP10",
+      "title": "OWASP Top 10 for Large Language Model Applications",
+      "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+      "publisher": "OWASP",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "llm",
+        "prompt injection",
+        "data leakage",
+        "ai security",
+        "tool use",
+        "rag",
+        "injection"
+      ],
+      "text": "OWASP mengidentifikasi risiko aplikasi LLM seperti prompt injection, penanganan output tidak aman, kebocoran informasi sensitif, ketergantungan berlebihan, dan risiko tool/plugin. Anggap konten web yang diambil sebagai data tidak tepercaya; pisahkan instruksi sistem dari dokumen sumber, batasi hak tool, validasi output, dan catat provenance."
+    },
+    {
+      "id": "OER-LICENSE-PRACTICE",
+      "title": "Praktik lisensi untuk konten pendidikan terbuka",
+      "url": "https://creativecommons.org/share-your-work/cclicenses/",
+      "publisher": "Creative Commons",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "creative commons",
+        "lisensi",
+        "oer",
+        "atribusi",
+        "reuse",
+        "share alike",
+        "noncommercial"
+      ],
+      "text": "Lisensi Creative Commons memiliki syarat berbeda terkait atribusi, penggunaan komersial, adaptasi dan berbagi serupa. Sebelum menyalin atau mengadaptasi materi, simpan URL, penulis/penerbit, lisensi, tanggal akses dan perubahan yang dilakukan. Jika lisensi tidak jelas, simpan metadata dan tautan saja sampai hak penggunaan dikonfirmasi."
+    },
+    {
+      "id": "CURR-DIGITAL-SOURCE-CREDIBILITY",
+      "title": "Periksa Asal dan Kredibilitas Sumber",
+      "url": "https://help.oercommons.org/support/solutions/articles/42000046846-introduction-to-oer",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "literasi",
+        "digital",
+        "sumber",
+        "kredibilitas",
+        "verifikasi",
+        "informasi",
+        "fakta",
+        "bukti"
+      ],
+      "text": "Kualitas keputusan bergantung pada asal, konteks, tanggal, dan bukti yang mendukung klaim. Periksa penerbit, keahlian, tanggal pembaruan, bukti primer, dan apakah klaim dibedakan dari opini. Cari sumber primer dan konfirmasi klaim penting dari sumber independen. Popularitas dan posisi hasil pencarian bukan bukti kebenaran. Latihan: pilih satu klaim publik, temukan sumber primer dan satu sumber independen, lalu catat hal yang belum pasti."
+    },
+    {
+      "id": "CURR-DIGITAL-FACT-INFERENCE",
+      "title": "Fakta, Inferensi dan Ketidakpastian",
+      "url": "https://joint-research-centre.ec.europa.eu/digcomp/digcomp-framework_en",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "fakta",
+        "inferensi",
+        "asumsi",
+        "ketidakpastian",
+        "berpikir",
+        "kritis",
+        "data"
+      ],
+      "text": "Fakta dapat diperiksa pada sumber; inferensi adalah kesimpulan dari fakta; asumsi adalah premis yang belum diuji; prediksi menyatakan kemungkinan masa depan. Tulis apa yang diketahui, apa yang diduga, dan bukti tambahan apa yang dapat mengubah kesimpulan. Latihan: klasifikasikan kalimat dari laporan publik menjadi FAKTA, INFERENSI, ASUMSI, atau BELUM DIKETAHUI."
+    },
+    {
+      "id": "CURR-DIGITAL-LICENSES",
+      "title": "Lisensi Konten dan Atribusi",
+      "url": "https://help.oercommons.org/support/solutions/articles/42000046845-usage-rights",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "lisensi",
+        "copyright",
+        "creative",
+        "commons",
+        "atribusi",
+        "komersial",
+        "share",
+        "alike"
+      ],
+      "text": "Konten yang dapat dibaca gratis belum tentu boleh disalin, diubah, dipakai komersial, atau digunakan melatih AI. Periksa lisensi spesifik pada setiap sumber dan aset. CC BY umumnya mewajibkan atribusi; CC BY-SA juga mewajibkan lisensi serupa; NC membatasi penggunaan komersial; ND membatasi distribusi adaptasi. Latihan: tinjau tiga sumber dan tentukan apakah boleh disalin, diterjemahkan, dipakai komersial, atau hanya ditautkan."
+    },
+    {
+      "id": "CURR-DIGITAL-SYNTHESIS",
+      "title": "Sintesis dengan Jejak Sumber",
+      "url": "https://www.oercommons.org/",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "sintesis",
+        "ringkasan",
+        "rujukan",
+        "sumber",
+        "primer",
+        "kutipan",
+        "literasi",
+        "informasi"
+      ],
+      "text": "Sintesis yang baik menggabungkan beberapa sumber tanpa menghilangkan asal klaim atau perbedaan pandangan. Rumuskan pertanyaan, pilih sumber primer dan pendukung, catat klaim per sumber, bandingkan persamaan/perbedaan, lalu tulis kesimpulan dengan tautan. Jangan menyebut sumber telah diindeks penuh jika hanya metadata yang diperiksa. Latihan: buat ringkasan 150 kata dari dua sumber dan tulis satu hal yang belum diketahui."
+    },
+    {
+      "id": "CURR-AI-LIMITATIONS",
+      "title": "Kemampuan dan Batasan AI Generatif",
+      "url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "AI",
+        "kecerdasan",
+        "buatan",
+        "model",
+        "generatif",
+        "halusinasi",
+        "verifikasi",
+        "fakta"
+      ],
+      "text": "AI dapat membantu membuat draf, menjelaskan konsep, mengelompokkan informasi, dan mengusulkan opsi. AI dapat salah mengutip, mengarang fakta, melewatkan konteks, atau merefleksikan bias. Untuk keputusan penting, periksa sumber primer dan gunakan penilaian manusia. Latihan: uji satu jawaban AI dengan dua sumber primer; tandai pernyataan didukung, tidak didukung, dan keliru."
+    },
+    {
+      "id": "CURR-AI-HUMAN-CENTRED",
+      "title": "AI Berpusat pada Manusia dan Etika",
+      "url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "AI",
+        "etika",
+        "privasi",
+        "bias",
+        "transparansi",
+        "anak",
+        "pendidikan",
+        "persetujuan"
+      ],
+      "text": "Penerapan AI pendidikan harus mendukung pembelajar, menjaga privasi, dan memungkinkan pengawasan manusia. Jangan masukkan data pribadi atau catatan siswa yang dapat diidentifikasi ke layanan tanpa otorisasi dan dasar yang sah. Jelaskan kapan AI digunakan, sediakan tinjauan manusia, dan hindari inferensi sensitif tentang emosi atau kepribadian dari video. Latihan: rancang daftar pemeriksaan privasi, usia, akurasi, aksesibilitas, pengawasan dan keluhan."
+    },
+    {
+      "id": "CURR-AI-PROMPT-DESIGN",
+      "title": "Menulis Prompt yang Terukur",
+      "url": "https://www.unesco.org/en/articles/ai-competency-framework-students",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "prompt",
+        "instruksi",
+        "AI",
+        "konteks",
+        "tujuan",
+        "format",
+        "batasan",
+        "evaluasi"
+      ],
+      "text": "Instruksi yang baik menyebut tujuan, konteks aman, format keluaran, batasan, dan kriteria keberhasilan. Sertakan tugas, format, batasan, contoh jika berguna, serta cara menangani ketidakpastian. Hindari data rahasia dan pecah tugas kompleks menjadi tahap yang dapat diperiksa. Latihan: tulis prompt untuk menjelaskan konsep kepada pemula, memberi contoh, kuis formatif, dan aturan menyatakan ketidakpastian."
+    },
+    {
+      "id": "CURR-AI-VERIFY",
+      "title": "Verifikasi Keluaran AI dan Referensi",
+      "url": "https://www.unesco.org/en/articles/ai-competency-framework-students",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "AI",
+        "verifikasi",
+        "referensi",
+        "sitasi",
+        "URL",
+        "bukti",
+        "bias",
+        "perhitungan"
+      ],
+      "text": "Verifikasi angka dengan perhitungan independen; buka setiap URL; pastikan sumber benar-benar mendukung klaim; periksa tanggal dan konteks; minta perspektif alternatif. Jangan menganggap sumber yang disebut AI otomatis ada atau relevan. Simpan sumber yang diperiksa, koreksi, dan keputusan manusia untuk tugas berisiko tinggi. Latihan: audit satu teks AI dan buat daftar klaim, bukti pendukung, kepastian, dan koreksi."
+    },
+    {
+      "id": "CURR-SECURE-MFA",
+      "title": "Kata Sandi, MFA dan Pemulihan Akun",
+      "url": "https://www.cisa.gov/secure-our-world",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "keamanan",
+        "digital",
+        "password",
+        "kata",
+        "sandi",
+        "MFA",
+        "passkey",
+        "OTP",
+        "akun"
+      ],
+      "text": "Gunakan pengelola kata sandi untuk membuat kata sandi unik dan panjang. Aktifkan MFA atau passkey bila tersedia. Simpan kode pemulihan di tempat aman. Jangan membagikan kode OTP atau menyetujui permintaan login yang tidak dimulai sendiri. Amankan email utama terlebih dahulu karena sering menjadi jalur pemulihan akun lain. Latihan: buat daftar periksa keamanan akun tanpa mencatat kata sandi aktual."
+    },
+    {
+      "id": "CURR-SECURE-PHISHING",
+      "title": "Phishing dan Rekayasa Sosial",
+      "url": "https://www.cisa.gov/secure-our-world",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "phishing",
+        "penipuan",
+        "tautan",
+        "domain",
+        "rekayasa",
+        "sosial",
+        "email",
+        "OTP"
+      ],
+      "text": "Serangan sering memanfaatkan urgensi, otoritas palsu, rasa takut, atau hadiah. Periksa domain, konteks, lampiran, tautan, dan permintaan rahasia. Jangan mengandalkan logo atau nama pengirim saja. Untuk pembayaran atau kredensial, konfirmasi melalui kanal yang sudah dikenal, bukan nomor di pesan. Latihan: nilai tiga contoh pesan sintetis dan jelaskan indikator risiko."
+    },
+    {
+      "id": "CURR-PRIVACY-MINIMIZATION",
+      "title": "Minimisasi Data dan Privasi",
+      "url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "privasi",
+        "data",
+        "minimisasi",
+        "retensi",
+        "akses",
+        "peran",
+        "data",
+        "pribadi"
+      ],
+      "text": "Kumpulkan hanya data yang diperlukan untuk tujuan yang jelas. Batasi akses berdasarkan peran, tetapkan masa simpan, sediakan mekanisme koreksi/penghapusan sesuai kewajiban, dan jangan menganggap pseudonimisasi selalu menghilangkan risiko identifikasi. Gunakan data contoh untuk pengembangan. Latihan: gambar alur data untuk kuis daring dan tandai data yang perlu, siapa yang mengakses, dan kapan data dihapus."
+    },
+    {
+      "id": "CURR-SECURITY-INCIDENT",
+      "title": "Respons Awal Saat Insiden",
+      "url": "https://www.cisa.gov/secure-our-world",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "insiden",
+        "keamanan",
+        "akun",
+        "bocor",
+        "respons",
+        "pelaporan",
+        "eskalasi"
+      ],
+      "text": "Hentikan interaksi dengan pesan mencurigakan, laporkan melalui kanal yang tepat, gunakan perangkat tepercaya untuk mengganti kredensial jika diperlukan, dan ikuti prosedur organisasi. Jangan menghapus bukti penting atau menyelidiki di luar kewenangan. Catat waktu, sistem terdampak, tindakan yang dilakukan, dan indikator yang teramati tanpa menyebarkan data sensitif. Latihan: buat runbook satu halaman untuk akun belajar yang diduga diambil alih."
+    },
+    {
+      "id": "CURR-CAREER-SKILL-MAPPING",
+      "title": "Peta Keterampilan ke Peran Kerja",
+      "url": "https://esco.ec.europa.eu/en/use-esco/use-esco-services-api",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "karier",
+        "pekerjaan",
+        "skill",
+        "keterampilan",
+        "ESCO",
+        "O",
+        "NET",
+        "okupasi"
+      ],
+      "text": "Gunakan deskripsi pekerjaan dan taksonomi seperti ESCO atau O*NET sebagai titik awal. Bandingkan tugas, keterampilan, tingkat kemahiran, dan konteks; periksa relevansi lokal dan tanggal pembaruan. Nama keterampilan yang sama dapat memiliki definisi berbeda. Latihan: pilih satu peran pekerjaan dan identifikasi lima keterampilan yang diminta serta bukti nyata untuk menunjukkan tiap keterampilan."
+    },
+    {
+      "id": "CURR-CAREER-JOB-POSTING",
+      "title": "Membaca Deskripsi Pekerjaan Secara Kritis",
+      "url": "https://www.onetcenter.org/database.html",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "lowongan",
+        "kerja",
+        "persyaratan",
+        "wajib",
+        "preferensi",
+        "keterampilan"
+      ],
+      "text": "Kelompokkan persyaratan berdasarkan tugas dan hasil kerja. Bedakan kualifikasi formal, pengalaman, alat, perilaku kerja, dan preferensi. Jangan menyimpulkan seseorang tidak mampu hanya karena tidak memiliki istilah tertentu di CV. Bandingkan beberapa lowongan untuk menemukan pola keterampilan berulang dan verifikasi dengan sumber okupasi resmi."
+    },
+    {
+      "id": "CURR-CAREER-PORTFOLIO",
+      "title": "Portofolio Berbasis Bukti",
+      "url": "https://www.onetcenter.org/database.html",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "portofolio",
+        "proyek",
+        "hasil",
+        "kerja",
+        "bukti",
+        "kompetensi",
+        "refleksi"
+      ],
+      "text": "Untuk tiap artefak jelaskan masalah, peran pribadi, proses, hasil terukur, umpan balik, dan hal yang dipelajari. Hilangkan data pelanggan, kode rahasia, identitas siswa, dan materi pemberi kerja yang tidak boleh dibagikan. Pilih bukti yang relevan dengan keterampilan target dan jelaskan bagian yang benar-benar dikerjakan sendiri. Latihan: buat deskripsi portofolio satu halaman untuk proyek simulasi."
+    },
+    {
+      "id": "CURR-CAREER-30DAY",
+      "title": "Rencana Pengembangan 30 Hari",
+      "url": "https://esco.ec.europa.eu/en/use-esco/use-esco-services-api",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "rencana",
+        "belajar",
+        "tujuan",
+        "SMART",
+        "pengembangan",
+        "keterampilan",
+        "latihan"
+      ],
+      "text": "Pilih satu atau dua keterampilan prioritas berdasarkan kebutuhan peran dan kesenjangan bukti. Tetapkan latihan mingguan, hasil yang dapat ditinjau, kriteria rubrik, serta waktu refleksi. Gunakan umpan balik untuk memperbarui target, bukan sekadar menghitung waktu belajar. Latihan: buat rencana empat minggu dengan satu hasil kerja setiap minggu dan rubrik sederhana."
+    },
+    {
+      "id": "CURR-LEARNING-SELF-REGULATION",
+      "title": "Belajar Mandiri dan Refleksi",
+      "url": "https://www.oecd.org/en/data/tools/oecd-learning-compass-2030.html",
+      "publisher": "EDUNEXUS — materi orisinal berbasis referensi publik",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "metakognisi",
+        "belajar",
+        "mandiri",
+        "tujuan",
+        "refleksi",
+        "strategi",
+        "umpan",
+        "balik"
+      ],
+      "text": "Belajar mandiri menggabungkan tujuan spesifik, strategi, pemantauan kemajuan, dan refleksi. Setelah latihan, catat apa yang berhasil, kesalahan yang berulang, dan strategi berikutnya. Pilih bukti perilaku atau hasil kerja yang dapat ditinjau; jangan mengukur kemajuan hanya dari rasa percaya diri atau waktu yang dihabiskan. Latihan: tulis refleksi setelah satu tugas dengan format tujuan, strategi, hasil, umpan balik, langkah berikutnya."
+    },
+    {
+      "id": "OER-COMMONS-METADATA",
+      "title": "OER Commons — metadata dan lisensi",
+      "url": "https://www.oercommons.org/",
+      "publisher": "OER Commons",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "open",
+        "educational",
+        "resources",
+        "metadata",
+        "subject",
+        "material",
+        "type",
+        "license"
+      ],
+      "text": "Curated source metadata and editorial summary only. Use the original source URL to verify details and current version. Check item-specific license before copying, adapting, redistributing, or using commercially. Do not treat free access as blanket permission."
+    },
+    {
+      "id": "OPENLEARN-COURSES",
+      "title": "OpenLearn — kursus terbuka",
+      "url": "https://www.open.edu/openlearn/free-courses",
+      "publisher": "The Open University",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "free",
+        "courses",
+        "learning",
+        "outcomes",
+        "employability",
+        "skills",
+        "lifelong",
+        "learning"
+      ],
+      "text": "Curated source metadata and editorial summary only. Use the original source URL to verify details and current version. Check item-specific license before copying, adapting, redistributing, or using commercially. Do not treat free access as blanket permission."
+    },
+    {
+      "id": "KHAN-ACADEMY-TERMS",
+      "title": "Khan Academy — ketentuan penggunaan konten",
+      "url": "https://support.khanacademy.org/hc/en-us/articles/42929097425037-What-s-allowed-and-not-allowed-under-Khan-Academy-s-Terms-of-Service",
+      "publisher": "Khan Academy",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "no",
+        "scraping",
+        "no",
+        "AI",
+        "training",
+        "content",
+        "copyright",
+        "terms",
+        "source",
+        "link",
+        "only"
+      ],
+      "text": "Rights warning: do not scrape, copy, commercially redistribute, or use Khan Academy content/data to train AI under current terms. Store metadata and link only unless explicit permission or an alternate license applies."
+    },
+    {
+      "id": "DIGCOMP-FRAMEWORK",
+      "title": "DigComp — kompetensi digital",
+      "url": "https://joint-research-centre.ec.europa.eu/digcomp/digcomp-framework_en",
+      "publisher": "European Commission Joint Research Centre",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "digital",
+        "competence",
+        "information",
+        "data",
+        "literacy",
+        "communication",
+        "content",
+        "creation",
+        "safety",
+        "problem",
+        "solving"
+      ],
+      "text": "Curated source metadata and editorial summary only. Use the original source URL to verify details and current version. Check item-specific license before copying, adapting, redistributing, or using commercially. Do not treat free access as blanket permission."
+    },
+    {
+      "id": "ESCO-SKILLS-API",
+      "title": "ESCO — API keterampilan dan pekerjaan",
+      "url": "https://esco.ec.europa.eu/en/use-esco/use-esco-services-api",
+      "publisher": "European Commission",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "skills",
+        "competence",
+        "occupation",
+        "multilingual",
+        "career",
+        "intelligence"
+      ],
+      "text": "Curated source metadata and editorial summary only. Use the original source URL to verify details and current version. Check item-specific license before copying, adapting, redistributing, or using commercially. Do not treat free access as blanket permission."
+    },
+    {
+      "id": "ONET-DATABASE",
+      "title": "O*NET — basis data pekerjaan",
+      "url": "https://www.onetcenter.org/database.html",
+      "publisher": "National Center for O*NET Development",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "occupations",
+        "skills",
+        "abilities",
+        "work",
+        "activities",
+        "career",
+        "mapping"
+      ],
+      "text": "Curated source metadata and editorial summary only. Use the original source URL to verify details and current version. Check item-specific license before copying, adapting, redistributing, or using commercially. Do not treat free access as blanket permission."
+    },
+    {
+      "id": "UNESCO-AI-STUDENT-COMPETENCY",
+      "title": "UNESCO — AI competency framework for students",
+      "url": "https://www.unesco.org/en/articles/ai-competency-framework-students",
+      "publisher": "UNESCO",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "AI",
+        "competencies",
+        "human",
+        "centered",
+        "mindset",
+        "ethics",
+        "techniques",
+        "applications",
+        "system",
+        "design",
+        "understand",
+        "apply",
+        "create"
+      ],
+      "text": "Curated source metadata and editorial summary only. Use the original source URL to verify details and current version. Check item-specific license before copying, adapting, redistributing, or using commercially. Do not treat free access as blanket permission."
+    },
+    {
+      "id": "MIT-OCW-COURSES",
+      "title": "MIT OpenCourseWare — silabus dan tugas",
+      "url": "https://ocw.mit.edu/",
+      "publisher": "Massachusetts Institute of Technology",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "syllabus",
+        "courses",
+        "assignments",
+        "learning",
+        "materials",
+        "CC",
+        "BY",
+        "NC",
+        "SA",
+        "non",
+        "commercial",
+        "check",
+        "license"
+      ],
+      "text": "Curated source metadata and editorial summary only. Use the original source URL to verify details and current version. Check item-specific license before copying, adapting, redistributing, or using commercially. Do not treat free access as blanket permission."
+    },
+    {
+      "id": "OPENSTAX-LICENSING",
+      "title": "OpenStax — lisensi buku teks",
+      "url": "https://help.openstax.org/s/article/Licensing-information-of-OpenStax-textbooks",
+      "publisher": "OpenStax",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "CC",
+        "BY",
+        "NC",
+        "SA",
+        "4.0",
+        "attribution",
+        "noncommercial",
+        "share",
+        "alike",
+        "license"
+      ],
+      "text": "Curated source metadata and editorial summary only. Use the original source URL to verify details and current version. Check item-specific license before copying, adapting, redistributing, or using commercially. Do not treat free access as blanket permission."
+    },
+    {
+      "id": "OER-LICENSE-CHECK",
+      "title": "OER — pemeriksaan hak penggunaan",
+      "url": "https://help.oercommons.org/support/solutions/articles/42000046845-usage-rights",
+      "publisher": "OER Commons Help Center",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-14",
+      "keywords": [
+        "open",
+        "educational",
+        "resources",
+        "license",
+        "rights",
+        "reuse",
+        "adapt",
+        "redistribute",
+        "attribution"
+      ],
+      "text": "Curated source metadata and editorial summary only. Use the original source URL to verify details and current version. Check item-specific license before copying, adapting, redistributing, or using commercially. Do not treat free access as blanket permission."
+    }
+  ]
+}

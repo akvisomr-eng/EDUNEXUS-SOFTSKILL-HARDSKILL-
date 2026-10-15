@@ -24,22 +24,25 @@ jobs:
         run: |
           set -euo pipefail
           test -f web/index.html
-          grep -q "@neondatabase/auth@0.5.0-beta" web/index.html
-          grep -q "NEON_AUTH_URL" web/index.html
-          grep -q "DATA_API_URL" web/index.html
-          grep -q "ensure_my_profile" web/index.html
-          grep -q "finalize_my_practice_attempt" web/index.html
-          grep -q "practice_scenarios" web/index.html
-          grep -q "Mulai praktik" web/index.html
-          ! grep -q "SUPABASE_URL" web/index.html
-          ! grep -q "SUPABASE_KEY" web/index.html
-          ! grep -q "supabase.co" web/index.html
+          test -f web/app/index.html
+          grep -q "@neondatabase/auth@0.5.0-beta" web/app/index.html
+          grep -q "NEON_AUTH_URL" web/app/index.html
+          grep -q "DATA_API_URL" web/app/index.html
+          grep -q "ensure_my_profile" web/app/index.html
+          grep -q "finalize_my_practice_attempt" web/app/index.html
+          grep -q "practice_scenarios" web/app/index.html
+          grep -q "Mulai praktik" web/app/index.html
+          ! grep -q "SUPABASE_URL" web/app/index.html
+          ! grep -q "SUPABASE_KEY" web/app/index.html
+          ! grep -q "supabase.co" web/app/index.html
           python - <<'PY'
           from pathlib import Path
           import json
           from urllib.parse import urlparse
 
-          html = Path("web/index.html").read_text()
+          html = Path("web/app/index.html").read_text()
+          home_html = Path("web/index.html").read_text()
+          assert "EDUNEXUS" in home_html and "MASUK / DAFTAR" in home_html, "Public landing page missing"
           assert html.count('<script type="module">') == 1, "Expected one module entrypoint"
           assert "</html>" in html, "HTML document is incomplete"
           assert 'id="knowledgeNotes"' in html, "Knowledge notes UI mount is missing"
