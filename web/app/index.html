@@ -508,6 +508,18 @@ function renderLessonContent(content,lesson){
  if(value.license_note)parts.push('<section class="lesson-unit"><h4>Catatan sumber dan lisensi</h4><p class="muted">'+escapeHtml(value.license_note)+'</p></section>');
  return parts.join("")||'<div class="empty muted">Konten pelajaran belum tersedia.</div>';
 }
+function buildCourseTutorFallback(question,lesson){
+ const curriculum=getLessonCurriculum(lesson);
+ const text=String(question||"").toLowerCase();
+ const sections=Array.isArray(curriculum.sections)?curriculum.sections:[];
+ const ranked=sections.map(section=>({section,score:(String(section.heading+" "+section.body).toLowerCase().match(/[a-z0-9%]+/g)||[]).filter(word=>word.length>3&&text.includes(word)).length})).sort((a,b)=>b.score-a.score);
+ const selected=ranked.filter(item=>item.score>0).slice(0,2).map(item=>item.section);
+ const out=["Tutor panduan EDUNEXUS — materi terkurasi sesi ini","",curriculum.summary||"Mari pecahkan pertanyaan menjadi langkah kecil."];
+ for(const section of (selected.length?selected:sections.slice(0,2)))out.push("",section.heading,section.body);
+ if(curriculum.exercise)out.push("","Coba praktik",curriculum.exercise);
+ out.push("","Cara mengecek jawaban","1. Tulis data yang diketahui dan apa yang ditanyakan. 2. Tunjukkan rumus atau alasan. 3. Hitung dengan satuan yang benar. 4. Periksa apakah hasil masuk akal. 5. Sebutkan asumsi atau informasi yang belum tersedia.","","Pertanyaan lanjutan: bagian mana yang ingin kamu hitung atau jelaskan bersama?");
+ return out.join("\n");
+}
 function bindLessonActivities(lesson){
  const check=$("lessonQuizCheck"),reset=$("lessonQuizReset");
  if(check)check.addEventListener("click",()=>{
@@ -717,8 +729,10 @@ $("lessonTutorForm").addEventListener("submit",async e=>{
   const response=await fetch(EDUNEXUS_AI_URL+"/chat",{method:"POST",signal:AbortSignal.timeout(55000),headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({message:prompt,locale:"Indonesia",mode:"learn"})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.message||"AI Mentor belum tersedia (HTTP "+response.status+").");
-  $("lessonTutorAnswer").textContent=data.answer||"Belum ada jawaban.";
-  const generativeMultiAgent=data.mode!=="curated_retrieval_only_v1"&&Array.isArray(data.agents)&&data.agents.length>1;
+  const retrievalOnly=data.mode==="curated_retrieval_only_v1";
+  const tutorAnswer=retrievalOnly?buildCourseTutorFallback(question,lesson):(data.answer||"Belum ada jawaban.");
+  $("lessonTutorAnswer").textContent=tutorAnswer;
+  const generativeMultiAgent=!retrievalOnly&&Array.isArray(data.agents)&&data.agents.length>1;
   $("lessonTutorModeBadge").textContent=generativeMultiAgent?"AI MENTOR · MULTI-AGEN AKTIF":"AI MENTOR · BASIS PENGETAHUAN";
   $("lessonTutorStatus").textContent=(generativeMultiAgent?"Mode multi-agen aktif. ":"Mode saat ini: basis pengetahuan terkurasi; model generatif belum aktif. " )+"Versi: "+(data.knowledgeVersion||"EDUNEXUS terkurasi")+" · Spesialis: "+(data.agents||[]).map(agent=>agent.label).join(", ")+" · "+(data.sourceNotice||"Gunakan jawaban sebagai bantuan belajar dan verifikasi hal yang memerlukan sumber resmi.");
   $("lessonTutorSpeak").disabled=!data.answer;
