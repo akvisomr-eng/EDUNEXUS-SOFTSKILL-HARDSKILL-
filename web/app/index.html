@@ -78,7 +78,7 @@ body.dashboard .module-view>.grid{margin-top:0}
 </head>
 <body>
 <div class="wrap">
-<header><div class="brand">EDUNEXUS <span>/ kecerdasan keterampilan</span></div><div id="sessionBadge" class="badge">Belum masuk</div></header>
+<header><div class="brand">EDUNEXUS <span>/ kecerdasan keterampilan</span></div><div class="actions" style="align-items:center"><div id="sessionBadge" class="badge">Belum masuk</div><button id="logout" class="secondary" type="button" hidden>Keluar / Log out</button></div></header>
 <nav class="sidebar" aria-label="Navigasi utama EDUNEXUS">
   <div class="sidebar-brand"><div class="brand">EDUNEXUS <span>LEARNING INTELLIGENCE</span></div></div>
   <div class="sidebar-label">Ruang belajar</div>
@@ -142,7 +142,7 @@ body.dashboard .module-view>.grid{margin-top:0}
 <div class="card">
 <div style="display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap">
 <div><div class="badge">KONSOL PEMBELAJAR</div><h2 id="welcome">Selamat datang</h2><p class="muted">Fondasi EDUNEXUS Anda terhubung langsung ke Neon Data API.</p></div>
-<button id="logout" class="secondary">Keluar</button>
+
 </div>
 <div class="grid">
 <div class="module"><b>Backend</b><div id="health" class="metric">—</div><span class="muted">Neon Data API</span></div>
@@ -1142,6 +1142,7 @@ async function loadApp(){
  loadKnowledgeSources();
  $("auth").style.display="none";$("app").style.display="block";
  $("sessionBadge").textContent=state.user?.email||"Sudah masuk";
+ $("logout").hidden=false;
  $("welcome").textContent="Selamat datang, "+(state.user?.name||state.user?.email||"pembelajar");
  try{
   await ensureProfile();
@@ -1262,8 +1263,14 @@ function initializeRecoveryRoute(){
 }
 initializeRecoveryRoute();
 $("logout").addEventListener("click",async()=>{
- try{await auth.signOut()}catch(_){}
- state.session=null;state.user=null;state.businessUserId=null;location.reload();
+ const button=$("logout");button.disabled=true;button.textContent="Keluar…";
+ try{
+  const result=await auth.signOut();
+  if(result?.error)throw result.error;
+ }catch(error){button.disabled=false;button.textContent="Keluar / Log out";$("authStatus").textContent="Keluar belum terkonfirmasi. Coba lagi: "+(error?.message||"sesi masih aktif");$("authStatus").className="status error";return;}
+ state.session=null;state.user=null;state.businessUserId=null;
+ $("logout").hidden=true;document.body.classList.remove("dashboard");$("app").style.display="none";$("auth").style.display="grid";$("sessionBadge").textContent="Belum masuk";
+ $("authStatus").textContent="Anda telah keluar dari EDUNEXUS.";$("authStatus").className="status ok";
 });
 async function bootstrapSession(){
  if(new URLSearchParams(window.location.search).has("token"))return;

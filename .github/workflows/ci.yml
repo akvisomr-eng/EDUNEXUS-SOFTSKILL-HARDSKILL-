@@ -56,7 +56,7 @@ jobs:
           from pathlib import Path
           html = Path("web/app/index.html").read_text()
           home = Path("web/index.html").read_text()
-          assert "MASUK / DAFTAR" in home and "EDUNEXUS" in home
+          assert "BUKA HALAMAN PENDAFTARAN / MASUK" in home and "EDUNEXUS" in home
           assert html.count('<script type="module">') == 1
           assert "</html>" in html
           assert "supabase.co" not in html
