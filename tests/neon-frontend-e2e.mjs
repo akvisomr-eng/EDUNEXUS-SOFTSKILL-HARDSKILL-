@@ -135,6 +135,8 @@ try {
   }
   console.log("AI_KNOWLEDGE_RETRIEVAL=PASS; mode=" + aiData.mode + "; sources=" + aiData.sources.length + "; specialists=" + aiData.agents.length);
 
+  // Close the dedicated course workspace before navigating to another app module.
+  await page.locator("#learningScreenClose").click();
   // Course and lesson interactions may have switched module views; reopen practice before starting a scenario.
   await page.locator('nav.sidebar-nav a[href="#scenarios"]').click();
   await page.locator("#scenarios button[data-scenario]").first().click();
