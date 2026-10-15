@@ -55,23 +55,25 @@ Prices should be set only after measuring actual provider costs, expected usage,
 
 For every checkbox, record: evidence URL or run ID, date, tested environment, result, known limitations, and reviewer. “Workflow green” proves only the checks that workflow actually runs; it does not prove payment readiness, legal compliance, provider reliability, or security certification.
 
-### Verified in the repository as of this document
+### Verified in the repository as of 15 October 2026
 
-- Latest source revision verified by GitHub Actions: `4cec43e2f3dec83d15cfd080377103040400df0e`.
-- EDUNEXUS CI run `38681207222`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38681207222
-- Frontend Syntax run `38681207338`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38681207338
-- Neon Browser Smoke Test run `38681207326`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38681207326
-- Direct Neon Function metadata check on 2026-10-15 confirms production deployment #7 is active. Its environment contains `MODEL_API_BASE_URL` and `MODEL_ID` but does **not** contain `MODEL_API_KEY`; health therefore reports inference not configured.
-- Database inspection on 2026-10-15 confirms the five `ai_*` Project Builder tables exist on preview branch `br-quiet-frost-azemctlk`, but none exist on production branch `br-bitter-king-azb11lde`. Migration `0011` remains preview-only. Production `auth.uid()` is defined and maps Neon Auth subjects through `private.supabase_identity_migration` when a mapping exists, otherwise falls back to the JWT subject. This is useful evidence, but it does not replace a two-account RLS isolation test; do not promote migration `0011` until that test is recorded.
-- A bounded in-memory rate limiter was added in commit `8a68ca26a3a7d0fb5b9ac777a86a276e2e640f87`, with tests added in `e503d2ffd20914dd143e62000933fef02565458c`. It is memory-safety protection, not a persistent quota or global spend cap.
+- Source and workflow changes are committed to the repository. Current source includes a persistent per-user quota RPC, a fail-closed runtime client, and an emergency inference disable switch.
+- Production Neon Function `edunexusai` is active on deployment #10; preview is active on deployment #16. Both report `status: ok`, 51 curated knowledge chunks, and `persistentQuotaConfigured: true`. Both report `inferenceConfigured: false` and `projectExecutionConfigured: false`.
+- Runtime Health run `38692369802`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38692369802
+- EDUNEXUS CI run `38692369524`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38692369524
+- Browser smoke run `38692230916`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38692230916. It exercised a real Neon Auth JWT, profile provisioning, quota RPC, catalog retrieval, practice finalization, candidate evidence, and cross-account isolation for practice sessions. It also called the deployed AI runtime in curated-retrieval mode and received HTTP 200.
+- Migration `0012_persistent_ai_quotas.sql` has been applied on production and preview. SQL boundary tests passed for 10 requests/minute and 100/day per application identity. Direct table access is revoked; the RPC is executable by `authenticated` only.
+- The `AI_ENABLED=false` emergency inference switch is covered by a runtime unit test. Provider inference remains disabled by missing `MODEL_API_KEY`; no live generative model call is claimed.
+- Website deploy run `38691681331` and live Pages verification run `38691681297` both succeeded — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38691681331 and https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38691681297.
+- Project Builder migration `0011_project_builder_records.sql` remains preview-only. Its five tables have owner-scoped SELECT policies, but the required dedicated two-account isolation test for those tables has not been recorded. Do not promote it yet.
 
 ## 6. Immediate next actions
 
-1. Owner configures model provider key privately in Neon and selects the exact supported model/base URL.
-2. Run real authenticated tutor and project-planning requests; retain redacted evidence.
-3. Implement persistent server-side quota enforcement and provider spend guardrails before inviting untrusted users.
-4. Complete privacy, terms, support, deletion, backup, and restore procedures.
-5. Run two-account isolation tests and mobile/accessibility checks.
-6. Re-review this checklist and authorize the pilot only after blockers are closed.
+1. Owner configures a legitimate model-provider API key privately in Neon and confirms the exact provider base URL/model ID. Do not place the key in GitHub source, frontend code, logs, or chat.
+2. Test one real authenticated tutor request and one Project Builder planning request after inference is configured; retain redacted evidence and check the emergency disable switch.
+3. Configure provider-side spend alerts and any available token/budget ceilings; measure real costs before approving prices.
+4. Complete legal operator/contact details, reviewed privacy notice and terms, retention/deletion procedures, support and incident intake.
+5. Test Project Builder table isolation with two distinct authorized accounts on preview; keep migration 0011 blocked until evidence is recorded. Complete mobile/accessibility checks and backup/restore rehearsal.
+6. Confirm billing, invoice/tax, refund/cancellation and payment provider readiness before charging customers; then sign off the paid-release checklist.
 
 This checklist is operational guidance, not legal, tax, security-certification, or financial advice.
