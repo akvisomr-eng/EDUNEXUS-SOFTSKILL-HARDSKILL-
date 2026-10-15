@@ -11,6 +11,10 @@ Dokumen ini adalah runbook operasional untuk mengaktifkan inferensi model pada f
 - Workflow Runtime Health telah lulus pada kedua deployment setelah pembaruan ini. Inferensi model masih belum aktif.
 - Browser smoke test terbaru menguji autentikasi, alur praktik, frontend, dan isolasi lintas akun. Pengujian itu bukan bukti bahwa inferensi AI sudah aktif.
 
+## Emergency stop
+
+Set `AI_ENABLED=false` in the Neon Function server-side environment and deploy a new function version to stop provider inference immediately. `/health` then reports `inferenceConfigured: false` and `inferenceDisabled: true`; curated retrieval remains available, while Project Builder fails closed. Restore only after investigating the incident.
+
 ## Langkah aktivasi
 
 1. Pilih penyedia model yang menyediakan API kompatibel dengan format OpenAI Chat Completions. Periksa batas penggunaan, ketentuan data, dan harga terlebih dahulu; gunakan free tier jika tersedia dan sesuai.
@@ -25,6 +29,7 @@ Dokumen ini adalah runbook operasional untuk mengaktifkan inferensi model pada f
 ## Checklist setelah konfigurasi
 
 - [ ] Secret disimpan hanya pada konfigurasi server-side fungsi.
+- [ ] Emergency switch `AI_ENABLED` tersedia dan diuji.
 - [ ] `/health` melaporkan `persistentQuotaConfigured: true` pada production dan preview.
 - [ ] `/health` melaporkan inferensi terkonfigurasi.
 - [ ] Permintaan model terautentikasi berhasil dengan provider/model yang dipilih.
