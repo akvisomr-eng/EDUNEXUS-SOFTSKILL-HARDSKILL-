@@ -223,7 +223,8 @@ body.dashboard .module-view>.grid{margin-top:0}
 <div class="section-title"><div><div class="badge">EDUNEXUS MULTI-AGENT AI</div><h2>EDUNEXUS Intelligence Workspace</h2><p class="muted">Gunakan agen spesialis untuk belajar atau menyusun rencana proyek. Perencanaan proyek memakai beberapa peran agen; eksekusi kode dan deployment otomatis tetap nonaktif sampai tool gateway dan kredensial server-side tervalidasi.</p></div></div>
 <div id="aiHealth" class="status" role="status" aria-live="polite">Memeriksa layanan AI…</div>
 <form id="aiChatForm">
-<div class="field"><label for="aiMessage">Pertanyaan</label><textarea id="aiMessage" rows="3" maxlength="4000" placeholder="Belajar: susun jalur belajar komunikasi 2 minggu. Proyek: rancang aplikasi inventaris UMKM dengan login, stok, transaksi, dan laporan." required></textarea></div>
+<div class="field"><label for="aiMode">Mode kerja</label><select id="aiMode"><option value="learn">Tutor & mentor keterampilan</option><option value="project">Multi-agent Project Builder (perencanaan)</option></select></div>
+<div class="field"><label for="aiMessage">Tujuan atau pertanyaan</label><textarea id="aiMessage" rows="3" maxlength="4000" placeholder="Belajar: susun jalur belajar komunikasi 2 minggu. Proyek: rancang aplikasi inventaris UMKM dengan login, stok, transaksi, dan laporan." required></textarea></div>
 <div class="actions"><button id="aiSendBtn" type="submit">Tanya EDUNEXUS</button><button id="aiClearBtn" class="secondary" type="button">Bersihkan jawaban</button></div>
 </form>
 <div id="aiAnswer" class="item" style="display:none;margin-top:14px;white-space:pre-wrap;line-height:1.65" aria-live="polite"></div>
