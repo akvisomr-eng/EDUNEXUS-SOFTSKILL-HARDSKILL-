@@ -47,7 +47,7 @@ try {
   await page.locator("#run").click();
   await page.waitForFunction(() => {
     const rows = [...document.querySelectorAll("#checks .check")];
-    return rows.length >= 7 || rows.some(row => row.textContent.includes("Pemeriksaan gagal"));
+    return rows.length >= 8 || rows.some(row => row.textContent.includes("Pemeriksaan gagal"));
   }, null, { timeout: 20000 });
 
   const checks = await page.locator("#checks .check").allTextContents();
