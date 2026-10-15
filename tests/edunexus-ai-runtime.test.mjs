@@ -10,6 +10,8 @@ test("health endpoint exposes configuration state without secrets", async () => 
   assert.equal(data.service, "edunexus-ai");
   assert.equal(typeof data.inferenceConfigured, "boolean");
   assert.equal(data.knowledgeConfigured, true);
+  assert.equal(data.projectExecutionConfigured, false);
+  assert.ok(Array.isArray(data.capabilities) && data.capabilities.includes("project_planning"));
   assert.ok(data.knowledgeChunks >= 20);
   assert.equal("apiKey" in data, false);
 });
