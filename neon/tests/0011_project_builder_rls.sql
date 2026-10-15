@@ -1,0 +1,55 @@
+-- Project Builder RLS isolation acceptance test.
+-- Run on a disposable preview branch only; creates and removes synthetic records.
+BEGIN;
+
+INSERT INTO public.ai_projects (id, owner_id, title, brief) VALUES
+('10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','RLS test A','synthetic security test'),
+('10000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000002','RLS test B','synthetic security test');
+
+INSERT INTO public.ai_project_tasks (id, project_id, owner_id, title, assigned_agent) VALUES
+('30000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','Task A','qa'),
+('30000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000002','Task B','qa');
+
+INSERT INTO public.ai_agent_runs (id, project_id, task_id, owner_id, agent_id) VALUES
+('40000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','qa'),
+('40000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000002','30000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000002','qa');
+
+INSERT INTO public.ai_project_artifacts (id, project_id, owner_id, artifact_type, title, content, content_sha256) VALUES
+('50000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','plan','Artifact A','synthetic','aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+('50000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000002','plan','Artifact B','synthetic','bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+
+INSERT INTO public.ai_project_audit_events (project_id, owner_id, event_type, outcome) VALUES
+('10000000-0000-4000-8000-000000000001','20000000-0000-4000-8000-000000000001','project_created','success'),
+('10000000-0000-4000-8000-000000000002','20000000-0000-4000-8000-000000000002','project_created','success');
+
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000001',true);
+DO $account_a$
+BEGIN
+  IF (SELECT count(*) FROM public.ai_projects WHERE id IN ('10000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000002')) <> 1 THEN RAISE EXCEPTION 'Account A project isolation failed'; END IF;
+  IF (SELECT count(*) FROM public.ai_project_tasks WHERE id IN ('30000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000002')) <> 1 THEN RAISE EXCEPTION 'Account A task isolation failed'; END IF;
+  IF (SELECT count(*) FROM public.ai_agent_runs WHERE id IN ('40000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000002')) <> 1 THEN RAISE EXCEPTION 'Account A run isolation failed'; END IF;
+  IF (SELECT count(*) FROM public.ai_project_artifacts WHERE id IN ('50000000-0000-4000-8000-000000000001','50000000-0000-4000-8000-000000000002')) <> 1 THEN RAISE EXCEPTION 'Account A artifact isolation failed'; END IF;
+  IF (SELECT count(*) FROM public.ai_project_audit_events WHERE project_id IN ('10000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000002')) <> 1 THEN RAISE EXCEPTION 'Account A audit isolation failed'; END IF;
+END;
+$account_a$;
+
+SELECT set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000002',true);
+DO $account_b$
+BEGIN
+  IF (SELECT count(*) FROM public.ai_projects WHERE id IN ('10000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000002')) <> 1 THEN RAISE EXCEPTION 'Account B project isolation failed'; END IF;
+  IF (SELECT count(*) FROM public.ai_project_tasks WHERE id IN ('30000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000002')) <> 1 THEN RAISE EXCEPTION 'Account B task isolation failed'; END IF;
+  IF (SELECT count(*) FROM public.ai_agent_runs WHERE id IN ('40000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000002')) <> 1 THEN RAISE EXCEPTION 'Account B run isolation failed'; END IF;
+  IF (SELECT count(*) FROM public.ai_project_artifacts WHERE id IN ('50000000-0000-4000-8000-000000000001','50000000-0000-4000-8000-000000000002')) <> 1 THEN RAISE EXCEPTION 'Account B artifact isolation failed'; END IF;
+  IF (SELECT count(*) FROM public.ai_project_audit_events WHERE project_id IN ('10000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000002')) <> 1 THEN RAISE EXCEPTION 'Account B audit isolation failed'; END IF;
+END;
+$account_b$;
+
+RESET ROLE;
+DELETE FROM public.ai_project_audit_events WHERE project_id IN ('10000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000002');
+DELETE FROM public.ai_project_artifacts WHERE id IN ('50000000-0000-4000-8000-000000000001','50000000-0000-4000-8000-000000000002');
+DELETE FROM public.ai_agent_runs WHERE id IN ('40000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000002');
+DELETE FROM public.ai_project_tasks WHERE id IN ('30000000-0000-4000-8000-000000000001','30000000-0000-4000-8000-000000000002');
+DELETE FROM public.ai_projects WHERE id IN ('10000000-0000-4000-8000-000000000001','10000000-0000-4000-8000-000000000002');
+
+COMMIT;
