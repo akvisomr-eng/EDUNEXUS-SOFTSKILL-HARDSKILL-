@@ -1,5 +1,5 @@
--- EDUNEXUS Project Builder records. Draft only; not applied to any database.
--- Test on a Neon preview branch and verify JWT role mapping before production use.
+-- EDUNEXUS Project Builder records. Applied and verified on Neon preview only.
+-- Not applied to production; verify JWT role mapping and review before promotion.
 BEGIN;
 
 CREATE TABLE IF NOT EXISTS public.ai_projects (
