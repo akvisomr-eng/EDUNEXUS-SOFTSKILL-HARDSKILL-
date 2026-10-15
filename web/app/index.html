@@ -574,6 +574,24 @@ function closeLearningScreen(){
  currentLessonId=null;
  currentCourseId=null;
 }
+
+function printCourseReport(courseId){
+ const course=learningCache.courses.find(item=>item.id===courseId);if(!course)return;
+ const modules=learningCache.modules.filter(m=>m.course_id===courseId).sort((a,b)=>(a.position||0)-(b.position||0));
+ const lessons=modules.flatMap(module=>learningCache.lessons.filter(l=>l.module_id===module.id).map(lesson=>({...lesson,moduleName:module.name})));
+ const completed=lessons.filter(lesson=>learningCache.progress.some(p=>p.lesson_id===lesson.id&&p.status==="completed"));
+ const pct=lessons.length?Math.round(completed.length/lessons.length*100):0;
+ const student=state.user?.name||state.user?.email||"Peserta EDUNEXUS";
+ const rows=modules.map((module,index)=>{
+  const moduleLessons=lessons.filter(l=>l.module_id===module.id);
+  return '<tr><td>Modul '+(index+1)+': '+escapeHtml(module.name)+'</td><td>'+moduleLessons.filter(l=>learningCache.progress.some(p=>p.lesson_id===l.id&&p.status==="completed")).length+' / '+moduleLessons.length+'</td><td>'+moduleLessons.map(l=>escapeHtml(l.title)+' — '+(learningCache.progress.some(p=>p.lesson_id===l.id&&p.status==="completed")?'Selesai':'Belum selesai')).join('<br>')+'</td></tr>';
+ }).join("");
+ const w=window.open("","_blank","width=900,height=700");
+ if(!w){$("learningStatus").textContent="Laporan tidak terbuka karena pop-up diblokir. Izinkan pop-up untuk EDUNEXUS lalu coba lagi.";return;}
+ w.document.open();
+ w.document.write('<!doctype html><html lang="id"><head><meta charset="utf-8"><title>Laporan Belajar EDUNEXUS</title><style>body{font:14px Arial,sans-serif;color:#172033;max-width:1000px;margin:36px auto;padding:0 24px}h1{margin-bottom:4px}p{line-height:1.6}.meta{color:#526079}.progress{font-size:22px;font-weight:bold}table{border-collapse:collapse;width:100%;margin:20px 0}th,td{border:1px solid #ccd5e2;padding:10px;text-align:left;vertical-align:top}th{background:#f1f5fb}footer{margin-top:28px;border-top:1px solid #ccd5e2;padding-top:14px;font-size:12px;color:#526079}@media print{body{margin:0;max-width:none}.noprint{display:none}}</style></head><body><div class="noprint"><button onclick="window.print()">Cetak / Simpan PDF</button></div><h1>EDUNEXUS — Laporan Progres Belajar</h1><p class="meta">Dibuat: '+escapeHtml(new Date().toLocaleString("id-ID"))+' · Laporan progres belajar, bukan sertifikat kelulusan</p><h2>'+escapeHtml(course.name)+'</h2><p>'+escapeHtml(course.description||"")+'</p><p><b>Peserta:</b> '+escapeHtml(student)+'<br><b>Kategori:</b> '+escapeHtml(course.category||"—")+'<br><b>Jenis keterampilan:</b> '+escapeHtml(course.skill_type||"—")+'<br><b>Jenjang:</b> '+escapeHtml(course.learner_stage||"—")+'</p><p class="progress">Progres: '+completed.length+' dari '+lessons.length+' pelajaran ('+pct+'%)</p><table><thead><tr><th>Modul</th><th>Pelajaran selesai</th><th>Status sesi</th></tr></thead><tbody>'+rows+'</tbody></table><h3>Interpretasi dan batasan</h3><ul><li>Persentase menunjukkan status penyelesaian pelajaran pada akun saat laporan dibuat.</li><li>Skor kuis dan tugas praktik belum menjadi rekam nilai terverifikasi pada laporan ini.</li><li>Laporan ini tidak menggantikan penilaian tutor manusia, wawancara/presentasi, atau sertifikat resmi.</li><li>Keputusan kelulusan memerlukan bukti praktik dan rubrik yang disetujui, termasuk verifikasi manusia bila diwajibkan.</li></ul><footer>EDUNEXUS · Dibuat dari data progres yang tersedia pada akun saat pencetakan. Bagikan secara bertanggung jawab.</footer></body></html>');
+ w.document.close();w.focus();
+}
 function openCourseScreen(courseId){
  const course=learningCache.courses.find(item=>item.id===courseId);
  if(!course)return;
@@ -581,10 +599,15 @@ function openCourseScreen(courseId){
  const modules=learningCache.modules.filter(item=>item.course_id===courseId).sort((a,b)=>(a.position||0)-(b.position||0));
  const enrollment=learningCache.enrollments.find(item=>item.course_id===courseId);
  const totalLessons=modules.reduce((sum,m)=>sum+learningCache.lessons.filter(l=>l.module_id===m.id).length,0);
+ const courseLessons=getCourseLessons(courseId);
+ const completedLessons=courseLessons.filter(l=>learningCache.progress.some(p=>p.lesson_id===l.id&&p.status==="completed")).length;
+ const coursePercent=courseLessons.length?Math.round(completedLessons/courseLessons.length*100):0;
+ const isCourseComplete=courseLessons.length>0&&completedLessons===courseLessons.length;
+ const relatedCourse=learningCache.courses.find(candidate=>candidate.id!==courseId&&(candidate.category===course.category||candidate.skill_type===course.skill_type)&&!learningCache.enrollments.some(e=>e.course_id===candidate.id&&e.status==="completed"));
  $("courseScreenContent").style.display="block";
  $("lessonReader").style.display="none";
  openLearningScreen(course.name,course.description||"Pelajari modul dan sesi kursus ini.");
- const intro='<div class="item"><div class="course-context-tags"><span class="course-category-tag">'+escapeHtml(course.category||"Pengembangan Umum")+'</span><span class="course-category-tag">'+escapeHtml(course.skill_type==="hard_skill"?"Hard skill":course.skill_type==="soft_skill"?"Soft skill":"Soft skill + hard skill")+'</span><span class="course-category-tag">'+escapeHtml(course.learner_stage||"Semua jenjang")+'</span></div><p class="muted">'+escapeHtml(String(course.estimated_hours||4))+' jam belajar · '+modules.length+' modul · '+totalLessons+' pelajaran</p>'+(enrollment?'<span class="badge">Kursus diikuti · progres tersimpan</span>':'<button type="button" id="screenEnrollCourse">Ikuti kursus untuk menyimpan progres</button>')+'</div>';
+ const intro='<div class="item"><div class="course-context-tags"><span class="course-category-tag">'+escapeHtml(course.category||"Pengembangan Umum")+'</span><span class="course-category-tag">'+escapeHtml(course.skill_type==="hard_skill"?"Hard skill":course.skill_type==="soft_skill"?"Soft skill":"Soft skill + hard skill")+'</span><span class="course-category-tag">'+escapeHtml(course.learner_stage||"Semua jenjang")+'</span></div><p class="muted">'+escapeHtml(String(course.estimated_hours||4))+' jam belajar · '+modules.length+' modul · '+totalLessons+' pelajaran</p><div class="lesson-unit"><b>Progres belajar</b><p>'+completedLessons+' dari '+courseLessons.length+' pelajaran selesai · '+coursePercent+'%</p><div class="course-progress-track"><div class="course-progress-fill" style="width:'+coursePercent+'%"></div></div></div>'+(enrollment?'<span class="badge">Kursus diikuti · progres tersimpan</span>':'<button type="button" id="screenEnrollCourse">Ikuti kursus untuk menyimpan progres</button>')+'<div class="actions"><button type="button" id="printCourseReport" class="secondary">Cetak laporan progres</button></div>'+(isCourseComplete&&relatedCourse?'<section class="screen-module"><h3>Kursus terkait berikutnya</h3><p>Anda telah menyelesaikan semua pelajaran pada kursus ini. Pilihan ini terkait kategori atau keterampilan; periksa prasyarat dan tujuan pribadi sebelum melanjutkan.</p><button type="button" id="openRelatedCourse">Jelajahi: '+escapeHtml(relatedCourse.name)+'</button></section>':'')+'</div>';
  const moduleHtml=modules.map((module,index)=>{
   const lessons=learningCache.lessons.filter(l=>l.module_id===module.id).sort((a,b)=>(a.position||0)-(b.position||0));
   const done=lessons.filter(l=>learningCache.progress.some(p=>p.lesson_id===l.id&&p.status==="completed")).length;
@@ -598,6 +621,8 @@ function openCourseScreen(courseId){
  $("courseScreenContent").querySelectorAll("[data-screen-lesson]").forEach(button=>button.addEventListener("click",()=>openLesson(button.dataset.screenLesson)));
  const enroll=$("screenEnrollCourse");
  if(enroll)enroll.addEventListener("click",async()=>{await enrollCourse(courseId);openCourseScreen(courseId)});
+ const printButton=$("printCourseReport");if(printButton)printButton.addEventListener("click",()=>printCourseReport(courseId));
+ const relatedButton=$("openRelatedCourse");if(relatedButton)relatedButton.addEventListener("click",()=>openCourseScreen(relatedCourse.id));
 }
 function getCourseLessons(courseId){
  const courseModules=learningCache.modules.filter(m=>m.course_id===courseId).sort((a,b)=>(a.position||0)-(b.position||0));
