@@ -75,4 +75,5 @@ $function$;
 REVOKE ALL ON FUNCTION public.consume_edunexus_ai_quota() FROM PUBLIC, anonymous;
 GRANT EXECUTE ON FUNCTION public.consume_edunexus_ai_quota() TO authenticated;
 
+NOTIFY pgrst, 'reload schema';
 COMMIT;
