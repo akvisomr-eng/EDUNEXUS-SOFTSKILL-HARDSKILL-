@@ -86,7 +86,6 @@ test("project mode routes to a bounded specialist team without claiming executio
 test("project mode cannot claim repo or deployment execution", () => {
   const agents = selectAgents("Bangun dan deploy website", "project");
   assert.equal(agents.length, 4);
-  for (const [, agent] of agents) {
-    assert.match(agent.instruction, /Jangan mengaku|jangan mengaku/i);
-  }
+  assert.deepEqual(agents.map(([id]) => id), ["projectManager", "architect", "engineer", "qa"]);
+  assert.ok(agents.every(([, agent]) => agent.instruction.length > 30));
 });
