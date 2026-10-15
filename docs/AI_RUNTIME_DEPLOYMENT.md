@@ -4,11 +4,11 @@
 
 - A Neon Function using the web-standard `fetch(Request) -> Response` contract.
 - `GET /health` reports authentication, knowledge corpus readiness/version/chunk count and inference configuration; it never exposes secret values.
-- `POST /chat` requires a Bearer JWT whose RS256 signature is checked against Neon Auth JWKS, checks expiry, applies an in-memory per-user request cap, validates request size, and allows only the EDUNEXUS Pages origin by default.
+- `POST /chat` requires a Bearer JWT whose RS256 signature is checked against Neon Auth JWKS, checks expiry, applies a bounded in-memory cap and a persistent Data API quota of 10 requests/minute and 100/day per application identity, validates request size, and allows only the EDUNEXUS Pages origin by default.
 - A bounded specialist registry routes learning requests to up to four specialists and project-planning requests to a fixed four-agent team (Project Manager, Solution Architect, Software Engineer, QA & Security).
 - The model provider is OpenAI-compatible and configured only through server-side environment variables.
 - When a model key is absent, learning mode returns an explicitly labeled curated-retrieval-only answer with matched source summaries and links. Project mode fails closed with HTTP 503 instead of presenting a fake AI plan. When a model key is configured, project mode runs the four bounded specialists in parallel and labels the result as planning only; it does not claim to edit code, run tests, commit, or deploy.
-- A 24-chunk curated corpus of EDUNEXUS product/security guidance and external source summaries is deployed with the production function; lexical-overlap retrieval selects up to four chunks and responses expose source IDs/URLs.
+- A 51-chunk curated corpus of EDUNEXUS product/security guidance and external source summaries is deployed with the production function; lexical-overlap retrieval selects up to four chunks and responses expose source IDs/URLs.
 - Retrieval is lexical, not embedding/vector search. A public allowlist registry has 14 source records. A weekly metadata-only refresh job records public page title/description/HTTP metadata and opens a review PR; it does not copy full pages or auto-promote unreviewed text into the runtime corpus.
 
 ## Required server-side environment
