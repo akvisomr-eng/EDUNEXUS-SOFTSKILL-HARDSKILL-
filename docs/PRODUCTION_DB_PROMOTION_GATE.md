@@ -13,6 +13,12 @@
 - Preview table grants show `authenticated` has SELECT only on the five Project Builder tables; browser INSERT/UPDATE/DELETE are not granted. Row-level policies scope reads to `owner_id = auth.uid()`.
 - This confirms the migration's intended boundary is present on preview; it does **not** prove end-to-end tenant isolation for real accounts.
 
+## Additional preview validation recorded on 15 October 2026
+
+- Ran `neon/tests/0011_project_builder_rls.sql` against the preview branch using synthetic owner UUIDs and the `authenticated` database role.
+- Account A and Account B each saw exactly their own project, task, agent-run, artifact, and audit-event row; all cross-owner rows were filtered by RLS. The test rows were removed after verification.
+- This validates the SQL policy boundary, but it is **not** a substitute for testing with two real Neon Auth accounts and their actual JWT subject mappings. The production promotion gate remains on hold.
+
 ## Required checks before production migration
 
 1. Use two separate, authorized test accounts (Account A and Account B) in a non-production environment.
