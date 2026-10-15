@@ -57,11 +57,12 @@ For every checkbox, record: evidence URL or run ID, date, tested environment, re
 
 ### Verified in the repository as of this document
 
-- Commit `36e053e466650176b01787eea8f10964a20abb46` is the latest checked source revision.
-- EDUNEXUS CI run `38680756125`: success.
-- Frontend Syntax run `38680756169`: success.
-- Neon Browser Smoke Test run `38680756265`: success.
-- Those workflows do not prove model inference works: production configuration lacked `MODEL_API_KEY` at the last verified check.
+- Latest source revision verified by GitHub Actions: `4cec43e2f3dec83d15cfd080377103040400df0e`.
+- EDUNEXUS CI run `38681207222`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38681207222
+- Frontend Syntax run `38681207338`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38681207338
+- Neon Browser Smoke Test run `38681207326`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38681207326
+- Direct Neon Function metadata check on 2026-10-15 confirms production deployment #7 is active. Its environment contains `MODEL_API_BASE_URL` and `MODEL_ID` but does **not** contain `MODEL_API_KEY`; health therefore reports inference not configured.
+- Database inspection on 2026-10-15 confirms the five `ai_*` Project Builder tables exist on preview branch `br-quiet-frost-azemctlk`, but none exist on production branch `br-bitter-king-azb11lde`. Migration `0011` remains preview-only. Production `auth.uid()` is defined and maps Neon Auth subjects through `private.supabase_identity_migration` when a mapping exists, otherwise falls back to the JWT subject. This is useful evidence, but it does not replace a two-account RLS isolation test; do not promote migration `0011` until that test is recorded.
 
 ## 6. Immediate next actions
 
