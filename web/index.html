@@ -352,7 +352,7 @@ async function loadLearning(){
  try{
   const query=encodeURIComponent(state.businessUserId);
   const results=await Promise.all([
-   api("/courses?select=id,name,slug,description,program_id,category,learner_stage,skill_type,estimated_hours,context_tags&order=name.asc"),
+   api("/courses?select=id,name,slug,description,program_id,category,learner_stage,skill_type,estimated_hours,context_tags&order=name.asc").catch(async()=>{const legacy=await api("/courses?select=id,name,slug,description,program_id&order=name.asc");return legacy.map(course=>({...course,category:"Pengembangan Umum",learner_stage:"SMP / SMA / SMK / Mahasiswa / Dewasa",skill_type:"mixed",estimated_hours:4,context_tags:[]}));}),
    api("/programs?select=id,name&order=name.asc"),
    api("/modules?select=id,course_id,name,position&order=position.asc"),
    api("/lessons?select=id,module_id,title,content,position&order=position.asc"),
