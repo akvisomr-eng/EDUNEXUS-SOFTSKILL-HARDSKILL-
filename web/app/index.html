@@ -502,7 +502,8 @@ const GENERAL_LESSON_GUIDES=[
 ];
 const CURATED_LESSON_RESOURCES=[
  {match:/matematika praktis|persentase|diskon|perbandingan harga|estimasi|ukuran|waktu|grafik|data dan bukti|statistik/i,items:[
-  {title:"Khan Academy — Rasio, persentase, diskon dan pajak",url:"https://www.khanacademy.org/math/cc-seventh-grade-math/cc-7th-fractions-decimals",note:"Pelajaran dan latihan interaktif; materi eksternal, tautan langsung ke penerbit."},
+  {title:"Rumah Pendidikan — Sumber Belajar Ruang Murid (Kemendikdasmen)",url:"https://rumah.pendidikan.go.id/",note:"Portal pendidikan Indonesia dengan materi teks, video, dan aktivitas yang dapat dipilih menurut jenjang; cocok sebagai bacaan pendamping sekolah."},
+  {title:"Khan Academy — Matematika",url:"https://id.khanacademy.org/math",note:"Materi matematika berbahasa Indonesia; pilih topik dan tingkat yang sesuai. Tautan membuka situs penerbit."},
   {title:"OpenStax — Prealgebra, konsep rasio dan persen",url:"https://openstax.org/books/prealgebra/pages/6-key-concepts",note:"Bacaan terbuka dengan konsep rasio dan persentase. Tautan saja; periksa ketentuan lisensi pada halaman penerbit sebelum menggunakan ulang konten."},
   {title:"BPS — Tabel Statistik Indonesia",url:"https://www.bps.go.id/statistics-table",note:"Data resmi Indonesia untuk latihan membaca tabel, satuan, periode, dan sumber."}
  ]},
@@ -540,8 +541,11 @@ function getCuratedLessonResources(course,module,lesson,guideSources=[]){
  const context=[course?.name,module?.name,lesson?.title,course?.description,course?.category].filter(Boolean).join(" ");
  const matched=CURATED_LESSON_RESOURCES.filter(group=>group.match.test(context)).flatMap(group=>group.items);
  const registry={title:"Registri Kurikulum & Pengetahuan EDUNEXUS",url:"https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/docs/EDUNEXUS-KNOWLEDGE-CURRICULUM-REGISTRY-v1.0.md",note:"Peta sumber dan kompetensi yang digunakan sebagai rujukan. Registri tidak berarti semua sumber telah diindeks penuh ke AI."};
- const all=[registry,...guideSources,...matched];
- return all.filter((item,index)=>item&&item.url&&all.findIndex(other=>other&&other.url===item.url)===index);
+ const stage=String(course?.learner_stage||"").toLowerCase();
+ const schoolStage=/paud|tk|sd|smp|sma|smk|paket|sekolah|mahasiswa/.test(stage);
+ const educationSource=schoolStage?[{title:"Rumah Pendidikan — Sumber Belajar Ruang Murid (Kemendikdasmen)",url:"https://rumah.pendidikan.go.id/",note:"Portal pendidikan Indonesia; pilih materi sesuai mata pelajaran dan jenjang siswa. EDUNEXUS memberi panduan ringkas, sedangkan materi lengkap tetap berada pada penerbit."}]:[];
+ const all=[registry,...educationSource,...guideSources,...matched];
+ return all.filter((item,index)=>item&&item.url&&all.findIndex(other=>other&&other.url===item.url)===index).slice(0,5);
 }
 function getAnalyticalScaffold(course,module,lesson){
  const context=[course?.name,module?.name,lesson?.title].filter(Boolean).join(" ").toLowerCase();
@@ -897,6 +901,41 @@ $("lessonTutorMic").addEventListener("click",()=>{
 });
 $("lessonTutorStopMic").addEventListener("click",()=>lessonRecognition?.stop());
 
+$("translateLessonBtn").addEventListener("click",async()=>{
+ const lesson=learningCache.lessons.find(item=>item.id===currentLessonId);
+ if(!lesson)return;
+ const language=getSelectedLanguage();
+ const target=$("lessonTranslation");
+ target.style.display="block";
+ if(language.locale==="Indonesian"){
+  target.textContent="Materi sesi ini sudah tersedia dalam Bahasa Indonesia. Pilih bahasa lain jika ingin meminta terjemahan.";
+  return;
+ }
+ $("translateLessonBtn").disabled=true;
+ target.textContent="Menyiapkan terjemahan materi sesuai bahasa pilihan…";
+ try{
+  const module=learningCache.modules.find(item=>item.id===lesson.module_id);
+  const course=module&&learningCache.courses.find(item=>item.id===module.course_id);
+  const curriculum=getLessonCurriculum(lesson);
+  const sourceText=[
+   "Ringkasan: "+(curriculum.summary||""),
+   "Tujuan belajar: "+(curriculum.objectives||[]).join("; "),
+   "Materi inti: "+(curriculum.sections||[]).map(item=>(item.heading||"Materi")+": "+(item.body||"")).join("\n"),
+   "Latihan: "+(curriculum.exercise||""),
+   "Kuis: "+(curriculum.quiz||[]).map(item=>item[0]+" Pilihan: "+(item[1]||[]).join(", ")+". Pembahasan: "+(item[3]||"")).join("\n"),
+   "Rujukan: "+(curriculum.sources||[]).map(item=>item.title+" — "+item.url+" — "+(item.note||"")).join("\n")
+  ].join("\n").slice(0,6500);
+  const prompt="Terjemahkan materi kursus EDUNEXUS berikut ke "+language.locale+". Tingkat peserta: "+(course?.learner_stage||"pelajar umum")+". Kursus: "+(course?.name||"Kursus")+". Modul: "+(module?.name||"Modul")+". Sesi: "+lesson.title+". Pertahankan semua angka, rumus, makna pedagogis, soal, pilihan jawaban, dan pembahasan dengan akurat. Gunakan bahasa yang alami dan mudah dipahami sesuai tingkat siswa. Jangan menambah fakta atau sumber baru. Pertahankan URL dan nama penerbit apa adanya; terjemahkan keterangan sumber. Susun dengan heading dan bullet yang rapi. Materi sumber:\n"+sourceText;
+  const token=await getJwtToken();
+  const response=await fetch(EDUNEXUS_AI_URL+"/chat",{method:"POST",signal:AbortSignal.timeout(55000),headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({message:prompt,locale:language.locale,mode:"learn"})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.message||"Layanan terjemahan belum tersedia (HTTP "+response.status+").");
+  if(data.mode==="curated_retrieval_only_v1"||!data.answer)throw new Error("Model terjemahan belum aktif pada layanan AI saat ini. Materi asli tetap tersedia; silakan pilih Bahasa Indonesia atau coba kembali nanti.");
+  target.textContent=data.answer;
+  $("lessonTutorStatus").textContent="Terjemahan AI dibuat untuk membantu belajar. Periksa istilah teknis dan rujukan asli jika digunakan untuk penilaian formal.";
+ }catch(error){target.textContent=String(error.message||error);$("lessonTutorStatus").textContent="Terjemahan otomatis belum berhasil; materi asli tidak diubah.";}
+ finally{$("translateLessonBtn").disabled=false;}
+});
 $("completeLessonBtn").addEventListener("click",completeLesson);
 $("learningScreenClose").addEventListener("click",closeLearningScreen);
 $("learningScreenBack").addEventListener("click",()=>{if($("lessonReader").style.display==="block"){ $("lessonReader").style.display="none"; $("courseScreenContent").style.display="block"; const course=learningCache.courses.find(item=>item.id===currentCourseId); if(course){$("learningScreenTitle").textContent=course.name;$("learningScreenSubtitle").textContent=course.description||"Pilih modul dan sesi belajar.";} $("learningScreenBack").textContent="← Kembali ke katalog";}else closeLearningScreen();});
