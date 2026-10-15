@@ -483,7 +483,10 @@ function buildContextualCurriculum(lesson,stored,course,module){
  const exercise=stored.exercise||guide.exercise;
  const quiz=Array.isArray(stored.quiz)&&stored.quiz.length>=3?stored.quiz:guide.quiz;
  const localIntro={heading:"Terapkan pada sesi ini",body:"Hubungkan konsep dengan tujuan sesi “"+title+"”. Catat konteks, data yang benar-benar tersedia, asumsi, pilihan tindakan, dan indikator keberhasilan. Contoh di atas adalah kerangka latihan; sesuaikan dengan tugas spesifik sesi dan jangan mengarang data."};
- return {...guide,...stored,summary,objectives,sections:[...sections,localIntro],exercise,quiz,sources:[...(Array.isArray(stored.sources)?stored.sources:[]),...(guide.sources||[])].filter((item,index,array)=>array.findIndex(other=>other.url===item.url)===index),license_note:stored.license_note||"Materi penjelasan dan latihan merupakan sintesis orisinal EDUNEXUS. Tautan eksternal mengarah ke sumber penerbit; periksa versi dan ketentuan dokumen asli. Kuis bersifat formatif, bukan keputusan kelulusan."};
+ let storedSources=Array.isArray(stored.sources)?stored.sources:[];
+ if(typeof storedSources[0]==="string"){const normalized=[];for(let i=0;i+1<storedSources.length;i+=3)normalized.push({title:storedSources[i],url:storedSources[i+1],note:storedSources[i+2]||""});storedSources=normalized;}
+ const sources=[...storedSources,...(guide.sources||[])].filter((item,index,array)=>item&&item.url&&array.findIndex(other=>other&&other.url===item.url)===index);
+ return {...guide,...stored,summary,objectives,sections:[...sections,localIntro],exercise,quiz,sources,license_note:stored.license_note||"Materi penjelasan dan latihan merupakan sintesis orisinal EDUNEXUS. Tautan eksternal mengarah ke sumber penerbit; periksa versi dan ketentuan dokumen asli. Kuis bersifat formatif, bukan keputusan kelulusan."};
 }
 function getLessonCurriculum(lesson){
  let stored=lesson?.content||{};if(typeof stored==="string"){try{stored=JSON.parse(stored)}catch{stored={summary:stored}}}
