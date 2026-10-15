@@ -110,8 +110,9 @@ body.dashboard .module-view>.grid{margin-top:0}
 </div>
 </div>
 <div class="card">
-<h2>Akses EDUNEXUS</h2><p class="muted">Buat akun pembelajar atau masuk.</p>
+<h2>Akses EDUNEXUS</h2><p class="muted">Buat akun pembelajar atau masuk. Pilih bahasa untuk pengalaman belajar dan AI Mentor.</p>
 <form id="authForm">
+<div class="field"><label for="preferredLanguage">Bahasa pilihan belajar</label><select id="preferredLanguage" name="preferredLanguage"><option value="id">Bahasa Indonesia</option><option value="en">English</option><option value="es">Español</option><option value="ar">العربية</option><option value="zh">中文（简体）</option></select><small class="muted">Pilihan ini mengatur bahasa AI Mentor dan permintaan terjemahan materi. Judul serta isi sumber eksternal tetap mengikuti penerbitnya.</small></div>
 <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" required></div>
 <div class="field"><label for="password">Password</label><input id="password" type="password" minlength="8" autocomplete="current-password" required></div>
 <div class="actions"><button id="loginBtn" type="submit">Masuk</button><button id="signupBtn" class="secondary" type="button">Buat akun</button></div>
@@ -175,6 +176,7 @@ body.dashboard .module-view>.grid{margin-top:0}
 <div id="lessonReader" class="item" style="display:none;margin-top:16px" aria-live="polite">
 <div class="section-title"><div><div class="badge">RUANG BELAJAR</div><h3 id="lessonTitle">Pelajaran</h3><p id="lessonBreadcrumb" class="muted" style="margin:4px 0 0"></p></div><button id="closeLessonBtn" type="button" class="secondary">← Modul kursus</button></div>
 <div id="lessonContent" class="list"></div>
+<div class="actions"><button id="translateLessonBtn" class="secondary" type="button">Terjemahkan materi ke bahasa pilihan</button></div><div id="lessonTranslation" class="lesson-unit" style="display:none;white-space:pre-wrap;line-height:1.75" aria-live="polite"></div>
 <div id="lessonAssessment" class="lesson-unit" aria-live="polite"></div>
 <section id="lessonTutor" class="lesson-tutor">
  <div class="lesson-tutor-head"><div class="lesson-tutor-orb" aria-hidden="true">AI</div><div><div id="lessonTutorModeBadge" class="badge">AI MENTOR · BASIS PENGETAHUAN</div><h4 style="margin:4px 0">Tutor pribadi sesi ini</h4><p class="muted" style="margin:0">Bertanya, minta contoh tambahan, atau jelaskan jawabanmu untuk mendapat umpan balik.</p></div></div>
@@ -253,6 +255,7 @@ body.dashboard .module-view>.grid{margin-top:0}
    <div><div class="learning-screen-eyebrow">EDUNEXUS · RUANG BELAJAR</div><div id="learningScreenTitle" class="learning-screen-title">Program kursus</div><div id="learningScreenSubtitle" class="muted">Pilih modul dan sesi belajar.</div></div>
    <div class="actions"><button id="learningScreenBack" type="button" class="secondary">← Kembali ke katalog</button><button id="learningScreenClose" type="button" class="secondary">Tutup</button></div>
   </div>
+  <div class="field" style="max-width:280px;margin-bottom:16px"><label for="learningLanguageSelect">Bahasa belajar</label><select id="learningLanguageSelect"><option value="id">Bahasa Indonesia</option><option value="en">English</option><option value="es">Español</option><option value="ar">العربية</option><option value="zh">中文（简体）</option></select></div>
   <div id="courseScreenContent"></div>
  </div>
 </div>
@@ -272,6 +275,30 @@ let currentLessonId=null;
 let currentCourseId=null;
 let courseFiltersBound=false;
 const $=id=>document.getElementById(id);
+const LEARNING_LANGUAGES={
+ id:{label:"Bahasa Indonesia",locale:"Indonesian",speech:"id-ID"},
+ en:{label:"English",locale:"English",speech:"en-US"},
+ es:{label:"Español",locale:"Spanish",speech:"es-ES"},
+ ar:{label:"العربية",locale:"Arabic",speech:"ar-SA"},
+ zh:{label:"中文（简体）",locale:"Simplified Chinese",speech:"zh-CN"}
+};
+function getSelectedLanguage(){
+ const key=localStorage.getItem("edunexus-language-preference")||$("preferredLanguage")?.value||"id";
+ return LEARNING_LANGUAGES[key]||LEARNING_LANGUAGES.id;
+}
+function setSelectedLanguage(key){
+ const language=LEARNING_LANGUAGES[key]?key:"id";
+ localStorage.setItem("edunexus-language-preference",language);
+ ["preferredLanguage","learningLanguageSelect"].forEach(id=>{const select=$(id);if(select)select.value=language;});
+ const tutorQuestion=$("lessonTutorQuestion");
+ if(tutorQuestion)tutorQuestion.placeholder=language==="id"?"Contoh: jelaskan cara menghitung diskon 15% dengan contoh belanja di Indonesia.":"Ask for an explanation, a worked example, or a practice question in your chosen language.";
+}
+function initializeLanguagePreference(){
+ const saved=localStorage.getItem("edunexus-language-preference")||"id";
+ setSelectedLanguage(saved);
+ ["preferredLanguage","learningLanguageSelect"].forEach(id=>$(id)?.addEventListener("change",event=>setSelectedLanguage(event.target.value)));
+}
+initializeLanguagePreference();
 // Place the lesson reader inside the full-screen learning workspace, not in the catalog flow.
 $("courseScreenContent").after($("lessonReader"));
 function setStatus(el,msg,error=false){el.textContent=localizeError(msg);el.className="status "+(error?"error":"ok")}
@@ -554,6 +581,7 @@ function getLessonCurriculum(lesson){
 }
 function renderLessonContent(content,lesson){
  let value=getLessonCurriculum(lesson);
+ $("lessonTranslation").style.display="none";$("lessonTranslation").textContent="";$("translateLessonBtn").disabled=false;
  const parts=[];
  if(value.summary)parts.push('<section class="lesson-unit"><h4>Ringkasan konsep</h4><p>'+escapeHtml(value.summary)+'</p></section>');
  if(Array.isArray(value.objectives)&&value.objectives.length)parts.push('<section class="lesson-unit"><h4>Setelah sesi ini, kamu mampu</h4><ul>'+value.objectives.map(x=>'<li>'+escapeHtml(x)+'</li>').join("")+'</ul></section>');
@@ -832,8 +860,9 @@ $("lessonTutorForm").addEventListener("submit",async e=>{
   const token=await getJwtToken();
   const curriculum=getLessonCurriculum(lesson);
   const curriculumContext=[curriculum.summary,...(curriculum.objectives||[]).slice(0,4),...(curriculum.sections||[]).slice(0,4).map(section=>(section.heading||"Materi")+": "+String(section.body||"").slice(0,220)),...(curriculum.sources||[]).slice(0,3).map(source=>"Rujukan: "+source.title+" — "+source.url)].filter(Boolean).join("\n").slice(0,1850);
-  const prompt="Anda adalah EDUNEXUS AI Mentor untuk pembelajaran Indonesia. Jawab Bahasa Indonesia yang ramah dan bertahap sesuai jenjang "+(course?.learner_stage||"pelajar umum")+". KURSUS: "+(course?.name||"Kursus")+". MODUL: "+(module?.name||"Modul")+". SESI: "+lesson.title+". MATERI TERKURASI: "+curriculumContext+". Jalankan telaah spesialis terintegrasi: Learning Navigator (prasyarat/jalur lanjut), Subject-Matter Mentor (akurasi), Pedagogy Coach (Socratic dan penjelasan bertahap), Practice Designer (contoh lokal Indonesia), Formative Assessor (rubrik), Indonesia Context & Safety Reviewer, Evidence Curator (provenance), dan Human Tutor Coordinator (bukti yang perlu ditinjau manusia). Berikan contoh dan langkah analisis, tips pemecahan masalah, latihan singkat atau pertanyaan pemandu, dan sumber dari daftar di atas bila relevan. Bedakan fakta, asumsi, dan saran. Jangan mengarang sumber atau bukti, jangan menyatakan peserta lulus; keputusan asesmen berisiko tinggi tetap memerlukan tutor manusia. Pertanyaan siswa: "+question.slice(0,850);
-  const response=await fetch(EDUNEXUS_AI_URL+"/chat",{method:"POST",signal:AbortSignal.timeout(55000),headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({message:prompt,locale:"Indonesia",mode:"learn"})});
+  const selectedLanguage=getSelectedLanguage();
+  const prompt="Anda adalah EDUNEXUS AI Mentor. Jawab dalam bahasa "+selectedLanguage.locale+" dengan bahasa yang ramah, jelas, dan bertahap sesuai jenjang "+(course?.learner_stage||"pelajar umum")+". KURSUS: "+(course?.name||"Kursus")+". MODUL: "+(module?.name||"Modul")+". SESI: "+lesson.title+". MATERI TERKURASI: "+curriculumContext+". Jalankan telaah spesialis terintegrasi: Learning Navigator (prasyarat/jalur lanjut), Subject-Matter Mentor (akurasi), Pedagogy Coach (Socratic dan penjelasan bertahap), Practice Designer (contoh lokal Indonesia), Formative Assessor (rubrik), Indonesia Context & Safety Reviewer, Evidence Curator (provenance), dan Human Tutor Coordinator (bukti yang perlu ditinjau manusia). Berikan contoh dan langkah analisis, tips pemecahan masalah, latihan singkat atau pertanyaan pemandu, dan sumber dari daftar di atas bila relevan. Bedakan fakta, asumsi, dan saran. Jangan mengarang sumber atau bukti, jangan menyatakan peserta lulus; keputusan asesmen berisiko tinggi tetap memerlukan tutor manusia. Pertanyaan siswa: "+question.slice(0,850);
+  const response=await fetch(EDUNEXUS_AI_URL+"/chat",{method:"POST",signal:AbortSignal.timeout(55000),headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({message:prompt,locale:selectedLanguage.locale,mode:"learn"})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.message||"AI Mentor belum tersedia (HTTP "+response.status+").");
   const retrievalOnly=data.mode==="curated_retrieval_only_v1";
@@ -850,8 +879,8 @@ $("lessonTutorSpeak").addEventListener("click",()=>{
  const text=$("lessonTutorAnswer").textContent.trim();
  if(!text||!("speechSynthesis" in window)||!("SpeechSynthesisUtterance" in window)){$("lessonTutorStatus").textContent="Fitur suara tidak didukung browser ini.";return;}
  window.speechSynthesis.cancel();
- const utterance=new SpeechSynthesisUtterance(text);utterance.lang="id-ID";utterance.rate=0.94;
- const voices=window.speechSynthesis.getVoices();const voice=voices.find(item=>/^id(-|_)/i.test(item.lang));if(voice)utterance.voice=voice;
+ const language=getSelectedLanguage();const utterance=new SpeechSynthesisUtterance(text);utterance.lang=language.speech;utterance.rate=0.94;
+ const prefix=language.speech.split("-")[0];const voices=window.speechSynthesis.getVoices();const voice=voices.find(item=>item.lang.toLowerCase().startsWith(prefix.toLowerCase()+"-")||item.lang.toLowerCase()===prefix.toLowerCase());if(voice)utterance.voice=voice;
  window.speechSynthesis.speak(utterance);
 });
 $("lessonTutorStopSpeak").addEventListener("click",()=>{if("speechSynthesis" in window)window.speechSynthesis.cancel();});
@@ -859,7 +888,7 @@ let lessonRecognition=null;
 $("lessonTutorMic").addEventListener("click",()=>{
  const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!Recognition){$("lessonTutorStatus").textContent="Dikte suara belum didukung browser ini. Kamu tetap bisa mengetik pertanyaan.";return;}
- lessonRecognition=new Recognition();lessonRecognition.lang="id-ID";lessonRecognition.interimResults=false;lessonRecognition.continuous=false;
+ lessonRecognition=new Recognition();lessonRecognition.lang=getSelectedLanguage().speech;lessonRecognition.interimResults=false;lessonRecognition.continuous=false;
  lessonRecognition.onstart=()=>{$("lessonTutorMic").style.display="none";$("lessonTutorStopMic").style.display="inline-block";$("lessonTutorStatus").textContent="Silakan bicara dalam Bahasa Indonesia…";};
  lessonRecognition.onresult=event=>{$("lessonTutorQuestion").value=event.results[0][0].transcript;};
  lessonRecognition.onerror=event=>{$("lessonTutorStatus").textContent="Dikte suara: "+event.error+". Kamu bisa mengetik pertanyaan.";};
@@ -923,7 +952,7 @@ $("aiChatForm").addEventListener("submit",async e=>{
  $("aiAnswer").style.display="block";$("aiAnswer").textContent="Menyiapkan jawaban…";$("aiSources").replaceChildren();$("aiAgentStatus").textContent="";
  try{
   const token=await getJwtToken();
-  const response=await fetch(EDUNEXUS_AI_URL+"/chat",{method:"POST",signal:AbortSignal.timeout(55000),headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({message,locale:"Indonesia",mode:$("aiMode").value})});
+  const response=await fetch(EDUNEXUS_AI_URL+"/chat",{method:"POST",signal:AbortSignal.timeout(55000),headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({message,locale:getSelectedLanguage().locale,mode:$("aiMode").value})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.message||"Layanan AI belum tersedia (HTTP "+response.status+").");
   $("aiAnswer").textContent=data.answer||"Belum ada jawaban.";
