@@ -65,7 +65,7 @@ For every checkbox, record: evidence URL or run ID, date, tested environment, re
 - Migration `0012_persistent_ai_quotas.sql` has been applied on production and preview. SQL boundary tests passed for 10 requests/minute and 100/day per application identity. Direct table access is revoked; the RPC is executable by `authenticated` only.
 - The `AI_ENABLED=false` emergency inference switch is covered by a runtime unit test. Provider inference remains disabled by missing `MODEL_API_KEY`; no live generative model call is claimed.
 - Website deploy run `38691681331` and live Pages verification run `38691681297` both succeeded — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38691681331 and https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38691681297.
-- Project Builder migration `0011_project_builder_records.sql` remains preview-only. Its five tables have owner-scoped SELECT policies, but the required dedicated two-account isolation test for those tables has not been recorded. Do not promote it yet.
+- Project Builder migration `0011_project_builder_records.sql` remains preview-only. Its five tables have owner-scoped SELECT policies. Synthetic Account A/B SQL isolation tests now pass across all five tables (`neon/tests/0011_project_builder_rls.sql`); testing with two real Neon Auth accounts and actual JWT subject mappings is still required before promotion. Do not promote it yet.
 
 ## 6. Immediate next actions
 
