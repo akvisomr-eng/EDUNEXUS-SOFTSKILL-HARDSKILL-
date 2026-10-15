@@ -185,6 +185,8 @@ try {
   if (evidenceCount < 1) throw new Error("Practice completed without a candidate evidence item.");
   if (!practiceStatus.includes("berhasil diselesaikan")) throw new Error("Practice completion status missing: " + practiceStatus);
 
+  // History is a separate dashboard module; activate it before asserting visibility.
+  await page.locator('.sidebar-nav a[href="#history"]').click();
   await page.locator("#history .item").first().waitFor({ state: "visible", timeout: 15000 });
   const history = (await page.locator("#history").innerText()).trim();
   if (!history.includes("Selesai")) throw new Error("Completed practice was not visible in history: " + history);
