@@ -9,11 +9,37 @@ test("health endpoint exposes configuration state without secrets", async () => 
   const data = await response.json();
   assert.equal(data.service, "edunexus-ai");
   assert.equal(typeof data.inferenceConfigured, "boolean");
+  assert.equal(typeof data.inferenceDisabled, "boolean");
   assert.equal(data.knowledgeConfigured, true);
   assert.equal(data.projectExecutionConfigured, false);
   assert.ok(Array.isArray(data.capabilities) && data.capabilities.includes("project_planning"));
   assert.ok(data.knowledgeChunks >= 20);
   assert.equal("apiKey" in data, false);
+});
+
+test("AI emergency switch disables inference without exposing secrets", async () => {
+  const previous = {
+    AI_ENABLED: process.env.AI_ENABLED,
+    MODEL_API_KEY: process.env.MODEL_API_KEY,
+    MODEL_API_BASE_URL: process.env.MODEL_API_BASE_URL,
+    MODEL_ID: process.env.MODEL_ID,
+  };
+  try {
+    process.env.AI_ENABLED = "false";
+    process.env.MODEL_API_KEY = "test-only-not-a-secret";
+    process.env.MODEL_API_BASE_URL = "https://example.invalid/v1";
+    process.env.MODEL_ID = "test-model";
+    const response = await handler.fetch(new Request("https://example.test/health"));
+    const data = await response.json();
+    assert.equal(data.inferenceConfigured, false);
+    assert.equal(data.inferenceDisabled, true);
+    assert.equal(JSON.stringify(data).includes("test-only-not-a-secret"), false);
+  } finally {
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
 });
 
 test("unknown paths fail closed", async () => {
