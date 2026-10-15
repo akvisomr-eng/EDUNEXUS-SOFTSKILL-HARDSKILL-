@@ -36,3 +36,16 @@ jobs:
           print("Frontend, migrations, curated sources and knowledge notes validated.")
           PY
           node --check /tmp/edunexus-frontend-check.mjs
+          node --check web/templatemo-629-nexus-script.js
+          python3 - <<'PY'
+          from pathlib import Path
+          html = Path("web/index.html").read_text()
+          css = Path("web/templatemo-629-nexus-style.css").read_text()
+          js = Path("web/templatemo-629-nexus-script.js").read_text()
+          for marker in ("EDUNEXUS", "MASUK / DAFTAR", "data-card=\"1\"", "id=\"accordion\"", "matrix-tab", "./app/"):
+              assert marker in html, f"missing public website marker: {marker}"
+          assert "templatemo-629-nexus-style.css" in html and "templatemo-629-nexus-script.js" in html
+          assert ".zcard" in css and ".hud-progress" in css and ".slice-reveal" in css
+          assert "renderEngine" in js and "setActiveSlice" in js and "matrixCaption" in js
+          print("Official EDUNEXUS landing page, Nexus interactions, and assets validated.")
+          PY
