@@ -19,6 +19,10 @@ The Project Builder is a second workspace beside the learning tutor. It should h
 
 The current production function metadata does not list `MODEL_API_KEY`. Therefore model-generated planning is not ready for production until a legitimate provider credential is configured as a Neon Function secret. Do not use a paid gateway while the project remains constrained to Rp0 unless the owner explicitly changes that constraint. Free-tier provider availability, limits, and data terms must be rechecked before selecting one.
 
+## Durable records schema added
+
+The additive draft at `neon/migrations/0011_project_builder_records.sql` defines projects, tasks, agent runs, artifacts, and audit events. It includes bounded payload sizes, status checks, project-owner composite foreign keys, owner-scoped read policies, and no browser mutation grants. It is **not applied to production**. Before applying it, run it against a Neon preview branch and verify the exact Neon Auth role/JWT mapping and migration conventions. The tables alone do not enable a repository-writing gateway.
+
 ## Next engineering slices
 
 1. **Runtime parity:** deploy this exact function bundle to a non-production Neon branch; run health, unauthenticated rejection, CORS, retrieval-only, and authenticated provider tests; then deploy to production only if all checks pass.
@@ -31,13 +35,13 @@ The current production function metadata does not list `MODEL_API_KEY`. Therefor
 
 ## Production acceptance criteria
 
-- [ ] All runtime unit tests pass.
+- [ ] All runtime unit tests pass, including schema-boundary checks.
 - [ ] Live health returns correct inference/auth/knowledge state without exposing secrets.
 - [ ] Unauthenticated and disallowed-origin requests fail closed.
 - [ ] Project mode uses four specialist roles only when model inference is configured.
 - [ ] The user sees agent roles, source references, mode, and limitations.
 - [ ] Project planning never claims code was written or tests passed without execution evidence.
-- [ ] GitHub writes are branch-scoped, audited, and reviewed; production changes require explicit authorization.
+- [ ] Project records migration has passed a preview-branch SQL test and tenant-isolation test.\n- [ ] GitHub writes are branch-scoped, audited, and reviewed; production changes require explicit authorization.
 - [ ] Usage caps, timeout, persistent rate limits, budget alerts, data deletion, and privacy notice are in place.
 - [ ] Mobile and desktop workflows pass browser smoke and accessibility checks.
 
