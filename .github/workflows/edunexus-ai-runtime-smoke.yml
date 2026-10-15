@@ -51,7 +51,7 @@ jobs:
           if (body.status !== "ok" || body.authConfigured !== true || body.knowledgeConfigured !== true || body.knowledgeChunks < 50) {
             throw new Error("AI health configuration invalid: " + JSON.stringify(body));
           }
-          if (body.inferenceConfigured !== false || !String(body.knowledgeVersion).includes("v3")) {
+          if (body.inferenceConfigured !== false || !String(body.knowledgeVersion).includes("v4")) {
             throw new Error("Expected honest retrieval-only mode with updated corpus and no provider key: " + JSON.stringify(body));
           }
           const unauth = await fetch(base + "/chat", {
