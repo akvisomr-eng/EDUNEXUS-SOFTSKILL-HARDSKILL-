@@ -1,4 +1,5 @@
 name: EDUNEXUS Runtime Health
+# Verifies live branch configuration as well as HTTP health.
 on:
   push:
     branches: [main]
