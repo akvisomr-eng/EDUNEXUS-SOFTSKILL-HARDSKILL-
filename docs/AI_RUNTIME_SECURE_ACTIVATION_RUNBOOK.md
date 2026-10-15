@@ -6,7 +6,9 @@ Dokumen ini adalah runbook operasional untuk mengaktifkan inferensi model pada f
 
 - Fungsi produksi berada pada project Neon `holy-breeze-21216615`, branch `br-bitter-king-azb11lde`, slug `edunexusai`.
 - Fungsi produksi terakhir yang diperiksa memiliki environment `APP_ORIGIN`, `KNOWLEDGE_CORPUS_URL`, `MODEL_API_BASE_URL`, `MODEL_ID`, dan `NEON_AUTH_JWKS_URL`.
-- `MODEL_API_KEY` belum terpasang pada deployment tersebut. Karena itu `/health` seharusnya melaporkan `inferenceConfigured: false`, dan mode Project Builder tetap tertutup.
+- `MODEL_API_KEY` belum terpasang pada deployment tersebut. Karena itu `/health` melaporkan `inferenceConfigured: false`, dan mode Project Builder tetap tertutup.
+- Kuota persisten `consume_edunexus_ai_quota()` telah diterapkan dan diuji pada production serta preview: 10 permintaan/menit dan 100 permintaan/hari per identitas aplikasi. Runtime memanggil RPC dengan JWT pengguna dan gagal tertutup jika layanan kuota tidak tersedia.
+- Workflow Runtime Health telah lulus pada kedua deployment setelah pembaruan ini. Inferensi model masih belum aktif.
 - Browser smoke test terbaru menguji autentikasi, alur praktik, frontend, dan isolasi lintas akun. Pengujian itu bukan bukti bahwa inferensi AI sudah aktif.
 
 ## Langkah aktivasi
@@ -23,6 +25,7 @@ Dokumen ini adalah runbook operasional untuk mengaktifkan inferensi model pada f
 ## Checklist setelah konfigurasi
 
 - [ ] Secret disimpan hanya pada konfigurasi server-side fungsi.
+- [ ] `/health` melaporkan `persistentQuotaConfigured: true` pada production dan preview.
 - [ ] `/health` melaporkan inferensi terkonfigurasi.
 - [ ] Permintaan model terautentikasi berhasil dengan provider/model yang dipilih.
 - [ ] Uji tanpa autentikasi tetap menghasilkan 401.
