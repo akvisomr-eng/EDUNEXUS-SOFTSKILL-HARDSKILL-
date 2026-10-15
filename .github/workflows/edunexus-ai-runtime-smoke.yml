@@ -40,7 +40,7 @@ jobs:
           const corpusResponse = await fetch(corpusUrl, { signal: AbortSignal.timeout(15000) });
           if (!corpusResponse.ok) throw new Error("Published corpus HTTP " + corpusResponse.status);
           const corpus = await corpusResponse.json();
-          if (!String(corpus.version).includes("v3") || !Array.isArray(corpus.chunks) || corpus.chunks.length < 51) {
+          if (!String(corpus.version).includes("v4") || !Array.isArray(corpus.chunks) || corpus.chunks.length < 54) {
             throw new Error("Published corpus invalid: " + JSON.stringify({ version: corpus.version, chunks: corpus.chunks?.length }));
           }
           console.log("PUBLISHED_CORPUS=PASS; version=" + corpus.version + "; chunks=" + corpus.chunks.length);
