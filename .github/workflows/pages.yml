@@ -52,8 +52,9 @@ jobs:
           assert "function setupIndependentModules()" in html, "Independent module router is missing"
           assert 'className="module-view"' in html, "Independent module view containers are missing"
           assert "activateModule(navMap[link.getAttribute(\"href\").slice(1)]" in html, "Menu-to-module routing is missing"
+          assert "view.dataset.module=def.key" in html, "Module view keys are not assigned"
           for module in ["overview", "courses", "practice", "goals", "ai", "knowledge", "history"]:
-              assert f'data-module="{module}"' in html, f"Missing independent module: {module}"
+              assert f'key:"{module}"' in html, f"Missing independent module definition: {module}"
           for target in ["welcome", "coursesList", "scenarios", "goalForm", "aiCoach", "knowledgeLibrary", "history"]:
               assert f'href="#{target}"' in html, f"Missing dashboard navigation target: {target}"
           assert Path("web/THIRD-PARTY-NOTICES.md").exists(), "Third-party attribution notice is missing"
