@@ -242,7 +242,8 @@ const DATA_API_URL="https://ep-curly-bread-azog8hfw.apirest.c-3.ap-southeast-1.a
 const auth=createAuthClient(NEON_AUTH_URL);
 const state={session:null,user:null,businessUserId:null,scenario:null,sessionId:null,attemptId:null};
 let learningCache={courses:[],modules:[],lessons:[],enrollments:[],progress:[]};
-let currentLessonId=null;\nlet courseFiltersBound=false;
+let currentLessonId=null;
+let courseFiltersBound=false;
 const $=id=>document.getElementById(id);
 function setStatus(el,msg,error=false){el.textContent=localizeError(msg);el.className="status "+(error?"error":"ok")}
 function localizeStatus(status){const map={in_progress:"Sedang berlangsung",submitted:"Dikirim",completed:"Selesai",reviewed:"Ditinjau",cancelled:"Dibatalkan"};return map[status]||status}
