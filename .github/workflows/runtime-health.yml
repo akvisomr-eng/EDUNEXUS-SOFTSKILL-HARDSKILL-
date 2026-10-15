@@ -1,0 +1,41 @@
+name: EDUNEXUS Runtime Health
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/runtime-health.yml"
+  workflow_dispatch:
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check production and preview Neon Functions
+        shell: bash
+        run: |
+          set -euo pipefail
+          for base in \
+            "https://br-bitter-king-azb11lde-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech" \
+            "https://br-quiet-frost-azemctlk-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech"; do
+            echo "Checking $base/health"
+            response="$(curl --fail --silent --show-error --max-time 25 "$base/health")"
+            echo "$response" | node -e '
+              let raw = "";
+              process.stdin.on("data", chunk => raw += chunk);
+              process.stdin.on("end", () => {
+                const data = JSON.parse(raw);
+                if (data.status !== "ok" || data.service !== "edunexus-ai") {
+                  console.error("Unexpected health response:", data);
+                  process.exit(1);
+                }
+                console.log(JSON.stringify({
+                  service: data.service,
+                  status: data.status,
+                  knowledgeConfigured: data.knowledgeConfigured,
+                  knowledgeChunks: data.knowledgeChunks,
+                  inferenceConfigured: data.inferenceConfigured,
+                  projectExecutionConfigured: data.projectExecutionConfigured
+                }));
+              });
+            '
+          done
