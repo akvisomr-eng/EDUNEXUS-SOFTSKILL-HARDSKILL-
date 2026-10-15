@@ -14,7 +14,7 @@ header{display:flex;justify-content:space-between;align-items:center;gap:20px;ma
 .hero{display:grid;grid-template-columns:1.3fr .7fr;gap:24px;align-items:stretch}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:var(--shadow)}
 h1{font-size:clamp(36px,5vw,62px);line-height:1.02;letter-spacing:-.055em;margin:18px 0}h2{font-size:20px;margin:0 0 10px;letter-spacing:-.035em}h3{font-size:15px;letter-spacing:-.02em}.muted{color:var(--muted);line-height:1.65;font-size:13px}
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:20px}.module{padding:17px;border:1px solid var(--line);border-radius:12px;background:#fbfcff}.module b{display:block;margin-bottom:6px;color:#34415a}
-form{display:grid;gap:12px}.field{display:grid;gap:6px}.field label{font-size:12px;font-weight:700;color:#4c5a70}input,textarea{width:100%;padding:12px 13px;border:1px solid #d8e0ec;border-radius:9px;background:#fff;font:inherit;font-size:14px;color:var(--ink);resize:vertical;outline:none}input:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px #5d87ff1c}
+form{display:grid;gap:12px}.field{display:grid;gap:6px}.field label{font-size:12px;font-weight:700;color:#4c5a70}input,textarea,select{width:100%;padding:12px 13px;border:1px solid #d8e0ec;border-radius:9px;background:#fff;font:inherit;font-size:14px;color:var(--ink);resize:vertical;outline:none}input:focus,textarea:focus,select:focus{border-color:var(--brand);box-shadow:0 0 0 3px #5d87ff1c}
 button{border:0;border-radius:9px;padding:11px 15px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;background:var(--brand);color:#fff;transition:background .15s,transform .15s}button:hover{background:var(--brand-dark)}button:active{transform:translateY(1px)}button.secondary{background:#eef3ff;color:#466bd1}button.secondary:hover{background:#e1eaff}button:disabled{opacity:.5;cursor:not-allowed}
 .actions{display:flex;gap:9px;flex-wrap:wrap}.status{font-size:12px;min-height:18px;color:var(--muted)}.status.error{color:#b42318}.status.ok{color:#067647}
 #app{display:none}.metric{font-size:30px;font-weight:800;letter-spacing:-.05em;color:#253d73}.list{display:grid;gap:10px;margin-top:15px}.item{padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff}.item-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.item h3{margin:0 0 5px}.pill{font-size:11px;border:1px solid #dfe6f0;border-radius:999px;padding:5px 9px;white-space:nowrap;color:#61708a;background:#f8faff}
@@ -220,10 +220,10 @@ body.dashboard .module-view>.grid{margin-top:0}
 </div>
 
 <div class="card" style="margin-top:18px" id="aiCoach">
-<div class="section-title"><div><div class="badge">EDUNEXUS MULTI-AGENT AI</div><h2>Asisten belajar EDUNEXUS</h2><p class="muted">Tanya tentang materi, latihan, soft skill, hard skill, praktik, atau arah karier. Jawaban bersumber dari korpus terkurasi; ini bukan pencarian web langsung.</p></div></div>
+<div class="section-title"><div><div class="badge">EDUNEXUS MULTI-AGENT AI</div><h2>EDUNEXUS Intelligence Workspace</h2><p class="muted">Gunakan agen spesialis untuk belajar atau menyusun rencana proyek. Perencanaan proyek memakai beberapa peran agen; eksekusi kode dan deployment otomatis tetap nonaktif sampai tool gateway dan kredensial server-side tervalidasi.</p></div></div>
 <div id="aiHealth" class="status" role="status" aria-live="polite">Memeriksa layanan AI…</div>
 <form id="aiChatForm">
-<div class="field"><label for="aiMessage">Pertanyaan</label><textarea id="aiMessage" rows="3" maxlength="4000" placeholder="Contoh: bantu saya menyusun rencana belajar komunikasi profesional selama 2 minggu" required></textarea></div>
+<div class="field"><label for="aiMessage">Pertanyaan</label><textarea id="aiMessage" rows="3" maxlength="4000" placeholder="Belajar: susun jalur belajar komunikasi 2 minggu. Proyek: rancang aplikasi inventaris UMKM dengan login, stok, transaksi, dan laporan." required></textarea></div>
 <div class="actions"><button id="aiSendBtn" type="submit">Tanya EDUNEXUS</button><button id="aiClearBtn" class="secondary" type="button">Bersihkan jawaban</button></div>
 </form>
 <div id="aiAnswer" class="item" style="display:none;margin-top:14px;white-space:pre-wrap;line-height:1.65" aria-live="polite"></div>
@@ -601,13 +601,13 @@ $("aiChatForm").addEventListener("submit",async e=>{
  $("aiAnswer").style.display="block";$("aiAnswer").textContent="Menyiapkan jawaban…";$("aiSources").replaceChildren();$("aiAgentStatus").textContent="";
  try{
   const token=await getJwtToken();
-  const response=await fetch(EDUNEXUS_AI_URL+"/chat",{method:"POST",signal:AbortSignal.timeout(55000),headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({message,locale:"Indonesia"})});
+  const response=await fetch(EDUNEXUS_AI_URL+"/chat",{method:"POST",signal:AbortSignal.timeout(55000),headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({message,locale:"Indonesia",mode:$("aiMode").value})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.message||"Layanan AI belum tersedia (HTTP "+response.status+").");
   $("aiAnswer").textContent=data.answer||"Belum ada jawaban.";
   renderAiSources(data.sources);
   $("aiAgentStatus").textContent="Mode: "+(data.mode||"—")+" · Spesialis: "+(data.agents||[]).map(a=>a.label).join(", ")+" · Basis pengetahuan: "+(data.knowledgeVersion||"—")+" · Retrieval: "+(data.retrieval||"—")+" · "+(data.sourceNotice||"");
-  $("aiHealth").textContent=data.mode==="curated_retrieval_only_v1"?"Jawaban dirangkum dari sumber terkurasi; model generatif belum aktif.":"Jawaban generatif diterima.";
+  $("aiHealth").textContent=data.mode==="curated_retrieval_only_v1"?"Jawaban dirangkum dari sumber terkurasi; model generatif belum aktif.":data.mode==="project_planning_parallel_v1"?"Rencana multi-agen diterima; kode belum diubah dan deployment belum dilakukan.":"Jawaban generatif diterima.";
   $("aiHealth").className="status ok";
  }catch(err){
   $("aiAnswer").textContent=String(err.message||err);
