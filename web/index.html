@@ -575,7 +575,7 @@ async function checkAiHealth(){
    $("aiHealth").className="status ok";
    $("aiSendBtn").disabled=false;
   }else{
-   $("aiHealth").textContent="Mode basis pengetahuan aktif: EDUNEXUS dapat merangkum sumber yang cocok, tetapi model generatif belum dikonfigurasi.";
+   $("aiHealth").textContent="Tutor tersedia dalam mode sumber terkurasi. Project Builder memerlukan model generatif server-side dan saat ini belum aktif.";
    $("aiHealth").className="status ok";
    $("aiSendBtn").disabled=false;
   }
@@ -620,6 +620,17 @@ $("aiChatForm").addEventListener("submit",async e=>{
 });
 $("aiClearBtn").addEventListener("click",()=>{$("aiAnswer").style.display="none";$("aiAnswer").textContent="";$("aiSources").replaceChildren();$("aiAgentStatus").textContent="";$("aiMessage").value=""});
 checkAiHealth();
+$("aiMode").addEventListener("change",()=>{
+ const project=$("aiMode").value==="project";
+ $("aiSendBtn").textContent=project?"Rencanakan proyek":"Tanya EDUNEXUS";
+ if(project){
+  $("aiMessage").placeholder="Contoh: rancang aplikasi inventaris UMKM dengan login, produk, stok, transaksi, laporan, dan tes penerimaan.";
+  $("aiHealth").textContent="Mode Project Builder dipilih. Sistem akan memeriksa konfigurasi model sebelum menyusun rencana; kode tidak akan diubah pada tahap ini.";
+ }else{
+  $("aiMessage").placeholder="Contoh: bantu saya menyusun rencana belajar komunikasi profesional selama 2 minggu.";
+  checkAiHealth();
+ }
+});
 
 function setupIndependentModules(){
  const app=$("app");
