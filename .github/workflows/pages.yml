@@ -42,7 +42,7 @@ jobs:
 
           html = Path("web/app/index.html").read_text()
           home_html = Path("web/index.html").read_text()
-          assert "EDUNEXUS" in home_html and "MASUK / DAFTAR" in home_html, "Public landing page missing"
+          assert "EDUNEXUS" in home_html and "MASUK / DAFTAR" in home_html and "nomad-force-edunexus.css" in home_html, "Public Nomad Force landing page missing"
           assert html.count('<script type="module">') == 1, "Expected one module entrypoint"
           assert "</html>" in html, "HTML document is incomplete"
           assert 'id="knowledgeNotes"' in html, "Knowledge notes UI mount is missing"
