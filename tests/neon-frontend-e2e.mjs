@@ -76,6 +76,8 @@ try {
     return app && getComputedStyle(app).display !== "none" &&
       (health === "OK" || error.includes("GAGAL") || error.includes("HTTP "));
   }, null, { timeout: 60000 });
+  // The app presents each menu as an independent module view; open practice before asserting its controls.
+  await page.locator('nav.sidebar-nav a[href="#scenarios"]').click();
   await page.locator("#scenarios button[data-scenario]").first().waitFor({ state: "visible", timeout: 30000 });
   const scenarioTitle = await page.locator("#scenarios .item h3").first().innerText();
   console.log("FRONTEND_CATALOG_SCENARIO=" + scenarioTitle);
@@ -121,6 +123,8 @@ try {
   }
   console.log("AI_KNOWLEDGE_RETRIEVAL=PASS; mode=" + aiData.mode + "; sources=" + aiData.sources.length + "; specialists=" + aiData.agents.length);
 
+  // Course and lesson interactions may have switched module views; reopen practice before starting a scenario.
+  await page.locator('nav.sidebar-nav a[href="#scenarios"]').click();
   await page.locator("#scenarios button[data-scenario]").first().click();
 
   await page.locator("#practice").waitFor({ state: "visible", timeout: 15000 });
