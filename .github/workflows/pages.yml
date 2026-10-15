@@ -46,6 +46,12 @@ jobs:
           assert 'id="knowledgeSourcesList"' in html, "Knowledge source UI mount is missing"
           assert 'id="aiChatForm"' in html, "AI chat UI is missing"
           assert 'id="aiHealth"' in html, "AI runtime health UI is missing"
+          assert 'aria-label="Navigasi utama EDUNEXUS"' in html, "Dashboard navigation is missing"
+          assert 'class="sidebar-nav"' in html, "Dashboard navigation groups are missing"
+          assert 'document.body.classList.add("dashboard")' in html, "Dashboard mode activation is missing"
+          for target in ["welcome", "coursesList", "scenarios", "goalForm", "aiCoach", "knowledgeLibrary", "history"]:
+              assert f'href="#{target}"' in html, f"Missing dashboard navigation target: {target}"
+          assert Path("web/THIRD-PARTY-NOTICES.md").exists(), "Third-party attribution notice is missing"
 
           registry = json.loads(Path("web/knowledge-sources.json").read_text())
           sources = [s for s in registry.get("sources", []) if not s.get("isKnowledgeChunk")]
