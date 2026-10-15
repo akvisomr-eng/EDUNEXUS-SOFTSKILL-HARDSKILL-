@@ -66,8 +66,30 @@ try {
     const row = checks.find(value => value.includes(label));
     if (!row || !row.startsWith("LULUS")) failures.push(`Check failed: ${label}: ${row || "missing"}`);
   }
-  if (failures.length) throw new Error(failures.join("\n"));
-  console.log("PASS: Neon Auth signup/signin, real JWT, profile provisioning, identity RPC, catalog, full practice finalization, candidate evidence and own-session RLS.");
+  const aiBase = "https://br-quiet-frost-azemctlk-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech";
+  const aiHealthResponse = await page.request.get(aiBase + "/health", { timeout: 20000 });
+  if (!aiHealthResponse.ok()) {
+    failures.push("AI runtime health check failed: HTTP " + aiHealthResponse.status());
+  } else {
+    const aiHealth = await aiHealthResponse.json();
+    if (aiHealth.persistentQuotaConfigured !== true) {
+      failures.push("AI runtime persistent quota is not configured.");
+    } else if (!aiHealth.inferenceConfigured) {
+      const token = await page.evaluate(() => window.__edunexusSmokeGetToken());
+      const aiResponse = await page.request.post(aiBase + "/chat", {
+        timeout: 20000,
+        headers: { authorization: "Bearer " + token, origin: "https://akvism.reng.github.io" },
+        data: { message: "Bantu saya membuat rencana belajar komunikasi yang terukur.", locale: "Indonesia", mode: "learn" },
+      });
+      const aiData = await aiResponse.json().catch(() => ({}));
+      console.log("AI_RUNTIME_QUOTA_CHECK=" + JSON.stringify({ status: aiResponse.status(), mode: aiData.mode, error: aiData.error }));
+      if (aiResponse.status() !== 200 || aiData.mode !== "curated_retrieval_only_v1") {
+        failures.push("AI runtime quota/RPC integration failed: HTTP " + aiResponse.status() + " / " + (aiData.error || aiData.mode || "unknown"));
+      }
+    }
+  }
+  if (failures.length) throw new Error(failures.join("\\n"));
+  console.log("PASS: Neon Auth signup/signin, real JWT, profile provisioning, identity RPC, persistent quota RPC, catalog, full practice finalization, candidate evidence and own-session RLS.");
 } catch (error) {
   console.error("BROWSER_SMOKE_FAILURE=" + (error?.stack || error));
   if (diagnostics.length) console.error("BROWSER_DIAGNOSTICS=\n" + diagnostics.join("\n"));
