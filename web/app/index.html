@@ -20,6 +20,7 @@ button{border:0;border-radius:9px;padding:11px 15px;font:inherit;font-size:13px;
 #app{display:none}.metric{font-size:30px;font-weight:800;letter-spacing:-.05em;color:#253d73}.list{display:grid;gap:10px;margin-top:15px}.item{padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff}.item-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.item h3{margin:0 0 5px}.pill{font-size:11px;border:1px solid #dfe6f0;border-radius:999px;padding:5px 9px;white-space:nowrap;color:#61708a;background:#f8faff}
 .practice{display:none;margin-top:18px}.practice-grid{display:grid;gap:14px}.result{display:none;margin-top:18px}.result-score{font-size:48px;font-weight:850;letter-spacing:-.06em;color:var(--brand)}.evidence{display:grid;gap:8px;margin-top:12px}.empty{padding:16px;border:1px dashed #ccd6e5;border-radius:10px;color:var(--muted)}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
 footer{padding:38px 0 15px;color:#7a8497;font-size:12px}
+.learning-screen{display:none;position:fixed;inset:0;z-index:9999;overflow:auto;background:#f4f7fc;padding:clamp(12px,3vw,32px)}.learning-screen-panel{max-width:1100px;min-height:calc(100vh - 2*clamp(12px,3vw,32px));margin:auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:clamp(16px,3vw,30px);box-shadow:0 24px 80px rgba(20,35,70,.18)}.learning-screen-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:22px}.learning-screen-eyebrow{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--brand-dark)}.learning-screen-title{font-size:clamp(24px,4vw,38px);line-height:1.12;letter-spacing:-.045em;margin:8px 0}.screen-module{border:1px solid var(--line);border-radius:13px;padding:16px;margin:14px 0;background:#fbfcff}.screen-module h3{font-size:16px;margin:0 0 10px}.screen-lesson-list{display:grid;gap:8px}.screen-lesson{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:white;color:var(--ink);border:1px solid var(--line);padding:14px;border-radius:10px}.screen-lesson:hover{background:#f1f5ff;border-color:#bdccf5}.screen-lesson span:nth-child(2){flex:1}.screen-lesson small{color:var(--muted);font-weight:500}.learning-screen #lessonReader{margin-top:0!important;border:0;padding:0;box-shadow:none}.learning-screen #lessonContent{margin:20px 0}.learning-screen #lessonContent .item{padding:20px}.learning-screen #lessonContent p{font-size:15px;line-height:1.8;color:#475569}.screen-empty{padding:18px;border:1px dashed var(--line);border-radius:12px;color:var(--muted)}
 .sidebar{display:none}
 body.dashboard{background:#f7f9fc}body.dashboard .sidebar{display:flex;position:fixed;z-index:20;inset:0 auto 0 0;width:250px;padding:22px 15px;background:#fff;border-right:1px solid var(--line);flex-direction:column;gap:22px;overflow-y:auto}
 .sidebar-brand{padding:0 12px 18px;border-bottom:1px solid var(--line)}.sidebar-brand .brand{font-size:20px}.sidebar-label{padding:3px 12px;color:#9aa5b7;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.sidebar-nav{display:grid;gap:5px}.sidebar-nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:9px;color:#647188;font-size:13px;font-weight:600}.sidebar-nav a:hover,.sidebar-nav a.active{background:#edf2ff;color:#4169df;text-decoration:none}.nav-icon{width:20px;text-align:center;font-size:17px}.sidebar-bottom{margin-top:auto;padding:14px 12px;border-radius:10px;background:#f5f7fc;color:#7b879b;font-size:11px;line-height:1.6}
@@ -172,7 +173,7 @@ body.dashboard .module-view>.grid{margin-top:0}
 <div id="learningStatus" class="status" role="status" aria-live="polite">Memuat katalog…</div>
 <div id="coursesList" class="list"><div class="muted">Memuat kursus…</div></div>
 <div id="lessonReader" class="item" style="display:none;margin-top:16px" aria-live="polite">
-<div class="section-title"><div><div class="badge">RUANG BELAJAR</div><h3 id="lessonTitle">Pelajaran</h3><p id="lessonBreadcrumb" class="muted" style="margin:4px 0 0"></p></div><button id="closeLessonBtn" type="button" class="secondary">Tutup</button></div>
+<div class="section-title"><div><div class="badge">RUANG BELAJAR</div><h3 id="lessonTitle">Pelajaran</h3><p id="lessonBreadcrumb" class="muted" style="margin:4px 0 0"></p></div><button id="closeLessonBtn" type="button" class="secondary">← Modul kursus</button></div>
 <div id="lessonContent" class="list"></div>
 <div id="lessonProgressStatus" class="status"></div>
 <div class="actions"><button id="previousLessonBtn" class="secondary" type="button">← Pelajaran sebelumnya</button><button id="completeLessonBtn" type="button">Tandai pelajaran selesai</button><button id="nextLessonBtn" class="secondary" type="button">Pelajaran berikutnya →</button></div>
@@ -232,6 +233,17 @@ body.dashboard .module-view>.grid{margin-top:0}
 <div id="aiAgentStatus" class="muted" style="margin-top:8px;font-size:12px"></div>
 </div>
 </section>
+
+<div id="learningScreen" class="learning-screen" role="dialog" aria-modal="true" aria-label="Ruang belajar kursus">
+ <div class="learning-screen-panel">
+  <div class="learning-screen-top">
+   <div><div class="learning-screen-eyebrow">EDUNEXUS · RUANG BELAJAR</div><div id="learningScreenTitle" class="learning-screen-title">Program kursus</div><div id="learningScreenSubtitle" class="muted">Pilih modul dan sesi belajar.</div></div>
+   <div class="actions"><button id="learningScreenBack" type="button" class="secondary">← Kembali ke katalog</button><button id="learningScreenClose" type="button" class="secondary">Tutup</button></div>
+  </div>
+  <div id="courseScreenContent"></div>
+ </div>
+</div>
+
 <footer>EDUNEXUS · Platform Kecerdasan & Pengembangan Keterampilan · GitHub + Neon</footer>
 </div>
 
@@ -247,6 +259,8 @@ let currentLessonId=null;
 let currentCourseId=null;
 let courseFiltersBound=false;
 const $=id=>document.getElementById(id);
+// Place the lesson reader inside the full-screen learning workspace, not in the catalog flow.
+$("courseScreenContent").after($("lessonReader"));
 function setStatus(el,msg,error=false){el.textContent=localizeError(msg);el.className="status "+(error?"error":"ok")}
 function localizeStatus(status){const map={in_progress:"Sedang berlangsung",submitted:"Dikirim",completed:"Selesai",reviewed:"Ditinjau",cancelled:"Dibatalkan"};return map[status]||status}
 function localizeError(msg){
@@ -389,29 +403,21 @@ async function loadLearning(){
    const coursePercent=lessonCount?Math.round(completedCount/lessonCount*100):0;
    const status=enrollment?(enrollment.status==="completed"?"Selesai":enrollment.status==="paused"?"Dijeda":enrollment.status==="dropped"?"Dihentikan":"Diikuti"):"Tersedia";
    const statusClass=status==="Selesai"?"is-done":enrollment?"is-enrolled":"";
-   const moduleHtml=courseModules.length?'<div class="course-modules"><div class="course-modules-label">Modul dan pelajaran</div>'+courseModules.map((m,mi)=>{
-    const moduleLessons=lessons.filter(l=>l.module_id===m.id);
-    const moduleDone=moduleLessons.filter(l=>progress.some(p=>p.lesson_id===l.id&&p.status==="completed")).length;
-    return '<details class="course-module" '+(mi===0?'open':'')+'><summary><span>'+escapeHtml(m.name)+'</span><span class="course-module-count">'+moduleDone+'/'+moduleLessons.length+' selesai</span></summary><div class="course-lesson-list">'+(moduleLessons.length?moduleLessons.map(l=>{
-     const p=progress.find(item=>item.lesson_id===l.id);
-     const done=p?.status==="completed";
-     const state=done?"Selesai":p?.status==="in_progress"?"Berjalan":"Buka pelajaran";
-     return '<button type="button" class="course-lesson '+(done?'is-complete':'')+'" data-open-lesson="'+escapeHtml(l.id)+'"><span class="course-lesson-mark">'+(done?'✓':'›')+'</span><span class="course-lesson-title">'+escapeHtml(l.title)+'</span><span class="course-lesson-state">'+state+'</span></button>';
-    }).join(""):'<div class="muted" style="padding:8px">Pelajaran belum ditambahkan.</div>')+'</div></details>';
-   }).join("")+'</div>':'<div class="empty muted">Materi modul belum ditambahkan.</div>';
+   const moduleHtml="";
    const skillLabel=course.skill_type==="soft_skill"?"Soft skill":course.skill_type==="hard_skill"?"Hard skill":"Soft skill + hard skill";
    const tags=Array.isArray(course.context_tags)?course.context_tags:[];
-   return '<article class="course-card"><div class="course-card-head"><div class="course-symbol" aria-hidden="true">✦</div><div class="course-heading"><h3>'+escapeHtml(course.name)+'</h3><div class="muted">'+escapeHtml(course.description||"Deskripsi kursus belum tersedia.")+'</div></div><span class="course-status '+statusClass+'">'+status+'</span></div><div class="course-context-tags"><span class="course-category-tag">'+escapeHtml(course.category||"Pengembangan Umum")+'</span><span class="course-category-tag">'+escapeHtml(skillLabel)+'</span><span class="course-category-tag">'+escapeHtml(course.learner_stage||"Semua jenjang")+'</span></div><div class="course-meta"><span>▤ '+escapeHtml(program?.name||"Program umum")+'</span><span>◷ '+escapeHtml(String(course.estimated_hours||4))+' jam belajar</span><span>▦ '+courseModules.length+' modul</span><span>◷ '+lessonCount+' pelajaran</span></div><div class="course-progress"><div class="course-progress-label"><span>Progres kursus</span><strong>'+completedCount+' dari '+lessonCount+' pelajaran · '+coursePercent+'%</strong></div><div class="course-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+coursePercent+'"><div class="course-progress-fill" style="width:'+coursePercent+'%"></div></div></div>'+moduleHtml+'<div class="course-card-footer"><span class="muted">'+(enrollment?'Progres tersimpan pada akun Anda.':'Daftar untuk menyimpan progres belajar.')+'</span>'+(enrollment?'<button type="button" class="secondary" data-course-focus="'+escapeHtml(course.id)+'">Lanjutkan belajar</button>':'<button type="button" data-enroll-course="'+escapeHtml(course.id)+'">Ikuti kursus</button>')+'</div></article>';
+   return '<article class="course-card"><div class="course-card-head"><div class="course-symbol" aria-hidden="true">✦</div><div class="course-heading"><h3>'+escapeHtml(course.name)+'</h3><div class="muted">'+escapeHtml(course.description||"Deskripsi kursus belum tersedia.")+'</div></div><span class="course-status '+statusClass+'">'+status+'</span></div><div class="course-context-tags"><span class="course-category-tag">'+escapeHtml(course.category||"Pengembangan Umum")+'</span><span class="course-category-tag">'+escapeHtml(skillLabel)+'</span><span class="course-category-tag">'+escapeHtml(course.learner_stage||"Semua jenjang")+'</span></div><div class="course-meta"><span>▤ '+escapeHtml(program?.name||"Program umum")+'</span><span>◷ '+escapeHtml(String(course.estimated_hours||4))+' jam belajar</span><span>▦ '+courseModules.length+' modul</span><span>◷ '+lessonCount+' pelajaran</span></div><div class="course-progress"><div class="course-progress-label"><span>Progres kursus</span><strong>'+completedCount+' dari '+lessonCount+' pelajaran · '+coursePercent+'%</strong></div><div class="course-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+coursePercent+'"><div class="course-progress-fill" style="width:'+coursePercent+'%"></div></div></div>'+moduleHtml+'<div class="course-card-footer"><span class="muted">'+(enrollment?'Progres tersimpan pada akun Anda.':'Lihat modul sebelum mengikuti kursus.')+'</span><button type="button" class="secondary" data-open-course="'+escapeHtml(course.id)+'">Buka kursus</button>'+(enrollment?'<button type="button" data-course-focus="'+escapeHtml(course.id)+'">Lanjutkan belajar</button>':'<button type="button" data-enroll-course="'+escapeHtml(course.id)+'">Ikuti kursus</button>')+'</div></article>';
   }).join(""):'<div class="empty muted course-empty">Tidak ada kursus yang cocok dengan filter. Ubah kategori, jenjang, jenis keterampilan, atau kata kunci.</div>')+'</div>';
+  host.querySelectorAll("[data-open-course]").forEach(b=>b.addEventListener("click",()=>openCourseScreen(b.dataset.openCourse)));
   host.querySelectorAll("[data-course-focus]").forEach(b=>b.addEventListener("click",()=>{
    const courseId=b.dataset.courseFocus;
    const courseLessons=getCourseLessons(courseId);
-   if(!courseLessons.length){$("learningStatus").textContent="Kursus ini belum memiliki pelajaran yang tersedia.";return;}
+   if(!courseLessons.length){$("learningStatus").textContent="Kursus ini belum memiliki pelajaran yang tersedia.";openCourseScreen(courseId);return;}
+   openCourseScreen(courseId);
    const nextLesson=courseLessons.find(lesson=>!learningCache.progress.some(p=>p.lesson_id===lesson.id&&p.status==="completed"))||courseLessons[0];
    openLesson(nextLesson.id);
   }));
-  host.querySelectorAll("[data-enroll-course]").forEach(b=>b.addEventListener("click",()=>enrollCourse(b.dataset.enrollCourse)));
-  host.querySelectorAll("[data-open-lesson]").forEach(b=>b.addEventListener("click",()=>openLesson(b.dataset.openLesson)));
+  host.querySelectorAll("[data-enroll-course]").forEach(b=>b.addEventListener("click",async()=>{await enrollCourse(b.dataset.enrollCourse);openCourseScreen(b.dataset.enrollCourse)}));
  }catch(e){$("learningStatus").textContent="Katalog belum dapat dimuat.";host.innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'}
 }
 function renderLessonContent(content){
@@ -440,6 +446,45 @@ function renderLessonContent(content){
  if(value.license_note)parts.push('<div class="item"><b>Catatan sumber dan lisensi</b><p class="muted">'+escapeHtml(value.license_note)+'</p></div>');
  return parts.join("")||'<div class="empty muted">Konten pelajaran belum tersedia.</div>';
 }
+function openLearningScreen(title,subtitle){
+ $("learningScreenTitle").textContent=title||"Program kursus";
+ $("learningScreenSubtitle").textContent=subtitle||"Pilih modul dan sesi belajar.";
+ $("learningScreen").style.display="block";
+ document.body.style.overflow="hidden";
+}
+function closeLearningScreen(){
+ $("learningScreen").style.display="none";
+ $("lessonReader").style.display="none";
+ $("courseScreenContent").style.display="block";
+ document.body.style.overflow="";
+ currentLessonId=null;
+ currentCourseId=null;
+}
+function openCourseScreen(courseId){
+ const course=learningCache.courses.find(item=>item.id===courseId);
+ if(!course)return;
+ currentCourseId=courseId;
+ const modules=learningCache.modules.filter(item=>item.course_id===courseId).sort((a,b)=>(a.position||0)-(b.position||0));
+ const enrollment=learningCache.enrollments.find(item=>item.course_id===courseId);
+ const totalLessons=modules.reduce((sum,m)=>sum+learningCache.lessons.filter(l=>l.module_id===m.id).length,0);
+ $("courseScreenContent").style.display="block";
+ $("lessonReader").style.display="none";
+ openLearningScreen(course.name,course.description||"Pelajari modul dan sesi kursus ini.");
+ const intro='<div class="item"><div class="course-context-tags"><span class="course-category-tag">'+escapeHtml(course.category||"Pengembangan Umum")+'</span><span class="course-category-tag">'+escapeHtml(course.skill_type==="hard_skill"?"Hard skill":course.skill_type==="soft_skill"?"Soft skill":"Soft skill + hard skill")+'</span><span class="course-category-tag">'+escapeHtml(course.learner_stage||"Semua jenjang")+'</span></div><p class="muted">'+escapeHtml(String(course.estimated_hours||4))+' jam belajar · '+modules.length+' modul · '+totalLessons+' pelajaran</p>'+(enrollment?'<span class="badge">Kursus diikuti · progres tersimpan</span>':'<button type="button" id="screenEnrollCourse">Ikuti kursus untuk menyimpan progres</button>')+'</div>';
+ const moduleHtml=modules.map((module,index)=>{
+  const lessons=learningCache.lessons.filter(l=>l.module_id===module.id).sort((a,b)=>(a.position||0)-(b.position||0));
+  const done=lessons.filter(l=>learningCache.progress.some(p=>p.lesson_id===l.id&&p.status==="completed")).length;
+  return '<section class="screen-module"><h3>Modul '+(index+1)+': '+escapeHtml(module.name)+' <span class="muted">· '+done+'/'+lessons.length+' selesai</span></h3><div class="screen-lesson-list">'+(lessons.length?lessons.map(lesson=>{
+   const progress=learningCache.progress.find(p=>p.lesson_id===lesson.id);
+   const status=progress?.status==="completed"?"Selesai":progress?.status==="in_progress"?"Sedang berjalan":"Mulai sesi";
+   return '<button type="button" class="screen-lesson" data-screen-lesson="'+escapeHtml(lesson.id)+'"><span aria-hidden="true">'+(progress?.status==="completed"?"✓":"▹")+'</span><span>'+escapeHtml(lesson.title)+'</span><small>'+status+' →</small></button>';
+  }).join(""):'<div class="screen-empty">Belum ada sesi pada modul ini.</div>')+'</div></section>';
+ }).join("");
+ $("courseScreenContent").innerHTML=intro+(moduleHtml||'<div class="screen-empty">Modul untuk kursus ini belum tersedia.</div>');
+ $("courseScreenContent").querySelectorAll("[data-screen-lesson]").forEach(button=>button.addEventListener("click",()=>openLesson(button.dataset.screenLesson)));
+ const enroll=$("screenEnrollCourse");
+ if(enroll)enroll.addEventListener("click",async()=>{await enrollCourse(courseId);openCourseScreen(courseId)});
+}
 function getCourseLessons(courseId){
  const courseModules=learningCache.modules.filter(m=>m.course_id===courseId).sort((a,b)=>(a.position||0)-(b.position||0));
  return courseModules.flatMap(module=>learningCache.lessons.filter(lesson=>lesson.module_id===module.id).sort((a,b)=>(a.position||0)-(b.position||0)));
@@ -461,7 +506,10 @@ function openLesson(lessonId){
  $("lessonTitle").textContent=lesson.title;
  $("lessonBreadcrumb").textContent=(course?.name||"Kursus")+"  ›  "+module.name;
  $("lessonContent").innerHTML=renderLessonContent(lesson.content);
+ openLearningScreen(lesson.title,"Kursus: "+(course?.name||"Kursus")+" · Modul: "+module.name);
+ $("courseScreenContent").style.display="none";
  $("lessonReader").style.display="block";
+ $("learningScreenBack").textContent="← Kembali ke modul kursus";
  updateLessonNavigation();
  const enrollment=learningCache.enrollments.find(item=>item.course_id===module.course_id);
  const progress=learningCache.progress.find(item=>item.lesson_id===lessonId);
@@ -568,10 +616,12 @@ $("practiceForm").addEventListener("submit",async e=>{
  }catch(e){setStatus($("practiceStatus"),e.message,true);$("submitPractice").disabled=false}
 });
 $("cancelPractice").addEventListener("click",()=>{$("practice").style.display="none";$("scenarios").style.display="grid";state.scenario=null;state.sessionId=null;state.attemptId=null});
-$("closeLessonBtn").addEventListener("click",()=>{$("lessonReader").style.display="none";currentLessonId=null;currentCourseId=null});
+$("closeLessonBtn").addEventListener("click",()=>{ $("lessonReader").style.display="none"; $("courseScreenContent").style.display="block"; $("learningScreenBack").textContent="← Kembali ke katalog"; const course=learningCache.courses.find(item=>item.id===currentCourseId); if(course){$("learningScreenTitle").textContent=course.name;$("learningScreenSubtitle").textContent=course.description||"Pilih modul dan sesi belajar.";} });
 $("previousLessonBtn").addEventListener("click",()=>{const lessons=getCourseLessons(currentCourseId);const index=lessons.findIndex(lesson=>lesson.id===currentLessonId);if(index>0)openLesson(lessons[index-1].id)});
 $("nextLessonBtn").addEventListener("click",()=>{const lessons=getCourseLessons(currentCourseId);const index=lessons.findIndex(lesson=>lesson.id===currentLessonId);if(index>=0&&index<lessons.length-1)openLesson(lessons[index+1].id)});
 $("completeLessonBtn").addEventListener("click",completeLesson);
+$("learningScreenClose").addEventListener("click",closeLearningScreen);
+$("learningScreenBack").addEventListener("click",()=>{if($("lessonReader").style.display==="block"){ $("lessonReader").style.display="none"; $("courseScreenContent").style.display="block"; const course=learningCache.courses.find(item=>item.id===currentCourseId); if(course){$("learningScreenTitle").textContent=course.name;$("learningScreenSubtitle").textContent=course.description||"Pilih modul dan sesi belajar.";} $("learningScreenBack").textContent="← Kembali ke katalog";}else closeLearningScreen();});
 $("goalForm").addEventListener("submit",async e=>{
  e.preventDefault();
  const title=$("goalTitle").value.trim(),description=$("goalDescription").value.trim();
