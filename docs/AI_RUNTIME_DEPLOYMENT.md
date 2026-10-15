@@ -28,8 +28,8 @@ Do not set `NEON_AUTH_ISSUER` by guessing. Verify it against a legitimate sessio
 2. Configure the server-side secrets in a private local environment file ignored by Git.
 3. Use the current Neon CLI or Neon Functions management API to deploy `neon/functions/edunexusai/index.mjs` plus `knowledge.json` to a non-production branch first. The ZIP must place both files at its root; the runtime does not install npm dependencies.
 4. Test `GET /health`, invalid/no-token rejection, real signed-in request, provider failure, origin rejection, and usage caps.
-5. Production function deployment #4 completed. The live health probe confirms `status=ok`, authentication configured, and corpus version `edunexus-curated-knowledge-2026-10-14-v2` with 24 chunks.
-6. The GitHub Pages frontend is wired to the production function. The live Pages smoke test passed and confirmed the source-only assistant UI is published. Never put provider credentials in Pages JavaScript.
+5. Production function deployment #7 completed on 2026-10-15. GitHub Actions verified live production health, authentication configuration, corpus version `edunexus-curated-knowledge-2026-10-14-v3` with 51 chunks, and honest `inferenceConfigured=false` state.
+6. The GitHub Pages frontend is wired to the production function. The live Pages smoke test passed and confirmed the tutor / Project Builder mode selector is published. Project Builder is planning-only and returns an explicit unavailable response while model inference is unconfigured. Never put provider credentials in Pages JavaScript.
 
 ## Rp0 provider candidate
 
