@@ -1,6 +1,7 @@
 import { createPublicKey, verify as verifySignature } from "node:crypto";
 import { readFile } from "node:fs/promises";
 
+// Project mode is planning-only until a separately audited repository tool gateway is deployed.
 const MAX_BODY_BYTES = 16_000;
 const MAX_MESSAGE_CHARS = 4_000;
 const MAX_AGENT_CALLS = 4;
