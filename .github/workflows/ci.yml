@@ -111,7 +111,10 @@ jobs:
           grep -q "service_role" supabase/migrations/0013_simulation_trusted_result.sql
           echo "EDUNEXUS foundation, security baseline, and Neon cutover checks passed"
           test -f neon/functions/edunexusai/index.mjs
+          test -f neon/functions/edunexusai/project-tool-policy.mjs
           test -f tests/edunexus-ai-runtime.test.mjs
+          test -f tests/project-builder-schema.test.mjs
+          test -f tests/project-tool-policy.test.mjs
           grep -q 'MODEL_API_KEY' docs/AI_RUNTIME_DEPLOYMENT.md
           ! grep -q 'sk-[A-Za-z0-9]' neon/functions/edunexusai/index.mjs
-          node --test tests/edunexus-ai-runtime.test.mjs
+          node --test tests/edunexus-ai-runtime.test.mjs tests/project-builder-schema.test.mjs tests/project-tool-policy.test.mjs
