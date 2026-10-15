@@ -39,7 +39,7 @@ jobs:
           for corpus_path in ("web/knowledge-corpus.json", "web/app/knowledge-corpus.json"):
               app_corpus = json.loads(Path(corpus_path).read_text())
               app_ids = {chunk.get("id") for chunk in app_corpus.get("chunks", [])}
-              assert {"EDU-MENTOR-PEDAGOGY-LOCAL-V1", "EDU-MATH-PERCENTAGE-PRICE-COMPARE-V1", "EDU-HUMAN-TUTOR-ASSESSMENT-V1"}.issubset(app_ids)
+              assert {"EDU-MENTOR-PEDAGOGY-LOCAL-V1", "EDU-MATH-PERCENTAGE-PRICE-COMPARE-V1", "EDU-HUMAN-TUTOR-ASSESSMENT-V1", "EDU-COURSE-MATH-PRACTICAL-LOCAL"}.issubset(app_ids)
           assert Path("docs/KNOWLEDGE_HUB_V3.md").exists()
           print("Frontend, migrations, curated sources and knowledge notes validated.")
           PY
