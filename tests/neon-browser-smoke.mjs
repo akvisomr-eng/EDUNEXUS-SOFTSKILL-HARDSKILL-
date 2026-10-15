@@ -56,6 +56,7 @@ try {
     "JWT nyata dari Neon Auth",
     "Profil sendiri dibuat aman",
     "RPC current_user_id",
+    "Kuota AI persisten per akun",
     "Baca katalog praktik",
     "Alur praktik dan finalisasi tepercaya",
     "Bukti praktik sebagai kandidat",
