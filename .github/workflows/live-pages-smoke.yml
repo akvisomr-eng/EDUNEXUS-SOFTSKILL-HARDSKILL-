@@ -31,11 +31,17 @@ jobs:
             sleep 3
           done
           grep -q "EDUNEXUS" live.html
-          curl --fail --silent --show-error --max-time 15 "${URL}app/" -o app.html
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error --max-time 15 "${URL}app/" -o app.html; then break; fi
+            sleep 3
+          done
           grep -q "EDUNEXUS MULTI-AGENT AI" app.html
           grep -q "Mode basis pengetahuan aktif" app.html
           grep -q "knowledgeVersion" app.html
-          curl --fail --silent --show-error --max-time 15 "${URL}app/knowledge-sources.json" -o knowledge-sources.json
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error --max-time 15 "${URL}app/knowledge-sources.json" -o knowledge-sources.json; then break; fi
+            sleep 3
+          done
           python3 - <<'PY'
           import json
           from pathlib import Path
