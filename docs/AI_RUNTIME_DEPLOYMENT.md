@@ -19,6 +19,7 @@
 - `MODEL_API_KEY`: secret key; never add it to GitHub, frontend JavaScript, a commit, or a public issue.
 - `MODEL_ID`: exact model identifier supported by the chosen provider.
 - `APP_ORIGIN`: optional origin override. Default is `https://akvisomr-eng.github.io`.
+- `AI_ENABLED`: optional emergency switch. Set to `false` in the server-side Neon Function environment and deploy to disable provider inference while keeping curated retrieval available.
 
 Do not set `NEON_AUTH_ISSUER` by guessing. Verify it against a legitimate session token and the provider's official docs first. The browser must send the current Neon Auth JWT in the Authorization header.
 
