@@ -42,7 +42,7 @@ jobs:
 
           html = Path("web/app/index.html").read_text()
           home_html = Path("web/index.html").read_text()
-          assert "EDUNEXUS" in home_html and "MASUK / DAFTAR" in home_html, "Public landing page missing"
+          assert "EDUNEXUS" in home_html and "BUKA HALAMAN PENDAFTARAN / MASUK" in home_html, "Public landing page missing"
           assert html.count('<script type="module">') == 1, "Expected one module entrypoint"
           assert "</html>" in html, "HTML document is incomplete"
           assert 'id="knowledgeNotes"' in html, "Knowledge notes UI mount is missing"
@@ -113,7 +113,7 @@ jobs:
             sleep 3
           done
           grep -q "EDUNEXUS" /tmp/edunexus-live.html
-          grep -q "MASUK / DAFTAR" /tmp/edunexus-live.html
+          grep -q "BUKA HALAMAN PENDAFTARAN / MASUK" /tmp/edunexus-live.html
           APP_URL="${PAGE_URL%/}/app/"
           for attempt in $(seq 1 20); do
             if curl --fail --silent --show-error "$APP_URL" -o /tmp/edunexus-app.html; then break; fi
