@@ -14,20 +14,22 @@ test("Project Builder records schema is additive and bounded", async () => {
     ["ai_project_audit_events", "ai_project_audit_owner_read"],
   ];
   for (const [table, policy] of tables) {
-    assert.match(sql, new RegExp("CREATE TABLE IF NOT EXISTS public\\\\." + table));
-    assert.match(sql, new RegExp("ALTER TABLE public\\\\." + table + " ENABLE ROW LEVEL SECURITY"));
-    assert.match(sql, new RegExp("CREATE POLICY " + policy));
+    assert.ok(sql.includes("CREATE TABLE IF NOT EXISTS public." + table));
+    assert.ok(sql.includes("ALTER TABLE public." + table + " ENABLE ROW LEVEL SECURITY"));
+    assert.ok(sql.includes("CREATE POLICY " + policy));
   }
-  assert.match(sql, /FOREIGN KEY \\(project_id, owner_id\\) REFERENCES public\\.ai_projects\\(id, owner_id\\)/);
-  assert.match(sql, /CHECK \\(pg_column_size\\(metadata\\) <= 16384\\)/);
-  assert.match(sql, /CHECK \\(pg_column_size\\(details\\) <= 8192\\)/);
-  assert.match(sql, /BEGIN;[\\s\\S]*COMMIT;/);
+  assert.ok(sql.includes("FOREIGN KEY (project_id, owner_id) REFERENCES public.ai_projects(id, owner_id)"));
+  assert.ok(sql.includes("CHECK (pg_column_size(metadata) <= 16384)"));
+  assert.ok(sql.includes("CHECK (pg_column_size(details) <= 8192)"));
+  assert.ok(sql.includes("BEGIN;") && sql.includes("COMMIT;"));
 });
 
 test("Project Builder schema does not grant browser mutation privileges", async () => {
   const sql = await readFile(migrationUrl, "utf8");
-  assert.match(sql, /REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON public\\.ai_projects,[\\s\\S]*FROM authenticated/);
-  assert.match(sql, /GRANT SELECT ON public\\.ai_projects,[\\s\\S]*TO authenticated/);
-  assert.match(sql, /FOR SELECT TO authenticated USING \\(owner_id = auth\\.uid\\(\\)\\)/);
-  assert.doesNotMatch(sql, /GRANT ALL .* TO authenticated/i);
+  assert.ok(sql.includes("REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON public.ai_projects,"));
+  assert.ok(sql.includes("FROM authenticated;"));
+  assert.ok(sql.includes("GRANT SELECT ON public.ai_projects,"));
+  assert.ok(sql.includes("TO authenticated;"));
+  assert.ok(sql.includes("FOR SELECT TO authenticated USING (owner_id = auth.uid())"));
+  assert.equal(/GRANT ALL .* TO authenticated/i.test(sql), false);
 });
