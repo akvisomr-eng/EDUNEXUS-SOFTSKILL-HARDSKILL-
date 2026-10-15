@@ -31,6 +31,14 @@ body.dashboard .section-title{margin-bottom:8px}
 body.dashboard #knowledgeLibrary{scroll-margin-top:90px}
 
 /* Program & kursus — card catalog, readable hierarchy, responsive layout */
+.course-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:16px;margin:14px 0;border:1px solid var(--line);border-radius:14px;background:#fbfcff}
+.course-filters select,.course-filters input{min-width:0;width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font:inherit;font-size:12px}
+.course-filter-action{display:flex;align-items:end;gap:8px;flex-wrap:wrap}.course-filter-action button{padding:10px 12px}
+.course-filter-action button.secondary{background:#fff;color:#43516a;border:1px solid var(--line)}
+.course-category-tag{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:#425a96;background:#eef3ff;border-radius:999px;padding:5px 8px;margin:0 5px 5px 0}
+.course-context-tags{display:flex;gap:5px;flex-wrap:wrap}
+@media(max-width:900px){.course-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.course-filters{grid-template-columns:1fr}.course-filter-action{align-items:stretch}.course-filter-action button{flex:1}}
 .course-catalog-summary{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:16px 18px;margin:14px 0 18px;border:1px solid #dfe7fb;border-radius:14px;background:linear-gradient(120deg,#f3f6ff,#fff)}
 .course-summary-copy{display:grid;gap:4px}.course-summary-copy strong{font-size:15px;color:#293b62}.course-summary-copy span{font-size:12px;line-height:1.55;color:var(--muted)}
 .course-summary-stats{display:flex;gap:10px;flex-wrap:wrap}.course-stat{min-width:82px;padding:9px 12px;border-radius:10px;background:#fff;border:1px solid #e3e9f5;text-align:center}.course-stat strong{display:block;font-size:19px;letter-spacing:-.04em;color:#385bc0}.course-stat span{display:block;margin-top:2px;font-size:10px;color:#75819a}
@@ -154,6 +162,13 @@ body.dashboard .module-view>.grid{margin-top:0}
 </div>
 <div class="card">
 <div class="section-title"><div><h2>Program & kursus</h2><p class="muted">Katalog pembelajaran yang terhubung ke modul, pelajaran, dan progres tersimpan.</p></div></div>
+<div class="course-filters" aria-label="Filter katalog kursus">
+ <div class="field"><label for="courseCategoryFilter">Kategori</label><select id="courseCategoryFilter"><option value="">Semua kategori</option><option>Persiapan Pendidikan</option><option>IT &amp; Teknologi</option><option>Karier &amp; Dunia Kerja</option><option>Wirausaha &amp; UMKM</option><option>Keuangan &amp; Kemandirian</option><option>Soft Skills &amp; Karakter</option><option>Vokasi &amp; Layanan Profesional</option><option>Hard Skills &amp; Kecakapan Hidup</option><option>Pengembangan Umum</option></select></div>
+ <div class="field"><label for="courseStageFilter">Jenjang peserta</label><select id="courseStageFilter"><option value="">Semua jenjang</option><option value="SMP">SMP</option><option value="SMA">SMA</option><option value="SMK">SMK</option><option value="Lulusan">Lulusan sekolah</option><option value="Dewasa">Dewasa</option><option value="Mahasiswa">Mahasiswa</option></select></div>
+ <div class="field"><label for="courseSkillFilter">Jenis keterampilan</label><select id="courseSkillFilter"><option value="">Soft skill dan hard skill</option><option value="soft_skill">Soft skill</option><option value="hard_skill">Hard skill</option><option value="mixed">Gabungan</option></select></div>
+ <div class="field course-search"><label for="courseSearch">Cari kursus</label><input id="courseSearch" type="search" placeholder="Contoh: kerja, AI, usaha, SPMB"></div>
+ <div class="course-filter-action"><button id="applyCourseFilters" type="button">Terapkan filter</button><button id="resetCourseFilters" class="secondary" type="button">Reset</button></div>
+</div>
 <div id="learningStatus" class="status" role="status" aria-live="polite">Memuat katalog…</div>
 <div id="coursesList" class="list"><div class="muted">Memuat kursus…</div></div>
 <div id="lessonReader" class="item" style="display:none;margin-top:16px" aria-live="polite">
@@ -227,7 +242,7 @@ const DATA_API_URL="https://ep-curly-bread-azog8hfw.apirest.c-3.ap-southeast-1.a
 const auth=createAuthClient(NEON_AUTH_URL);
 const state={session:null,user:null,businessUserId:null,scenario:null,sessionId:null,attemptId:null};
 let learningCache={courses:[],modules:[],lessons:[],enrollments:[],progress:[]};
-let currentLessonId=null;
+let currentLessonId=null;\nlet courseFiltersBound=false;
 const $=id=>document.getElementById(id);
 function setStatus(el,msg,error=false){el.textContent=localizeError(msg);el.className="status "+(error?"error":"ok")}
 function localizeStatus(status){const map={in_progress:"Sedang berlangsung",submitted:"Dikirim",completed:"Selesai",reviewed:"Ditinjau",cancelled:"Dibatalkan"};return map[status]||status}
@@ -336,7 +351,7 @@ async function loadLearning(){
  try{
   const query=encodeURIComponent(state.businessUserId);
   const results=await Promise.all([
-   api("/courses?select=id,name,slug,description,program_id&order=name.asc"),
+   api("/courses?select=id,name,slug,description,program_id,category,learner_stage,skill_type,estimated_hours,context_tags&order=name.asc"),
    api("/programs?select=id,name&order=name.asc"),
    api("/modules?select=id,course_id,name,position&order=position.asc"),
    api("/lessons?select=id,module_id,title,content,position&order=position.asc"),
@@ -351,7 +366,17 @@ async function loadLearning(){
   const totalLessons=lessons.length;
   const completionPercent=totalLessons?Math.round(completedTotal/totalLessons*100):0;
   $("learningStatus").textContent=courses.length+" kursus dalam katalog. Gunakan kartu untuk menjelajahi modul, membuka pelajaran, dan menyimpan progres.";
-  host.innerHTML='<div class="course-catalog-summary"><div class="course-summary-copy"><strong>Temukan jalur belajar Anda</strong><span>Pilih kursus, buka modul, lalu lanjutkan pelajaran sesuai kecepatan Anda.</span></div><div class="course-summary-stats"><div class="course-stat"><strong>'+courses.length+'</strong><span>Kursus</span></div><div class="course-stat"><strong>'+enrolledTotal+'</strong><span>Diikuti</span></div><div class="course-stat"><strong>'+completedTotal+'</strong><span>Pelajaran selesai</span></div></div></div><div class="course-grid">'+(courses.length?courses.map(course=>{
+  const categoryFilter=$("courseCategoryFilter")?.value||"";
+  const stageFilter=$("courseStageFilter")?.value||"";
+  const skillFilter=$("courseSkillFilter")?.value||"";
+  const searchFilter=($("courseSearch")?.value||"").trim().toLocaleLowerCase("id-ID");
+  const filteredCourses=courses.filter(course=>{
+   const tags=Array.isArray(course.context_tags)?course.context_tags:[];
+   const haystack=[course.name,course.description,course.category,course.learner_stage,...tags].join(" ").toLocaleLowerCase("id-ID");
+   return (!categoryFilter||course.category===categoryFilter)&&(!stageFilter||String(course.learner_stage||"").toLocaleLowerCase("id-ID").includes(stageFilter.toLocaleLowerCase("id-ID")))&&(!skillFilter||course.skill_type===skillFilter)&&(!searchFilter||haystack.includes(searchFilter));
+  });
+  $("learningStatus").textContent="Menampilkan "+filteredCourses.length+" dari "+courses.length+" kursus. Kategori dan jenjang membantu memilih jalur yang relevan.";
+  host.innerHTML='<div class="course-catalog-summary"><div class="course-summary-copy"><strong>Temukan jalur belajar Anda</strong><span>Pilih kursus berdasarkan kategori, jenjang, dan keterampilan. Buka modul untuk praktik dan pelajaran.</span></div><div class="course-summary-stats"><div class="course-stat"><strong>'+courses.length+'</strong><span>Kursus</span></div><div class="course-stat"><strong>'+enrolledTotal+'</strong><span>Diikuti</span></div><div class="course-stat"><strong>'+completedTotal+'</strong><span>Pelajaran selesai</span></div></div></div><div class="course-grid">'+(filteredCourses.length?filteredCourses.map(course=>{
    const courseModules=modules.filter(m=>m.course_id===course.id);
    const moduleLessonList=courseModules.flatMap(m=>lessons.filter(l=>l.module_id===m.id));
    const lessonCount=moduleLessonList.length;
@@ -371,8 +396,10 @@ async function loadLearning(){
      return '<button type="button" class="course-lesson '+(done?'is-complete':'')+'" data-open-lesson="'+escapeHtml(l.id)+'"><span class="course-lesson-mark">'+(done?'✓':'›')+'</span><span class="course-lesson-title">'+escapeHtml(l.title)+'</span><span class="course-lesson-state">'+state+'</span></button>';
     }).join(""):'<div class="muted" style="padding:8px">Pelajaran belum ditambahkan.</div>')+'</div></details>';
    }).join("")+'</div>':'<div class="empty muted">Materi modul belum ditambahkan.</div>';
-   return '<article class="course-card"><div class="course-card-head"><div class="course-symbol" aria-hidden="true">✦</div><div class="course-heading"><h3>'+escapeHtml(course.name)+'</h3><div class="muted">'+escapeHtml(course.description||"Deskripsi kursus belum tersedia.")+'</div></div><span class="course-status '+statusClass+'">'+status+'</span></div><div class="course-meta"><span>▤ '+escapeHtml(program?.name||"Program umum")+'</span><span>▦ '+courseModules.length+' modul</span><span>◷ '+lessonCount+' pelajaran</span></div><div class="course-progress"><div class="course-progress-label"><span>Progres kursus</span><strong>'+completedCount+' dari '+lessonCount+' pelajaran · '+coursePercent+'%</strong></div><div class="course-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+coursePercent+'"><div class="course-progress-fill" style="width:'+coursePercent+'%"></div></div></div>'+moduleHtml+'<div class="course-card-footer"><span class="muted">'+(enrollment?'Progres tersimpan pada akun Anda.':'Daftar untuk menyimpan progres belajar.')+'</span>'+(enrollment?'<button type="button" class="secondary" data-course-focus="'+escapeHtml(course.id)+'">Lanjutkan belajar</button>':'<button type="button" data-enroll-course="'+escapeHtml(course.id)+'">Ikuti kursus</button>')+'</div></article>';
-  }).join(""):'<div class="empty muted course-empty">Belum ada kursus aktif. Setelah pengelola menerbitkan materi, kursus akan muncul di sini.</div>')+'</div>';
+   const skillLabel=course.skill_type==="soft_skill"?"Soft skill":course.skill_type==="hard_skill"?"Hard skill":"Soft skill + hard skill";
+   const tags=Array.isArray(course.context_tags)?course.context_tags:[];
+   return '<article class="course-card"><div class="course-card-head"><div class="course-symbol" aria-hidden="true">✦</div><div class="course-heading"><h3>'+escapeHtml(course.name)+'</h3><div class="muted">'+escapeHtml(course.description||"Deskripsi kursus belum tersedia.")+'</div></div><span class="course-status '+statusClass+'">'+status+'</span></div><div class="course-context-tags"><span class="course-category-tag">'+escapeHtml(course.category||"Pengembangan Umum")+'</span><span class="course-category-tag">'+escapeHtml(skillLabel)+'</span><span class="course-category-tag">'+escapeHtml(course.learner_stage||"Semua jenjang")+'</span></div><div class="course-meta"><span>▤ '+escapeHtml(program?.name||"Program umum")+'</span><span>◷ '+escapeHtml(String(course.estimated_hours||4))+' jam belajar</span><span>▦ '+courseModules.length+' modul</span><span>◷ '+lessonCount+' pelajaran</span></div><div class="course-progress"><div class="course-progress-label"><span>Progres kursus</span><strong>'+completedCount+' dari '+lessonCount+' pelajaran · '+coursePercent+'%</strong></div><div class="course-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+coursePercent+'"><div class="course-progress-fill" style="width:'+coursePercent+'%"></div></div></div>'+moduleHtml+'<div class="course-card-footer"><span class="muted">'+(enrollment?'Progres tersimpan pada akun Anda.':'Daftar untuk menyimpan progres belajar.')+'</span>'+(enrollment?'<button type="button" class="secondary" data-course-focus="'+escapeHtml(course.id)+'">Lanjutkan belajar</button>':'<button type="button" data-enroll-course="'+escapeHtml(course.id)+'">Ikuti kursus</button>')+'</div></article>';
+  }).join(""):'<div class="empty muted course-empty">Tidak ada kursus yang cocok dengan filter. Ubah kategori, jenjang, jenis keterampilan, atau kata kunci.</div>')+'</div>';
   host.querySelectorAll("[data-course-focus]").forEach(b=>b.addEventListener("click",()=>{
    const card=b.closest(".course-card");const firstLesson=card?.querySelector("[data-open-lesson]");
    if(firstLesson)openLesson(firstLesson.dataset.openLesson);else $("learningStatus").textContent="Kursus ini belum memiliki pelajaran.";
@@ -691,6 +718,12 @@ function setupIndependentModules(){
 
 async function loadApp(){
  document.body.classList.add("dashboard");
+ if(!courseFiltersBound){
+  $("applyCourseFilters").addEventListener("click",()=>loadLearning());
+  $("resetCourseFilters").addEventListener("click",()=>{$("courseCategoryFilter").value="";$("courseStageFilter").value="";$("courseSkillFilter").value="";$("courseSearch").value="";loadLearning();});
+  $("courseSearch").addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();loadLearning();}});
+  courseFiltersBound=true;
+ }
  setupIndependentModules();
  loadKnowledgeSources();
  $("auth").style.display="none";$("app").style.display="block";
