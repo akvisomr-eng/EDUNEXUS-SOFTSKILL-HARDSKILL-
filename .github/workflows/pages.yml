@@ -113,7 +113,13 @@ jobs:
             sleep 3
           done
           grep -q "EDUNEXUS" /tmp/edunexus-live.html
-          grep -q "EDUNEXUS MULTI-AGENT AI" /tmp/edunexus-live.html
+          grep -q "MASUK / DAFTAR" /tmp/edunexus-live.html
+          APP_URL="${PAGE_URL%/}/app/"
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error "$APP_URL" -o /tmp/edunexus-app.html; then break; fi
+            sleep 3
+          done
+          grep -q "EDUNEXUS MULTI-AGENT AI" /tmp/edunexus-app.html
           curl --fail --silent --show-error "$AI_URL/health" -o /tmp/edunexus-ai-health.json
           python3 - <<'PY'
           import json
