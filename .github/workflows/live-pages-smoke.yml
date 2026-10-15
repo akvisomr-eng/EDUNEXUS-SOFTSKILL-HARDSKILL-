@@ -30,10 +30,11 @@ jobs:
             sleep 3
           done
           grep -q "EDUNEXUS" live.html
-          grep -q "EDUNEXUS MULTI-AGENT AI" live.html
-          grep -q "Mode basis pengetahuan aktif" live.html
-          grep -q "knowledgeVersion" live.html
-          curl --fail --silent --show-error --max-time 15 "${URL}knowledge-sources.json" -o knowledge-sources.json
+          curl --fail --silent --show-error --max-time 15 "${URL}app/" -o app.html
+          grep -q "EDUNEXUS MULTI-AGENT AI" app.html
+          grep -q "Mode basis pengetahuan aktif" app.html
+          grep -q "knowledgeVersion" app.html
+          curl --fail --silent --show-error --max-time 15 "${URL}app/knowledge-sources.json" -o knowledge-sources.json
           python3 - <<'PY'
           import json
           from pathlib import Path
