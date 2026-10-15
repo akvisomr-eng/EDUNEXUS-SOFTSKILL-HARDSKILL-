@@ -21,7 +21,7 @@ jobs:
           scripts = re.findall(r'<script type="module">(.*?)</script>', html, re.S)
           assert len(scripts) == 1, f"expected one module script, found {len(scripts)}"
           Path("/tmp/edunexus-frontend-check.mjs").write_text(scripts[0])
-          for marker in ("goalForm", "loadLearning", "loadDevelopment", "openLesson", "completeLesson", "Sumber dan bacaan lanjutan", "Catatan sumber dan lisensi", "knowledgeLibrary", "knowledgeNotes", "loadKnowledgeSources", "loadCatalog", "ensure_my_profile"):
+          for marker in ("goalForm", "loadLearning", "loadDevelopment", "openLesson", "completeLesson", "Sumber dan bacaan lanjutan", "Catatan sumber dan lisensi", "knowledgeLibrary", "knowledgeNotes", "loadKnowledgeSources", "loadCatalog", "ensure_my_profile", "lessonQuizCheck", "lessonTutorForm", "lessonTutorSpeak", "isPercent", "Rp240.000"):
               assert marker in html, f"missing expected feature marker: {marker}"
           for migration in ("neon/migrations/0005_initial_curriculum_seed.sql", "neon/migrations/0006_curated_open_curriculum.sql", "neon/migrations/0006_curated_knowledge_curriculum_v2.sql", "neon/migrations/0007_knowledge_source_registry.sql", "neon/migrations/0008_knowledge_lexical_search.sql", "neon/migrations/0006_curated_knowledge_hub.sql", "supabase/migrations/20261014140000_initial_curriculum_seed.sql", "supabase/migrations/20261014150000_curated_open_curriculum.sql", "supabase/migrations/20261014170000_curated_knowledge_curriculum_v2.sql", "supabase/migrations/20261014180000_knowledge_source_registry.sql", "supabase/migrations/20261014190000_knowledge_lexical_search.sql", "supabase/migrations/20261015060000_curated_knowledge_hub.sql"):
               assert Path(migration).exists(), f"missing migration: {migration}"
@@ -32,6 +32,13 @@ jobs:
           assert len(corpus.get("sources", [])) >= 28
           assert len(corpus.get("knowledgeChunks", [])) >= 18
           assert corpus.get("knowledgeStats", {}).get("fullTextDocumentsDownloaded") == 0
+          mentor_corpus = json.loads(Path("neon/functions/edunexusai/knowledge.json").read_text())
+          mentor_ids = {chunk.get("id") for chunk in mentor_corpus.get("chunks", [])}
+          assert {"EDU-MENTOR-PEDAGOGY-LOCAL-V1", "EDU-MATH-PERCENTAGE-PRICE-COMPARE-V1", "EDU-HUMAN-TUTOR-ASSESSMENT-V1"}.issubset(mentor_ids)
+          for corpus_path in ("web/knowledge-corpus.json", "web/app/knowledge-corpus.json"):
+              app_corpus = json.loads(Path(corpus_path).read_text())
+              app_ids = {chunk.get("id") for chunk in app_corpus.get("chunks", [])}
+              assert {"EDU-MENTOR-PEDAGOGY-LOCAL-V1", "EDU-MATH-PERCENTAGE-PRICE-COMPARE-V1", "EDU-HUMAN-TUTOR-ASSESSMENT-V1"}.issubset(app_ids)
           assert Path("docs/KNOWLEDGE_HUB_V3.md").exists()
           print("Frontend, migrations, curated sources and knowledge notes validated.")
           PY

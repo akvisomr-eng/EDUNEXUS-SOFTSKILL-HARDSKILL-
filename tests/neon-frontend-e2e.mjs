@@ -102,13 +102,30 @@ try {
   await page.locator('nav.sidebar-nav a[href="#coursesList"]').click();
   await page.waitForFunction(() => document.querySelectorAll("#coursesList .course-card").length >= 2, null, { timeout: 30000 });
   const firstCourse = page.locator("#coursesList .course-card").first();
-  await firstCourse.locator("button[data-enroll-course]").click();
-  await page.waitForFunction(() => document.querySelector("#learningStatus")?.textContent.includes("Pendaftaran kursus tersimpan"), null, { timeout: 30000 });
-  await page.locator("#coursesList [data-open-lesson]").first().click();
+  await firstCourse.waitFor({ state: "visible", timeout: 15000 });
+  await firstCourse.locator("button[data-open-course]").click();
+  await page.locator("#learningScreen").waitFor({ state: "visible", timeout: 15000 });
+  const enrollFromCourseScreen = page.locator("#screenEnrollCourse");
+  if (await enrollFromCourseScreen.isVisible().catch(() => false)) {
+    await enrollFromCourseScreen.click();
+    await page.waitForFunction(() => document.querySelector("#learningStatus")?.textContent.includes("Pendaftaran kursus tersimpan"), null, { timeout: 30000 });
+    await page.locator("#learningScreen").waitFor({ state: "visible", timeout: 15000 });
+  }
+  await page.locator("#courseScreenContent [data-screen-lesson]").first().click();
   await page.locator("#lessonReader").waitFor({ state: "visible", timeout: 15000 });
   const lessonTitle = (await page.locator("#lessonTitle").innerText()).trim();
   const lessonContent = (await page.locator("#lessonContent").innerText()).trim();
   if (!lessonTitle || !lessonContent) throw new Error("Lesson reader did not display seeded lesson content.");
+  if (lessonTitle.toLowerCase().includes("persentase") || lessonTitle.toLowerCase().includes("diskon")) {
+    for (const [name, value] of [["mathq1", "b"], ["mathq2", "c"], ["mathq3", "a"], ["mathq4", "b"]]) await page.locator(`input[name="${name}"][value="${value}"]`).check();
+    await page.locator("#lessonQuizCheck").click();
+    await page.waitForFunction(() => document.querySelector("#lessonQuizFeedback")?.textContent.includes("4/4 benar"), null, { timeout: 10000 });
+    console.log("MATH_LESSON_QUIZ=PASS; 4/4 correct answers and explanations rendered");
+  } else {
+    console.log("LESSON_FORMAT=PASS; generic guided practice, reflection, and contextual AI Mentor rendered");
+  }
+  await page.locator("#lessonTutorForm").waitFor({ state: "visible", timeout: 10000 });
+  if (!(await page.locator("#lessonTutorForm").isVisible())) throw new Error("Contextual AI Mentor was not shown inside the lesson screen.");
   await page.locator("#completeLessonBtn").click();
   await page.waitForFunction(() => document.querySelector("#lessonProgressStatus")?.textContent.includes("Progres tersimpan: pelajaran selesai"), null, { timeout: 30000 });
   console.log("FRONTEND_LEARNING_WORKFLOW=PASS; enrolled, opened lesson, and persisted completion for " + lessonTitle);
@@ -127,6 +144,8 @@ try {
   }
   console.log("AI_KNOWLEDGE_RETRIEVAL=PASS; mode=" + aiData.mode + "; sources=" + aiData.sources.length + "; specialists=" + aiData.agents.length);
 
+  // Close the dedicated course workspace before navigating to another app module.
+  await page.locator("#learningScreenClose").click();
   // Course and lesson interactions may have switched module views; reopen practice before starting a scenario.
   await page.locator('nav.sidebar-nav a[href="#scenarios"]').click();
   await page.locator("#scenarios button[data-scenario]").first().click();
