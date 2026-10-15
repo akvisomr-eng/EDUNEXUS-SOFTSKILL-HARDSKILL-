@@ -23,6 +23,10 @@ The current production function metadata does not list `MODEL_API_KEY`. Therefor
 
 The additive draft at `neon/migrations/0011_project_builder_records.sql` defines projects, tasks, agent runs, artifacts, and audit events. It includes bounded payload sizes, status checks, project-owner composite foreign keys, owner-scoped read policies, and no browser mutation grants. It has been applied to the Neon preview branch and verified there: all five tables exist, RLS is enabled, each table has one owner-read policy, and `authenticated` has only `SELECT` grants (no `INSERT`/`UPDATE`/`DELETE`). It is **not applied to production**. Before promotion, verify the exact Neon Auth role/JWT mapping and run tenant-isolation tests. The tables alone do not enable a repository-writing gateway.
 
+## Repository tool policy guard
+
+A pure policy module now exists at `neon/functions/edunexusai/project-tool-policy.mjs`. Its current tests enforce plain HTTPS GitHub owner/repository URLs, an `edunexus/*` work-branch prefix, blocked sensitive paths (environment files, secrets, GitHub workflows, lockfiles and traversal), a small allowlist of action names, and a default `writesEnabled: false`. It is a policy primitive only—not a GitHub connector and not wired into `POST /chat`. It does not grant repository access or execute writes. CI currently runs the AI runtime, schema boundary, and policy unit tests; 15 tests passed in the workflow for commit `e66140f`.
+
 ## Next engineering slices
 
 1. **Runtime parity:** deploy this exact function bundle to a non-production Neon branch; run health, unauthenticated rejection, CORS, retrieval-only, and authenticated provider tests; then deploy to production only if all checks pass.
@@ -42,7 +46,7 @@ The additive draft at `neon/migrations/0011_project_builder_records.sql` defines
 - [ ] The user sees agent roles, source references, mode, and limitations.
 - [ ] Project planning never claims code was written or tests passed without execution evidence.
 - [ ] Project records migration has passed a preview-branch SQL test and tenant-isolation test.
-- [ ] GitHub writes are branch-scoped, audited, and reviewed; production changes require explicit authorization.
+- [ ] The policy guard is integrated into a separately authenticated GitHub tool gateway, with GitHub App installation scoping and server-side authorization.\n- [ ] GitHub writes are branch-scoped, audited, and reviewed; production changes require explicit authorization.
 - [ ] Usage caps, timeout, persistent rate limits, budget alerts, data deletion, and privacy notice are in place.
 - [ ] Mobile and desktop workflows pass browser smoke and accessibility checks.
 
