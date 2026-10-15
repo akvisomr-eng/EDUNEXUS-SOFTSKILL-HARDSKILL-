@@ -1,5 +1,6 @@
 import { createPublicKey, verify as verifySignature } from "node:crypto";
 import { readFile } from "node:fs/promises";
+import { createRateLimiter } from "./rate-limit.mjs";
 
 // Project mode is planning-only until a separately audited repository tool gateway is deployed.
 // Deployment parity verified on production and preview branches; runtime smoke workflow checks both.
@@ -9,7 +10,7 @@ const MAX_AGENT_CALLS = 4;
 const DEFAULT_APP_ORIGIN = "https://akvisomr-eng.github.io";
 const APP_PATH = "/EDUNEXUS-SOFTSKILL-HARDSKILL-/";
 let jwksCache = { expiresAt: 0, keys: [] };
-const requestCounts = new Map();
+const rateLimiter = createRateLimiter({ limit: 10, windowMs: 60_000, maxKeys: 5_000, sweepEvery: 256 });
 const CORPUS_URL = process.env.KNOWLEDGE_CORPUS_URL || "https://akvisomr-eng.github.io/EDUNEXUS-SOFTSKILL-HARDSKILL-/knowledge-corpus.json";
 const knowledgePromise = readFile(new URL("./knowledge.json", import.meta.url), "utf8")
   .then((raw) => JSON.parse(raw))
@@ -154,14 +155,7 @@ export function selectAgents(message, mode = "learn") {
   return matches.slice(0, MAX_AGENT_CALLS);
 }
 function checkRateLimit(userId) {
-  const now = Date.now();
-  const current = requestCounts.get(userId);
-  if (!current || now - current.startedAt >= 60_000) {
-    requestCounts.set(userId, { startedAt: now, count: 1 });
-    return true;
-  }
-  current.count += 1;
-  return current.count <= 10;
+  return rateLimiter.check(userId);
 }
 const STOPWORDS = new Set(["yang","dan","atau","dari","untuk","dengan","pada","dalam","ini","itu","saya","anda","kami","kita","bisa","bagaimana","apa","adalah","the","and","for","with","from","this","that","have","your","you","are"]);
 function terms(value) {
