@@ -104,11 +104,15 @@ try {
   const firstCourse = page.locator("#coursesList .course-card").first();
   await firstCourse.locator("button[data-enroll-course]").click();
   await page.waitForFunction(() => document.querySelector("#learningStatus")?.textContent.includes("Pendaftaran kursus tersimpan"), null, { timeout: 30000 });
-  await page.locator("#coursesList [data-open-lesson]").first().click();
+  await page.locator("#coursesList [data-open-course]").first().click();
+  await page.locator("#learningScreen").waitFor({ state: "visible", timeout: 15000 });
+  await page.locator("#courseScreenContent [data-screen-lesson]").first().click();
   await page.locator("#lessonReader").waitFor({ state: "visible", timeout: 15000 });
   const lessonTitle = (await page.locator("#lessonTitle").innerText()).trim();
   const lessonContent = (await page.locator("#lessonContent").innerText()).trim();
   if (!lessonTitle || !lessonContent) throw new Error("Lesson reader did not display seeded lesson content.");
+  await page.locator("#lessonTutorForm").waitFor({ state: "visible", timeout: 10000 });
+  if (!(await page.locator("#lessonTutorForm").isVisible())) throw new Error("Contextual AI Mentor was not shown inside the lesson screen.");
   await page.locator("#completeLessonBtn").click();
   await page.waitForFunction(() => document.querySelector("#lessonProgressStatus")?.textContent.includes("Progres tersimpan: pelajaran selesai"), null, { timeout: 30000 });
   console.log("FRONTEND_LEARNING_WORKFLOW=PASS; enrolled, opened lesson, and persisted completion for " + lessonTitle);
