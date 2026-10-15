@@ -1,5 +1,5 @@
 {
-  "version": "edunexus-curated-knowledge-2026-10-14-v3",
+  "version": "edunexus-curated-knowledge-2026-10-15-v4",
   "retrieval": "lexical-overlap-v1",
   "chunks": [
     {
@@ -1001,6 +1001,75 @@
         "attribution"
       ],
       "text": "Curated source metadata and editorial summary only. Use the original source URL to verify details and current version. Check item-specific license before copying, adapting, redistributing, or using commercially. Do not treat free access as blanket permission."
+    },
+    {
+      "id": "EDU-MENTOR-PEDAGOGY-LOCAL-V1",
+      "title": "EDUNEXUS AI Mentor: prinsip pedagogi dan konteks belajar Indonesia",
+      "url": "https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/docs/EDUNEXUS_AI_MENTOR_AND_HUMAN_ASSESSMENT_V1.md",
+      "publisher": "EDUNEXUS curriculum team",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-15",
+      "keywords": [
+        "mentor",
+        "tutor",
+        "pedagogi",
+        "pembelajaran",
+        "indonesia",
+        "siswa",
+        "smp",
+        "sma",
+        "smk",
+        "dewasa",
+        "kurikulum",
+        "contoh lokal",
+        "latihan",
+        "asesmen"
+      ],
+      "text": "EDUNEXUS teaching method: every learning session should include measurable learning outcomes, concept explanation, a worked example, guided practice, independent application, formative questions, feedback, and a reflection/next step. Use Indonesian language and examples grounded in school life, family budgeting, UMKM, shopping, public services, travel, workplace entry, digital safety, and community projects. Adapt explanations for SMP, SMA/SMK, graduates, adult learners, and entrepreneurs. Do not confuse reading completion with demonstrated competence. Ask learners to explain their reasoning, distinguish facts from assumptions, cite evidence when relevant, and identify uncertainty. AI provides formative guidance and suggested evidence; high-stakes pass/fail decisions require a human tutor and transparent rubric."
+    },
+    {
+      "id": "EDU-MATH-PERCENTAGE-PRICE-COMPARE-V1",
+      "title": "Modul EDUNEXUS: persentase, diskon, rasio, dan harga per unit",
+      "url": "https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/docs/EDUNEXUS_COURSEWARE_STANDARD_V1.md",
+      "publisher": "EDUNEXUS original learning content",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-15",
+      "keywords": [
+        "persentase",
+        "persen",
+        "diskon",
+        "perbandingan harga",
+        "harga per unit",
+        "matematika praktis",
+        "belanja",
+        "umkm",
+        "rupiah",
+        "ongkir",
+        "pajak",
+        "promo"
+      ],
+      "text": "Practical math lesson: Percent means per hundred. Discount amount = discount percentage / 100 × original price; final price before other fees = original price − discount amount. Example: Rp240,000 with 25% discount gives Rp60,000 discount and Rp180,000 before any other charges. Compare unit prices using the same units: 1 liter at Rp18,000 versus 1.5 liters at Rp25,500 means Rp18,000/liter versus Rp17,000/liter. A bigger discount percentage does not automatically mean a lower final cost. Check package size, baseline price, shipping, platform/service fees, taxes if applicable, eligibility conditions, minimum purchase, and quality/need. Teach with realistic Indonesian rupiah examples; show arithmetic steps; encourage estimates and verification. Assessment should test discount calculation, unit price comparison, fee awareness, and explanation of the decision."
+    },
+    {
+      "id": "EDU-HUMAN-TUTOR-ASSESSMENT-V1",
+      "title": "EDUNEXUS: rubrik asesmen berbasis bukti dan peninjauan tutor manusia",
+      "url": "https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/docs/EDUNEXUS_AI_MENTOR_AND_HUMAN_ASSESSMENT_V1.md",
+      "publisher": "EDUNEXUS assessment framework",
+      "trust_tier": "A",
+      "reviewed_at": "2026-10-15",
+      "keywords": [
+        "rubrik",
+        "asesmen",
+        "penilaian",
+        "tutor manusia",
+        "wawancara",
+        "presentasi",
+        "bukti kompetensi",
+        "kelulusan",
+        "portofolio",
+        "kalibrasi"
+      ],
+      "text": "EDUNEXUS assessment principle: AI is a formative coach and evidence organizer, not an autonomous high-stakes certifier. Suggested 4-domain rubric: (1) conceptual accuracy, (2) practical application, (3) reasoning and evidence, (4) reflection, communication, and safe judgment. Use behaviorally anchored levels: 1 beginning, 2 developing, 3 competent for the stated task, 4 transfers/adapts reliably. Human tutor verifies identity when needed, asks follow-up questions, observes a presentation/interview or authentic task, checks the submitted work, documents evidence and feedback, and makes the final pass/needs-more-practice decision. Keep AI feedback, human assessment, rubric version, date, evidence references, and appeal/reassessment path distinct. Do not infer a student's ability or character from demographic proxies. Do not label practice quiz results as formal certification."
     }
   ]
 }
