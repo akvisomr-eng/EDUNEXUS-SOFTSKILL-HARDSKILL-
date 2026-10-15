@@ -57,6 +57,7 @@ async function getJwtToken(){
  return token;
 }
 async function api(path,token,options={}){return responseData(await fetch(DATA_URL+path,{...options,headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json","Prefer":options.method==="POST"||options.method==="PATCH"?"return=representation":"",...(options.headers||{})}}))}
+window.__edunexusSmokeGetToken = getJwtToken;
 function check(name,ok,detail){const el=document.createElement("div");el.className="check";el.textContent=(ok?"LULUS · ":"PERLU DITINJAU · ")+name+" — "+detail;$("checks").append(el)}
 $("run").addEventListener("click",async()=>{const root=$("checks");root.replaceChildren();$("run").disabled=true;try{
  const token=await getJwtToken();
