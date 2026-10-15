@@ -76,6 +76,7 @@ body.dashboard .module-view>.grid{margin-top:0}
   <nav class="sidebar-nav">
     <a class="active" href="#welcome"><span class="nav-icon">⌂</span><span>Ringkasan</span></a>
     <a href="#coursesList"><span class="nav-icon">▤</span><span>Program & kursus</span></a>
+    <a href="#cognitiveLab"><span class="nav-icon">◈</span><span>Cognitive Fitness Lab</span></a>
     <a href="#scenarios"><span class="nav-icon">◎</span><span>Praktik & simulasi</span></a>
     <a href="#goalForm"><span class="nav-icon">↗</span><span>Tujuan pengembangan</span></a>
   </nav>
@@ -594,9 +595,69 @@ checkAiHealth();
 function setupIndependentModules(){
  const app=$("app");
  if(!app||$("moduleViews"))return;
+ const cognitiveLab=document.createElement("div");
+ cognitiveLab.id="cognitiveLab";cognitiveLab.className="card";
+ cognitiveLab.innerHTML=`
+  <div class="badge">LATIHAN FORMATIF · BUKAN TES IQ</div>
+  <h2>Latih cara berpikir, bukan label otak</h2>
+  <p class="muted">Pilih satu tantangan, tulis proses berpikir Anda, lalu gunakan refleksi untuk menentukan langkah berikutnya. Ini latihan belajar, bukan diagnosis psikologis atau pengukuran kecerdasan tervalidasi.</p>
+  <div class="field"><label for="cognitiveTask">Tantangan</label>
+   <select id="cognitiveTask">
+    <option value="analysis">Penalaran analitis</option>
+    <option value="creative">Kreativitas dan banyak kemungkinan</option>
+    <option value="problem">Pemecahan masalah</option>
+    <option value="meta">Metakognisi dan strategi belajar</option>
+   </select>
+  </div>
+  <div class="item" style="margin:14px 0">
+   <h3 id="cognitivePromptTitle">Tantangan penalaran analitis</h3>
+   <p class="muted" id="cognitivePrompt">Sebuah tim terlambat menyelesaikan tiga proyek berturut-turut. Susun tiga kemungkinan penyebab yang berbeda dan jelaskan bukti apa yang Anda butuhkan untuk membedakannya.</p>
+  </div>
+  <form id="cognitiveForm">
+   <div class="field"><label for="cognitiveResponse">Proses berpikir Anda</label><textarea id="cognitiveResponse" rows="5" minlength="20" required placeholder="Tuliskan pendekatan, alasan, asumsi, dan langkah yang akan Anda ambil…"></textarea></div>
+   <fieldset class="field" style="border:1px solid var(--line);border-radius:10px;padding:14px">
+    <legend><b>Refleksi proses</b></legend>
+    <label><input type="checkbox" name="cognitiveCheck" value="goal"> Saya memahami tujuan dan batasan tugas.</label>
+    <label><input type="checkbox" name="cognitiveCheck" value="evidence"> Saya membedakan asumsi dari bukti.</label>
+    <label><input type="checkbox" name="cognitiveCheck" value="alternatives"> Saya mempertimbangkan alternatif.</label>
+    <label><input type="checkbox" name="cognitiveCheck" value="review"> Saya meninjau kembali jawaban dan kelemahannya.</label>
+   </fieldset>
+   <div class="actions"><button type="submit">Tinjau refleksi</button><button type="button" class="secondary" id="cognitiveReset">Mulai ulang</button></div>
+  </form>
+  <div id="cognitiveFeedback" class="status" role="status" aria-live="polite" style="display:none;margin-top:14px"></div>
+  <p class="muted">Status data: hasil latihan ini hanya tampil pada sesi browser saat ini dan belum disimpan sebagai rekam kemajuan akun.</p>
+ `;
+ const cognitiveTasks={
+  analysis:{title:"Tantangan penalaran analitis",prompt:"Sebuah tim terlambat menyelesaikan tiga proyek berturut-turut. Susun tiga kemungkinan penyebab yang berbeda dan jelaskan bukti apa yang Anda butuhkan untuk membedakannya."},
+  creative:{title:"Tantangan kreativitas",prompt:"Sebuah perpustakaan komunitas ingin menarik lebih banyak pengunjung dengan anggaran sangat terbatas. Usulkan sebanyak mungkin pendekatan yang berbeda, lalu pilih satu dan jelaskan mengapa layak diuji."},
+  problem:{title:"Tantangan pemecahan masalah",prompt:"Layanan pelanggan menerima banyak keluhan tentang waktu tunggu. Buat rencana tindakan yang dapat diuji dalam satu minggu, termasuk risiko dan cara mengukur hasilnya."},
+  meta:{title:"Tantangan metakognisi",prompt:"Ingat satu keterampilan yang sedang Anda pelajari. Jelaskan strategi belajar yang digunakan, bagaimana Anda tahu strategi itu berhasil, dan apa yang akan Anda ubah pada percobaan berikutnya."}
+ };
+ $("cognitiveTask").addEventListener("change",()=>{
+  const task=cognitiveTasks[$("cognitiveTask").value];
+  $("cognitivePromptTitle").textContent=task.title;$("cognitivePrompt").textContent=task.prompt;
+  $("cognitiveFeedback").style.display="none";
+ });
+ $("cognitiveForm").addEventListener("submit",event=>{
+  event.preventDefault();
+  const response=$("cognitiveResponse").value.trim();
+  if(response.length<20){$("cognitiveFeedback").textContent="Tambahkan penjelasan agar proses berpikir Anda dapat direfleksikan."; $("cognitiveFeedback").className="status error";$("cognitiveFeedback").style.display="block";return;}
+  const checks=[...$("cognitiveForm").querySelectorAll('input[name="cognitiveCheck"]:checked')].length;
+  let message="Langkah berikutnya: jelaskan alasan di balik pilihan Anda, cari satu kelemahan atau kontra-argumen, lalu perbaiki jawaban.";
+  if(checks>=3)message="Refleksi proses Anda mencakup beberapa langkah penting. Langkah berikutnya: uji jawaban pada contoh berbeda dan catat apakah kesimpulan tetap berlaku. ";
+  if(checks<=1)message="Mulailah dengan memperjelas tujuan, memisahkan asumsi dari bukti, dan mencari alternatif sebelum menyimpulkan. ";
+  if(response.split(/\\s+/).filter(Boolean).length<35)message+=" Pertimbangkan menambahkan contoh atau bukti konkret.";
+  $("cognitiveFeedback").textContent=message+" Refleksi ini bersifat formatif dan tidak menghasilkan skor kecerdasan.";
+  $("cognitiveFeedback").className="status";$("cognitiveFeedback").style.display="block";
+ });
+ $("cognitiveReset").addEventListener("click",()=>{
+  $("cognitiveForm").reset();$("cognitiveFeedback").style.display="none";
+  const task=cognitiveTasks[$("cognitiveTask").value];$("cognitivePromptTitle").textContent=task.title;$("cognitivePrompt").textContent=task.prompt;
+ });
  const definitions=[
   {key:"overview",title:"Ringkasan",icon:"⌂",description:"Ringkasan perkembangan, status layanan, dan Paspor Keterampilan.",targets:[$("welcome").closest(".card"),$("passportStatus").closest(".card")]},
   {key:"courses",title:"Program & kursus",icon:"▤",description:"Jelajahi program belajar, buka modul dan pelajaran, lalu pantau kemajuan Anda.",targets:[$("coursesList").closest(".card")]},
+  {key:"cognitive",title:"Cognitive Fitness Lab",icon:"◈",description:"Latih penalaran, kreativitas, pemecahan masalah, dan refleksi metakognitif melalui tantangan formatif.",targets:[cognitiveLab]},
   {key:"practice",title:"Praktik & simulasi",icon:"◎",description:"Pilih skenario, kerjakan tugas terstruktur, dan kirim bukti praktik untuk dinilai.",targets:[$("scenarios").closest(".card")]},
   {key:"goals",title:"Tujuan pengembangan",icon:"↗",description:"Tetapkan target keterampilan, simpan rencana, dan tinjau progres tujuan Anda.",targets:[$("goalForm").closest(".card")]},
   {key:"ai",title:"Multi-agent AI",icon:"✧",description:"Konsultasikan materi, latihan, soft skill, hard skill, atau arah karier kepada asisten belajar.",targets:[$("aiCoach")]},
@@ -614,12 +675,12 @@ function setupIndependentModules(){
  });
  if(originalGrid)originalGrid.style.display="none";
  app.appendChild(views);
- const navMap={"welcome":"overview","coursesList":"courses","scenarios":"practice","goalForm":"goals","aiCoach":"ai","knowledgeLibrary":"knowledge","history":"history"};
+ const navMap={"welcome":"overview","coursesList":"courses","cognitiveLab":"cognitive","scenarios":"practice","goalForm":"goals","aiCoach":"ai","knowledgeLibrary":"knowledge","history":"history"};
  function activateModule(key,updateHash=false){
   if(!definitions.some(d=>d.key===key))key="overview";
   views.querySelectorAll(".module-view").forEach(view=>{const active=view.dataset.module===key;view.classList.toggle("is-active",active);view.setAttribute("aria-hidden",String(!active));});
   document.querySelectorAll(".sidebar-nav a[href^='#']").forEach(link=>{const target=link.getAttribute("href").slice(1);const active=navMap[target]===key;link.classList.toggle("active",active);if(active)link.setAttribute("aria-current","page");else link.removeAttribute("aria-current");});
-  if(updateHash){const link=document.querySelector('.sidebar-nav a[href="#'+({overview:"welcome",courses:"coursesList",practice:"scenarios",goals:"goalForm",ai:"aiCoach",knowledge:"knowledgeLibrary",history:"history"}[key])+'"]');if(link)history.replaceState(null,"",location.pathname+location.search+link.getAttribute("href"));}
+  if(updateHash){const link=document.querySelector('.sidebar-nav a[href="#'+({overview:"welcome",courses:"coursesList",cognitive:"cognitiveLab",practice:"scenarios",goals:"goalForm",ai:"aiCoach",knowledge:"knowledgeLibrary",history:"history"}[key])+'"]');if(link)history.replaceState(null,"",location.pathname+location.search+link.getAttribute("href"));}
   window.scrollTo({top:0,behavior:"auto"});
  }
  document.querySelectorAll(".sidebar-nav a[href^='#']").forEach(link=>link.addEventListener("click",event=>{event.preventDefault();activateModule(navMap[link.getAttribute("href").slice(1)]||"overview",true);}));
