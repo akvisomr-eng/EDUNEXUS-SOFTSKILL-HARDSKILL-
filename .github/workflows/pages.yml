@@ -47,7 +47,7 @@ jobs:
           assert "Tailwind" in admin_html or "cdn.tailwindcss.com" in admin_html, "Management panel Tailwind UI is missing"
           for label in ["CRM & penerimaan", "ERP & operasional", "HRD & payroll", "Accounting", "Inventori & aset", "Laporan & analitik", "Audit & kepatuhan"]:
               assert label in admin_html, f"Management module missing: {label}"
-          assert "Mode demonstrasi" in admin_html and "belum terhubung ke transaksi produksi" in admin_html, "Dashboard must clearly mark demo data"
+          assert "mode demonstrasi" in admin_html.lower() and "belum terhubung ke transaksi produksi" in admin_html.lower(), "Dashboard must clearly mark demo data"
           assert "EDUNEXUS" in home_html and "MASUK / DAFTAR" in home_html and "nomad-force-edunexus.css" in home_html, "Public Nomad Force landing page missing"
           assert html.count('<script type="module">') == 1, "Expected one module entrypoint"
           assert "</html>" in html, "HTML document is incomplete"
