@@ -101,7 +101,7 @@ try {
   // Switch to the course module before enrollment and lesson assertions.
   await page.locator('nav.sidebar-nav a[href="#coursesList"]').click();
   await page.waitForFunction(() => document.querySelectorAll("#coursesList .course-card").length >= 2, null, { timeout: 30000 });
-  const firstCourse = page.locator("#coursesList .item").first();
+  const firstCourse = page.locator("#coursesList .course-card").first();
   await firstCourse.locator("button[data-enroll-course]").click();
   await page.waitForFunction(() => document.querySelector("#learningStatus")?.textContent.includes("Pendaftaran kursus tersimpan"), null, { timeout: 30000 });
   await page.locator("#coursesList [data-open-lesson]").first().click();
