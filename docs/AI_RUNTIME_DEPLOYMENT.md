@@ -5,9 +5,9 @@
 - A Neon Function using the web-standard `fetch(Request) -> Response` contract.
 - `GET /health` reports authentication, knowledge corpus readiness/version/chunk count and inference configuration; it never exposes secret values.
 - `POST /chat` requires a Bearer JWT whose RS256 signature is checked against Neon Auth JWKS, checks expiry, applies an in-memory per-user request cap, validates request size, and allows only the EDUNEXUS Pages origin by default.
-- A small specialist registry routes a request to at most two bounded specialists in parallel.
+- A bounded specialist registry routes learning requests to up to four specialists and project-planning requests to a fixed four-agent team (Project Manager, Solution Architect, Software Engineer, QA & Security).
 - The model provider is OpenAI-compatible and configured only through server-side environment variables.
-- When a model key is absent, `POST /chat` returns an explicitly labeled curated-retrieval-only answer with matched source summaries and links. It does not pretend that an LLM generated the answer. When a model key is configured, the same route invokes the selected specialist model.
+- When a model key is absent, learning mode returns an explicitly labeled curated-retrieval-only answer with matched source summaries and links. Project mode fails closed with HTTP 503 instead of presenting a fake AI plan. When a model key is configured, project mode runs the four bounded specialists in parallel and labels the result as planning only; it does not claim to edit code, run tests, commit, or deploy.
 - A 24-chunk curated corpus of EDUNEXUS product/security guidance and external source summaries is deployed with the production function; lexical-overlap retrieval selects up to four chunks and responses expose source IDs/URLs.
 - Retrieval is lexical, not embedding/vector search. A public allowlist registry has 14 source records. A weekly metadata-only refresh job records public page title/description/HTTP metadata and opens a review PR; it does not copy full pages or auto-promote unreviewed text into the runtime corpus.
 
@@ -41,4 +41,4 @@ Google documents an OpenAI-compatible Gemini API endpoint at `https://generative
 - Automated full-text web ingestion, source licensing/review UI, embeddings/vector or semantic search, persistent rate limits, and durable usage budgets are not implemented. Current automation refreshes only public metadata and opens review PRs.
 - In-memory rate limits are per isolate and are only a safety floor, not a durable abuse-control system.
 - Do not use dark-web sources by default. Use lawful, public, licensed, verifiable sources and human approval before indexing.
-- Production model inference is not yet configured because `MODEL_API_KEY` is absent. The source-only assistant works without that key; model-generated multi-agent answers require a provider key stored as a Neon Function secret. No provider key is committed or assumed.
+- Production model inference is not yet configured because `MODEL_API_KEY` is absent from the current production function environment metadata. The source-only learning assistant works without that key; model-generated multi-agent answers and Project Builder planning require a provider key stored as a Neon Function secret. Repository execution, patch generation, CI repair, and deployment automation are not enabled. No provider key is committed or assumed.
