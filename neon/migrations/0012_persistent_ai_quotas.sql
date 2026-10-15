@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS public.edunexus_ai_usage_limits (
 );
 
 ALTER TABLE public.edunexus_ai_usage_limits ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON TABLE public.edunexus_ai_usage_limits FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON TABLE public.edunexus_ai_usage_limits FROM PUBLIC, anonymous, authenticated;
 
 CREATE OR REPLACE FUNCTION public.consume_edunexus_ai_quota()
 RETURNS TABLE (
@@ -72,7 +72,7 @@ BEGIN
 END;
 $function$;
 
-REVOKE ALL ON FUNCTION public.consume_edunexus_ai_quota() FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.consume_edunexus_ai_quota() FROM PUBLIC, anonymous;
 GRANT EXECUTE ON FUNCTION public.consume_edunexus_ai_quota() TO authenticated;
 
 COMMIT;
