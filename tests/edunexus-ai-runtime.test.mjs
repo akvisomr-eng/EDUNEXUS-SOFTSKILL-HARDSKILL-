@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import handler, { buildKnowledgeOnlyAnswer } from "../neon/functions/edunexusai/index.mjs";
+import handler, { buildKnowledgeOnlyAnswer, selectAgents } from "../neon/functions/edunexusai/index.mjs";
 
 test("health endpoint exposes configuration state without secrets", async () => {
   const response = await handler.fetch(new Request("https://example.test/health"));
@@ -68,4 +68,25 @@ test("knowledge-only fallback is transparent and grounded in retrieved chunks", 
   assert.match(answer, /UNESCO AI Framework/);
   assert.match(answer, /protect learner privacy/);
   assert.match(buildKnowledgeOnlyAnswer([]), /tidak dibuat-buat/i);
+});
+
+
+test("project mode routes to a bounded specialist team without claiming execution", () => {
+  const agents = selectAgents("Bangun aplikasi inventaris UMKM", "project");
+  assert.deepEqual(agents.map(([id]) => id), ["projectManager", "architect", "engineer", "qa"]);
+  assert.ok(agents.every(([, agent]) => agent.instruction && agent.label));
+  const source = readFile(new URL("../neon/functions/edunexusai/index.mjs", import.meta.url), "utf8");
+  return source.then((raw) => {
+    assert.match(raw, /project_builder_not_configured/);
+    assert.match(raw, /projectExecutionConfigured: false/);
+    assert.match(raw, /Tidak ada rencana proyek simulasi/);
+  });
+});
+
+test("project mode cannot claim repo or deployment execution", () => {
+  const agents = selectAgents("Bangun dan deploy website", "project");
+  assert.equal(agents.length, 4);
+  for (const [, agent] of agents) {
+    assert.match(agent.instruction, /Jangan mengaku|jangan mengaku/i);
+  }
 });
