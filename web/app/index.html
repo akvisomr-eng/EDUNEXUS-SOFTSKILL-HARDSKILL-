@@ -177,7 +177,7 @@ body.dashboard .module-view>.grid{margin-top:0}
 <div id="lessonContent" class="list"></div>
 <div id="lessonAssessment" class="lesson-unit" aria-live="polite"></div>
 <section id="lessonTutor" class="lesson-tutor">
- <div class="lesson-tutor-head"><div class="lesson-tutor-orb" aria-hidden="true">AI</div><div><div class="badge">AI MENTOR MULTI-AGEN</div><h4 style="margin:4px 0">Tutor pribadi sesi ini</h4><p class="muted" style="margin:0">Bertanya, minta contoh tambahan, atau jelaskan jawabanmu untuk mendapat umpan balik.</p></div></div>
+ <div class="lesson-tutor-head"><div class="lesson-tutor-orb" aria-hidden="true">AI</div><div><div id="lessonTutorModeBadge" class="badge">AI MENTOR · BASIS PENGETAHUAN</div><h4 style="margin:4px 0">Tutor pribadi sesi ini</h4><p class="muted" style="margin:0">Bertanya, minta contoh tambahan, atau jelaskan jawabanmu untuk mendapat umpan balik.</p></div></div>
  <form id="lessonTutorForm">
   <label for="lessonTutorQuestion">Apa yang ingin kamu pahami?</label>
   <textarea id="lessonTutorQuestion" minlength="3" required placeholder="Contoh: jelaskan cara menghitung diskon 15% dengan contoh belanja di Indonesia."></textarea>
@@ -677,7 +677,9 @@ $("lessonTutorForm").addEventListener("submit",async e=>{
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.message||"AI Mentor belum tersedia (HTTP "+response.status+").");
   $("lessonTutorAnswer").textContent=data.answer||"Belum ada jawaban.";
-  $("lessonTutorStatus").textContent="Basis pengetahuan: "+(data.knowledgeVersion||"EDUNEXUS terkurasi")+" · Spesialis: "+(data.agents||[]).map(agent=>agent.label).join(", ")+" · "+(data.sourceNotice||"Gunakan jawaban sebagai bantuan belajar dan verifikasi hal yang memerlukan sumber resmi.");
+  const generativeMultiAgent=data.mode!=="curated_retrieval_only_v1"&&Array.isArray(data.agents)&&data.agents.length>1;
+  $("lessonTutorModeBadge").textContent=generativeMultiAgent?"AI MENTOR · MULTI-AGEN AKTIF":"AI MENTOR · BASIS PENGETAHUAN";
+  $("lessonTutorStatus").textContent=(generativeMultiAgent?"Mode multi-agen aktif. ":"Mode saat ini: basis pengetahuan terkurasi; model generatif belum aktif. " )+"Versi: "+(data.knowledgeVersion||"EDUNEXUS terkurasi")+" · Spesialis: "+(data.agents||[]).map(agent=>agent.label).join(", ")+" · "+(data.sourceNotice||"Gunakan jawaban sebagai bantuan belajar dan verifikasi hal yang memerlukan sumber resmi.");
   $("lessonTutorSpeak").disabled=!data.answer;
  }catch(err){$("lessonTutorAnswer").textContent=String(err.message||err);$("lessonTutorStatus").textContent="Permintaan tutor belum berhasil. Coba kembali atau gunakan materi dan latihan di atas.";}
  finally{$("lessonTutorAsk").disabled=false;}
