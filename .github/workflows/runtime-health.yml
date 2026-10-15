@@ -27,7 +27,7 @@ jobs:
               process.stdin.on("data", chunk => raw += chunk);
               process.stdin.on("end", () => {
                 const data = JSON.parse(raw);
-                if (data.status !== "ok" || data.service !== "edunexus-ai" || data.persistentQuotaConfigured !== true || data.knowledgeConfigured !== true) {
+                if (data.status !== "ok" || data.service !== "edunexus-ai" || data.persistentQuotaConfigured !== true || data.knowledgeConfigured !== true || typeof data.inferenceDisabled !== "boolean") {
                   console.error("Unexpected health response:", data);
                   process.exit(1);
                 }
@@ -37,6 +37,7 @@ jobs:
                   knowledgeConfigured: data.knowledgeConfigured,
                   knowledgeChunks: data.knowledgeChunks,
                   persistentQuotaConfigured: data.persistentQuotaConfigured,
+                  inferenceDisabled: data.inferenceDisabled,
                   inferenceConfigured: data.inferenceConfigured,
                   projectExecutionConfigured: data.projectExecutionConfigured
                 }));
