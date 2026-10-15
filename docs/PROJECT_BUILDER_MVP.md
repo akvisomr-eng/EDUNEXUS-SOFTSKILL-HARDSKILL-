@@ -21,7 +21,7 @@ The current production function metadata does not list `MODEL_API_KEY`. Therefor
 
 ## Durable records schema added
 
-The additive draft at `neon/migrations/0011_project_builder_records.sql` defines projects, tasks, agent runs, artifacts, and audit events. It includes bounded payload sizes, status checks, project-owner composite foreign keys, owner-scoped read policies, and no browser mutation grants. It is **not applied to production**. Before applying it, run it against a Neon preview branch and verify the exact Neon Auth role/JWT mapping and migration conventions. The tables alone do not enable a repository-writing gateway.
+The additive draft at `neon/migrations/0011_project_builder_records.sql` defines projects, tasks, agent runs, artifacts, and audit events. It includes bounded payload sizes, status checks, project-owner composite foreign keys, owner-scoped read policies, and no browser mutation grants. It has been applied to the Neon preview branch and verified there: all five tables exist, RLS is enabled, each table has one owner-read policy, and `authenticated` has only `SELECT` grants (no `INSERT`/`UPDATE`/`DELETE`). It is **not applied to production**. Before promotion, verify the exact Neon Auth role/JWT mapping and run tenant-isolation tests. The tables alone do not enable a repository-writing gateway.
 
 ## Next engineering slices
 
