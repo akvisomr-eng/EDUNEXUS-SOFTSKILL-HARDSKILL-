@@ -33,6 +33,10 @@
 | Career Intelligence Agent | Map evidence to roles and next skills | Public occupational/skills taxonomies and user-authorized profile | Career options, skill gaps and caveats |
 | Safety, Privacy & Evaluation Agent | Check policy, consent, citations and unsupported claims | Policies, source trust registry, evaluation set | Allow/block/escalate result and audit reason |
 | Knowledge Ingestion Agent | Propose ingestion of external sources | Public URLs/repos/datasets within allowlist and license policy | Source metadata, extracted text, risk flags; no automatic publication |
+| Project Manager Agent | Convert a project idea into an auditable project brief | User request, approved project templates, allowed repository metadata | Scope, milestones, acceptance criteria, assumptions and risks |
+| Solution Architect Agent | Design a practical solution and data flow | Approved stack catalog, project constraints and allowed repository metadata | Architecture, data model, integration and security plan |
+| Software Engineer Agent | Propose implementation slices and code contracts | User-authorized repository context, coding standards and task plan | File-level plan, interfaces, implementation checklist; no claim of writes without tool evidence |
+| QA & Security Agent | Define release gates and review evidence | Test policies, security checklist, acceptance criteria and CI outputs | Test matrix, findings, release/rollback recommendation
 
 ## Orchestration pattern
 
@@ -89,6 +93,6 @@ Source URLs are candidates for a governed ingestion pipeline, not proof that con
 - Provision provider credentials as server-side secrets; do not commit them.
 - Add the knowledge-source/chunk/vector storage schema and scoped retrieval API.
 - Implement auth/role checks, rate limiting, audit and cost caps.
-- Build the chat/agent UI with source citations, agent activity transparency, feedback and disabled/unconfigured states.
+- Build the chat/agent UI with source citations, agent activity transparency, feedback and disabled/unconfigured states. The initial Project Builder mode is planning-only and fails closed if model inference is not configured.
 - Add integration tests on a disposable branch and live smoke tests for the deployed endpoint.
-- Only then describe the Multi-Agent AI as live.
+- Only then describe the Multi-Agent AI as live. The Project Builder must additionally pass the project-specific release gates in `docs/PROJECT_BUILDER_MVP.md`.
