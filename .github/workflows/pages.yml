@@ -1,7 +1,5 @@
 name: Deploy EDUNEXUS Web
 
-# Safe trigger refresh after initial Pages publication setup.
-
 on:
   push:
     branches: ["main"]
@@ -24,6 +22,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate web app
         run: |
+          set -euo pipefail
           test -f web/index.html
           grep -q "@neondatabase/auth@0.5.0-beta" web/index.html
           grep -q "NEON_AUTH_URL" web/index.html
@@ -37,18 +36,41 @@ jobs:
           ! grep -q "supabase.co" web/index.html
           python - <<'PY'
           from pathlib import Path
-          html=Path("web/index.html").read_text()
-          assert html.count('<script type="module">') == 1
-          assert "</html>" in html
-          assert 'id="knowledgeNotes"' in html
           import json
-          corpus=json.loads(Path("web/knowledge-sources.json").read_text())
-          canonical=[s for s in corpus.get("sources",[]) if not s.get("isKnowledgeChunk")]
-          assert len(canonical) >= 28, len(canonical)
-          assert len(corpus.get("knowledgeChunks",[])) >= 18
-          assert corpus.get("knowledgeStats",{}).get("fullTextDocumentsDownloaded") == 0
-          assert corpus.get("knowledgeStats",{}).get("embeddingsCreated") == 0
-          print(f"EDUNEXUS Neon frontend + knowledge corpus validation passed: {len(canonical)} sources, {len(corpus['knowledgeChunks'])} editorial notes")
+          from urllib.parse import urlparse
+
+          html = Path("web/index.html").read_text()
+          assert html.count('<script type="module">') == 1, "Expected one module entrypoint"
+          assert "</html>" in html, "HTML document is incomplete"
+          assert 'id="knowledgeNotes"' in html, "Knowledge notes UI mount is missing"
+          assert 'id="knowledgeSourcesList"' in html, "Knowledge source UI mount is missing"
+          assert 'id="aiChatForm"' in html, "AI chat UI is missing"
+          assert 'id="aiHealth"' in html, "AI runtime health UI is missing"
+
+          registry = json.loads(Path("web/knowledge-sources.json").read_text())
+          sources = [s for s in registry.get("sources", []) if not s.get("isKnowledgeChunk")]
+          notes = registry.get("knowledgeChunks", [])
+          assert len(sources) >= 28, f"Expected at least 28 canonical sources; got {len(sources)}"
+          assert len(notes) >= 18, f"Expected at least 18 editorial knowledge notes; got {len(notes)}"
+          assert registry.get("knowledgeStats", {}).get("fullTextDocumentsDownloaded") == 0
+          assert registry.get("knowledgeStats", {}).get("embeddingsCreated") == 0
+
+          source_ids = [s.get("id") for s in sources]
+          note_ids = [n.get("id") for n in notes]
+          assert all(source_ids), "Every canonical source needs an ID"
+          assert len(source_ids) == len(set(source_ids)), "Duplicate canonical source IDs"
+          assert all(note_ids), "Every knowledge note needs an ID"
+          assert len(note_ids) == len(set(note_ids)), "Duplicate knowledge note IDs"
+          allowed_sources = set(source_ids)
+          for source in sources:
+              parsed = urlparse(source.get("url", ""))
+              assert parsed.scheme == "https" and parsed.netloc, f"Invalid source URL: {source.get('id')}"
+              assert source.get("title") and source.get("publisher") and source.get("license"), f"Missing source metadata: {source.get('id')}"
+          for note in notes:
+              assert note.get("sourceId") in allowed_sources, f"Unresolved provenance for note: {note.get('id')}"
+              assert note.get("title") and note.get("text") and note.get("domain"), f"Incomplete knowledge note: {note.get('id')}"
+              assert note.get("agentRoles"), f"No agent mapping for note: {note.get('id')}"
+          print(f"EDUNEXUS corpus validated: {len(sources)} sources, {len(notes)} original notes; provenance and metadata checks passed.")
           PY
 
   deploy:
