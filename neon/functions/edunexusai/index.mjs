@@ -267,7 +267,7 @@ export default {
     try {
       const results = await Promise.all(agents.map(async ([id, agent]) => ({ id, label: agent.label, answer: await callModel({ message, agent, locale: body.locale, knowledge }) })));
       const answer = results.length === 1 ? results[0].answer : results.map((result) => "**" + result.label + "**\n" + result.answer).join("\n\n---\n\n");
-      return json({ answer, agents: results.map(({ id, label }) => ({ id, label })), mode: "specialist_parallel_v1", knowledgeVersion: (await knowledgePromise).version, retrieval: "lexical-overlap-v1", sources, sourceNotice: knowledge.length ? "Sumber adalah ringkasan terkurasi; bukan penelusuran web langsung. Buka tautan sumber untuk konteks lengkap." : "Tidak ada sumber korpus yang cocok; jawaban tidak boleh mengarang sitasi." }, 200, cors);
+      return json({ answer, agents: results.map(({ id, label }) => ({ id, label })), mode: mode === "project" ? "project_planning_parallel_v1" : "specialist_parallel_v1", projectExecutionConfigured: false, knowledgeVersion: (await knowledgePromise).version, retrieval: "lexical-overlap-v1", sources, sourceNotice: knowledge.length ? "Sumber adalah ringkasan terkurasi; bukan penelusuran web langsung. Buka tautan sumber untuk konteks lengkap." : "Tidak ada sumber korpus yang cocok; jawaban tidak boleh mengarang sitasi." }, 200, cors);
     } catch (error) {
       const reason = error instanceof Error ? error.message : "unknown";
       if (reason === "ai_not_configured") return json({ error: "ai_not_configured", message: "Layanan AI belum dikonfigurasi. Tidak ada jawaban simulasi yang ditampilkan." }, 503, cors);
