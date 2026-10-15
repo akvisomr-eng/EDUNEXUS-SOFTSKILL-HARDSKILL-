@@ -41,7 +41,8 @@ The additive draft at `neon/migrations/0011_project_builder_records.sql` defines
 - [ ] Project mode uses four specialist roles only when model inference is configured.
 - [ ] The user sees agent roles, source references, mode, and limitations.
 - [ ] Project planning never claims code was written or tests passed without execution evidence.
-- [ ] Project records migration has passed a preview-branch SQL test and tenant-isolation test.\n- [ ] GitHub writes are branch-scoped, audited, and reviewed; production changes require explicit authorization.
+- [ ] Project records migration has passed a preview-branch SQL test and tenant-isolation test.
+- [ ] GitHub writes are branch-scoped, audited, and reviewed; production changes require explicit authorization.
 - [ ] Usage caps, timeout, persistent rate limits, budget alerts, data deletion, and privacy notice are in place.
 - [ ] Mobile and desktop workflows pass browser smoke and accessibility checks.
 
