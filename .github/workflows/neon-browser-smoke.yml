@@ -27,7 +27,7 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          page = Path("web/index.html").read_text()
+          page = Path("web/app/index.html").read_text()
           page = page.replace(
               "https://ep-curly-bread-azog8hfw.neonauth.c-3.ap-southeast-1.aws.neon.tech/neondb/auth",
               "https://ep-autumn-dust-az7syu30.neonauth.c-3.ap-southeast-1.aws.neon.tech/neondb/auth",
