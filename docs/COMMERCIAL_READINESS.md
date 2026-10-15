@@ -15,7 +15,7 @@ The current implementation does **not** establish that all LMS, AI tutoring, mul
 A paid launch is blocked until the owner records evidence for each item below.
 
 - [ ] **AI inference:** configure a legitimate model provider key as a server-side Neon Function secret; test a real authenticated request end-to-end; verify provider model ID, timeout, rate limits, error behavior, and no secret leakage.
-- [ ] **Commercial cost control:** define per-account request caps, token/usage ceilings, provider spend alerts, abuse response, and an emergency disable switch. Do not rely on in-memory counters as a durable global limit.
+- [ ] **Commercial cost control:** define per-account request caps, token/usage ceilings, provider spend alerts, abuse response, and an emergency disable switch. Runtime now bounds its in-memory rate-limit map to 5,000 identities and sweeps expired entries, but this is only per-process protection—not a durable global quota. Add persistent server-side quota enforcement before inviting untrusted users.
 - [ ] **Privacy & data lifecycle:** publish reviewed privacy notice and terms; identify data controller/operator, contact, purposes, retention, deletion request route, processor/subprocessor list, cross-border handling, and treatment of minors before onboarding real users.
 - [ ] **Tenant isolation:** test every user-owned read/write path with two separate real accounts. Re-check Neon Auth subject mapping, RLS, and privileged function boundaries.
 - [ ] **Production data:** confirm migration history, backup/restore procedure, rollback plan, and data ownership. Do not promote Project Builder migration 0011 until JWT identity mapping and tenant isolation are verified on a preview branch.
@@ -63,6 +63,7 @@ For every checkbox, record: evidence URL or run ID, date, tested environment, re
 - Neon Browser Smoke Test run `38681207326`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38681207326
 - Direct Neon Function metadata check on 2026-10-15 confirms production deployment #7 is active. Its environment contains `MODEL_API_BASE_URL` and `MODEL_ID` but does **not** contain `MODEL_API_KEY`; health therefore reports inference not configured.
 - Database inspection on 2026-10-15 confirms the five `ai_*` Project Builder tables exist on preview branch `br-quiet-frost-azemctlk`, but none exist on production branch `br-bitter-king-azb11lde`. Migration `0011` remains preview-only. Production `auth.uid()` is defined and maps Neon Auth subjects through `private.supabase_identity_migration` when a mapping exists, otherwise falls back to the JWT subject. This is useful evidence, but it does not replace a two-account RLS isolation test; do not promote migration `0011` until that test is recorded.
+- A bounded in-memory rate limiter was added in commit `8a68ca26a3a7d0fb5b9ac777a86a276e2e640f87`, with tests added in `e503d2ffd20914dd143e62000933fef02565458c`. It is memory-safety protection, not a persistent quota or global spend cap.
 
 ## 6. Immediate next actions
 
