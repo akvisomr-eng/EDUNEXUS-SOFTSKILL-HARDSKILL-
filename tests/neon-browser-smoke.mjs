@@ -78,7 +78,7 @@ try {
       const token = await page.evaluate(() => window.__edunexusSmokeGetToken());
       const aiResponse = await page.request.post(aiBase + "/chat", {
         timeout: 20000,
-        headers: { authorization: "Bearer " + token, origin: "https://akvism.reng.github.io" },
+        headers: { authorization: "Bearer " + token, origin: "https://akvisomr-eng.github.io" },
         data: { message: "Bantu saya membuat rencana belajar komunikasi yang terukur.", locale: "Indonesia", mode: "learn" },
       });
       const aiData = await aiResponse.json().catch(() => ({}));
