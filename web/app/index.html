@@ -870,7 +870,12 @@ $("lessonTutorForm").addEventListener("submit",async e=>{
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.message||"AI Mentor belum tersedia (HTTP "+response.status+").");
   const retrievalOnly=data.mode==="curated_retrieval_only_v1";
-  const tutorAnswer=retrievalOnly?buildCourseTutorFallback(question,lesson):(data.answer||"Belum ada jawaban.");
+  const tutorAnswer=retrievalOnly?(selectedLanguage.locale==="Indonesian"?buildCourseTutorFallback(question,lesson):({
+   English:"The AI service is currently in curated-reference mode and cannot reliably generate a full answer in your selected language yet. The original lesson remains available in Indonesian; try again when generative tutoring is enabled.",
+   Spanish:"El servicio de IA está en modo de referencias seleccionadas y todavía no puede generar de forma fiable una respuesta completa en el idioma elegido. El material original sigue disponible en indonesio.",
+   Arabic:"تعمل خدمة الذكاء الاصطناعي حاليًا بوضع المراجع المنقحة، ولا يمكنها بعد تقديم إجابة كاملة موثوقة باللغة المختارة. المادة الأصلية متاحة بالإندونيسية.",
+   "Simplified Chinese":"当前 AI 服务处于精选参考资料模式，暂时无法可靠地用所选语言生成完整回答。原始课程材料仍提供印尼语版本。"
+  }[selectedLanguage.locale]||"The AI service cannot reliably answer in this language yet. Please use the original Indonesian lesson for now.")):(data.answer||"Belum ada jawaban.");
   $("lessonTutorAnswer").textContent=tutorAnswer;
   const generativeMultiAgent=!retrievalOnly&&Array.isArray(data.agents)&&data.agents.length>1;
   $("lessonTutorModeBadge").textContent=generativeMultiAgent?"AI MENTOR · MULTI-AGEN AKTIF":"AI MENTOR · BASIS PENGETAHUAN";
