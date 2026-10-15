@@ -29,6 +29,19 @@ body.dashboard #app{display:block}body.dashboard #app>.card:first-child{backgrou
 body.dashboard #app>.grid{margin-top:16px}body.dashboard .metric{font-size:32px}
 body.dashboard .section-title{margin-bottom:8px}
 body.dashboard #knowledgeLibrary{scroll-margin-top:90px}
+
+/* Independent module workspaces: navigation switches views instead of scrolling the dashboard. */
+body.dashboard #moduleViews{display:block;min-width:0}
+body.dashboard .module-view{display:none;animation:module-enter .18s ease-out}
+body.dashboard .module-view.is-active{display:block}
+.module-page-heading{display:flex;align-items:flex-start;gap:14px;margin:0 0 18px;padding:4px 2px 12px;border-bottom:1px solid var(--line)}
+.module-page-icon{display:grid;place-items:center;flex:0 0 44px;height:44px;border-radius:12px;background:#edf2ff;color:#4169df;font-size:21px}
+.module-page-heading h1{font-size:clamp(25px,3vw,34px);line-height:1.12;letter-spacing:-.04em;margin:0 0 6px}
+.module-page-heading p{margin:0;max-width:760px}
+body.dashboard .module-view>.card{margin:0 0 18px}
+body.dashboard .module-view>.grid{margin-top:0}
+@keyframes module-enter{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.module-view{animation:none!important}}
 @media(max-width:900px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}body.dashboard .sidebar{width:76px;padding:18px 8px}.sidebar-brand{padding:0 3px 16px;text-align:center}.sidebar-brand .brand{font-size:0}.sidebar-brand .brand:before{content:"E";font-size:22px;color:var(--brand)}.sidebar-brand .brand span,.sidebar-label,.sidebar-nav a span:not(.nav-icon),.sidebar-bottom{display:none}.sidebar-nav a{justify-content:center;padding:12px 4px}.nav-icon{font-size:19px}body.dashboard .wrap{padding:92px 18px 24px 94px}body.dashboard header{left:76px;padding:0 18px}}
 @media(max-width:560px){.wrap{padding:18px}.grid{grid-template-columns:1fr}.card{padding:18px}body.dashboard .wrap{padding:84px 12px 18px 72px}body.dashboard .sidebar{width:58px;padding:14px 5px}body.dashboard header{left:58px;height:64px;padding:0 12px}body.dashboard .brand{font-size:18px}body.dashboard .brand span{display:none}.item-head{flex-direction:column}.hero{gap:14px}}
 </style>
@@ -540,8 +553,46 @@ $("aiChatForm").addEventListener("submit",async e=>{
 });
 $("aiClearBtn").addEventListener("click",()=>{$("aiAnswer").style.display="none";$("aiAnswer").textContent="";$("aiSources").replaceChildren();$("aiAgentStatus").textContent="";$("aiMessage").value=""});
 checkAiHealth();
+
+function setupIndependentModules(){
+ const app=$("app");
+ if(!app||$("moduleViews"))return;
+ const definitions=[
+  {key:"overview",title:"Ringkasan",icon:"⌂",description:"Ringkasan perkembangan, status layanan, dan Paspor Keterampilan.",targets:[$("welcome").closest(".card"),$("passportStatus").closest(".card")]},
+  {key:"courses",title:"Program & kursus",icon:"▤",description:"Jelajahi program belajar, buka modul dan pelajaran, lalu pantau kemajuan Anda.",targets:[$("coursesList").closest(".card")]},
+  {key:"practice",title:"Praktik & simulasi",icon:"◎",description:"Pilih skenario, kerjakan tugas terstruktur, dan kirim bukti praktik untuk dinilai.",targets:[$("scenarios").closest(".card")]},
+  {key:"goals",title:"Tujuan pengembangan",icon:"↗",description:"Tetapkan target keterampilan, simpan rencana, dan tinjau progres tujuan Anda.",targets:[$("goalForm").closest(".card")]},
+  {key:"ai",title:"Multi-agent AI",icon:"✧",description:"Konsultasikan materi, latihan, soft skill, hard skill, atau arah karier kepada asisten belajar.",targets:[$("aiCoach")]},
+  {key:"knowledge",title:"Pustaka pengetahuan",icon:"▧",description:"Telusuri sumber rujukan, metadata, dan catatan pengetahuan terkurasi EDUNEXUS.",targets:[$("knowledgeLibrary")]},
+  {key:"history",title:"Riwayat praktik",icon:"◷",description:"Tinjau hasil praktik dan bukti pengembangan yang tersimpan pada akun Anda.",targets:[$("history").closest(".card")]}
+ ];
+ const views=document.createElement("main");views.id="moduleViews";views.setAttribute("aria-live","polite");
+ const originalGrid=$("goalForm").closest(".card").parentElement;
+ definitions.forEach(def=>{
+  const view=document.createElement("section");view.className="module-view";view.id="view-"+def.key;view.dataset.module=def.key;
+  const heading=document.createElement("div");heading.className="module-page-heading";
+  const icon=document.createElement("div");icon.className="module-page-icon";icon.setAttribute("aria-hidden","true");icon.textContent=def.icon;
+  const copy=document.createElement("div");const title=document.createElement("h1");title.textContent=def.title;const desc=document.createElement("p");desc.className="muted";desc.textContent=def.description;copy.append(title,desc);heading.append(icon,copy);view.appendChild(heading);
+  def.targets.filter(Boolean).forEach(node=>view.appendChild(node));views.appendChild(view);
+ });
+ if(originalGrid)originalGrid.style.display="none";
+ app.appendChild(views);
+ const navMap={"welcome":"overview","coursesList":"courses","scenarios":"practice","goalForm":"goals","aiCoach":"ai","knowledgeLibrary":"knowledge","history":"history"};
+ function activateModule(key,updateHash=false){
+  if(!definitions.some(d=>d.key===key))key="overview";
+  views.querySelectorAll(".module-view").forEach(view=>{const active=view.dataset.module===key;view.classList.toggle("is-active",active);view.setAttribute("aria-hidden",String(!active));});
+  document.querySelectorAll(".sidebar-nav a[href^='#']").forEach(link=>{const target=link.getAttribute("href").slice(1);const active=navMap[target]===key;link.classList.toggle("active",active);if(active)link.setAttribute("aria-current","page");else link.removeAttribute("aria-current");});
+  if(updateHash){const link=document.querySelector('.sidebar-nav a[href="#'+({overview:"welcome",courses:"coursesList",practice:"scenarios",goals:"goalForm",ai:"aiCoach",knowledge:"knowledgeLibrary",history:"history"}[key])+'"]');if(link)history.replaceState(null,"",location.pathname+location.search+link.getAttribute("href"));}
+  window.scrollTo({top:0,behavior:"auto"});
+ }
+ document.querySelectorAll(".sidebar-nav a[href^='#']").forEach(link=>link.addEventListener("click",event=>{event.preventDefault();activateModule(navMap[link.getAttribute("href").slice(1)]||"overview",true);}));
+ window.addEventListener("hashchange",()=>activateModule(navMap[location.hash.slice(1)]||"overview",false));
+ activateModule(navMap[location.hash.slice(1)]||"overview",false);
+}
+
 async function loadApp(){
  document.body.classList.add("dashboard");
+ setupIndependentModules();
  loadKnowledgeSources();
  $("auth").style.display="none";$("app").style.display="block";
  $("sessionBadge").textContent=state.user?.email||"Sudah masuk";
