@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 
 const MAX_BODY_BYTES = 16_000;
 const MAX_MESSAGE_CHARS = 4_000;
-const MAX_AGENT_CALLS = 2;
+const MAX_AGENT_CALLS = 4;
 const DEFAULT_APP_ORIGIN = "https://akvisomr-eng.github.io";
 const APP_PATH = "/EDUNEXUS-SOFTSKILL-HARDSKILL-/";
 let jwksCache = { expiresAt: 0, keys: [] };
@@ -48,6 +48,26 @@ const AGENTS = {
     label: "Career Intelligence",
     triggers: ["karier", "karir", "pekerjaan", "profesi", "cv", "portofolio"],
     instruction: "Hubungkan minat dan bukti keterampilan yang dinyatakan pengguna dengan pilihan karier dan kesenjangan keterampilan. Jangan menjanjikan hasil kerja.",
+  },
+  projectManager: {
+    label: "Project Manager Agent",
+    triggers: ["buat proyek", "bangun aplikasi", "bangun website", "buat aplikasi", "develop project", "project builder", "rancang proyek", "bikin aplikasi", "bikin website"],
+    instruction: "Ubah permintaan menjadi project brief terukur: tujuan, pengguna, ruang lingkup MVP, non-goals, asumsi, acceptance criteria, milestone, risiko, dan pertanyaan yang benar-benar memblokir. Jangan mengklaim telah mengubah repo atau menjalankan alat.",
+  },
+  architect: {
+    label: "Solution Architect Agent",
+    triggers: ["arsitektur", "stack", "database", "api", "integrasi", "bangun aplikasi", "buat aplikasi", "buat proyek", "project builder"],
+    instruction: "Rancang solusi praktis dengan komponen, aliran data, model data, keamanan, deployment, dan biaya. Prioritaskan teknologi yang sudah dipakai proyek dan opsi gratis; jangan menyarankan rahasia di frontend.",
+  },
+  engineer: {
+    label: "Software Engineer Agent",
+    triggers: ["kode", "coding", "implementasi", "bangun aplikasi", "buat aplikasi", "buat proyek", "buat website", "bikin aplikasi", "bikin website", "project builder"],
+    instruction: "Buat rencana implementasi yang dapat dieksekusi, pecah ke file/modul, definisikan kontrak API, penanganan error, serta tes. Jangan mengaku menulis kode atau melakukan commit jika belum ada tool execution.",
+  },
+  qa: {
+    label: "QA & Security Agent",
+    triggers: ["tes", "testing", "keamanan", "siap rilis", "production", "bangun aplikasi", "buat aplikasi", "buat proyek", "project builder"],
+    instruction: "Tentukan acceptance tests, kasus negatif, pemeriksaan keamanan, aksesibilitas, observabilitas, rollback, dan bukti yang diperlukan sebelum rilis. Bedakan tes yang direncanakan dari tes yang benar-benar dijalankan.",
   },
 };
 
@@ -117,8 +137,16 @@ async function verifyCaller(request) {
     return null;
   }
 }
-function selectAgents(message) {
-  const lower = message.toLocaleLowerCase("id");
+export function selectAgents(message, mode = "learn") {
+  const lower = String(message || "").toLocaleLowerCase("id");
+  if (mode === "project") {
+    return [
+      ["projectManager", AGENTS.projectManager],
+      ["architect", AGENTS.architect],
+      ["engineer", AGENTS.engineer],
+      ["qa", AGENTS.qa],
+    ];
+  }
   const matches = Object.entries(AGENTS).filter(([, agent]) => agent.triggers.some((term) => lower.includes(term)));
   if (!matches.length) return [["learning", AGENTS.learning]];
   return matches.slice(0, MAX_AGENT_CALLS);
@@ -198,7 +226,7 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     if (url.pathname === "/health" && request.method === "GET") {
       const corpus = await knowledgePromise;
-      return json({ service: "edunexus-ai", status: "ok", inferenceConfigured: Boolean(process.env.MODEL_API_KEY && process.env.MODEL_API_BASE_URL && process.env.MODEL_ID), authConfigured: Boolean(process.env.NEON_AUTH_JWKS_URL), knowledgeConfigured: Array.isArray(corpus.chunks) && corpus.chunks.length > 0, knowledgeVersion: corpus.version, knowledgeChunks: Array.isArray(corpus.chunks) ? corpus.chunks.length : 0 }, 200, cors);
+      return json({ service: "edunexus-ai", status: "ok", capabilities: ["learning_coach", "curated_knowledge", "project_planning"], projectExecutionConfigured: false, inferenceConfigured: Boolean(process.env.MODEL_API_KEY && process.env.MODEL_API_BASE_URL && process.env.MODEL_ID), authConfigured: Boolean(process.env.NEON_AUTH_JWKS_URL), knowledgeConfigured: Array.isArray(corpus.chunks) && corpus.chunks.length > 0, knowledgeVersion: corpus.version, knowledgeChunks: Array.isArray(corpus.chunks) ? corpus.chunks.length : 0 }, 200, cors);
     }
     if (url.pathname !== "/chat" || request.method !== "POST") return json({ error: "not_found" }, 404, cors);
     if (origin && !cors["access-control-allow-origin"]) return json({ error: "origin_not_allowed" }, 403, cors);
@@ -211,10 +239,20 @@ export default {
     try { body = await request.json(); } catch { return json({ error: "invalid_json" }, 400, cors); }
     const message = typeof body?.message === "string" ? body.message.trim() : "";
     if (!message || message.length > MAX_MESSAGE_CHARS) return json({ error: "invalid_message", message: "Pesan wajib diisi dan maksimal 4.000 karakter." }, 400, cors);
-    const agents = selectAgents(message);
+    const mode = body?.mode === "project" ? "project" : "learn";
+    const agents = selectAgents(message, mode);
     const knowledge = await retrieveKnowledge(message);
     const sources = knowledge.map((source, index) => ({ id: "S" + (index + 1), sourceId: source.id, title: source.title, url: source.url, trustTier: source.trust_tier, reviewedAt: source.reviewed_at }));
     if (!process.env.MODEL_API_KEY || !process.env.MODEL_API_BASE_URL || !process.env.MODEL_ID) {
+      if (mode === "project") {
+        return json({
+          error: "project_builder_not_configured",
+          message: "Project Builder belum aktif: kredensial model server-side belum dikonfigurasi. Tidak ada rencana proyek simulasi yang ditampilkan.",
+          requiredConfiguration: ["MODEL_API_KEY", "MODEL_API_BASE_URL", "MODEL_ID"],
+          agents: agents.map(([id, agent]) => ({ id, label: agent.label })),
+          mode: "project_builder_unavailable",
+        }, 503, cors);
+      }
       const corpus = await knowledgePromise;
       return json({
         answer: buildKnowledgeOnlyAnswer(knowledge),
