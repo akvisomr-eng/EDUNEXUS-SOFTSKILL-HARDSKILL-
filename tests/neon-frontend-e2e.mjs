@@ -82,6 +82,8 @@ try {
   const scenarioTitle = await page.locator("#scenarios .item h3").first().innerText();
   console.log("FRONTEND_CATALOG_SCENARIO=" + scenarioTitle);
 
+  // Navigate to the goal module because module views are intentionally isolated.
+  await page.locator('nav.sidebar-nav a[href="#goalForm"]').click();
   const goalTitle = "E2E goal " + Date.now();
   await page.locator("#goalTitle").fill(goalTitle);
   await page.locator("#goalDescription").fill("Tujuan uji untuk memverifikasi alur simpan dan penyelesaian tujuan pembelajar.");
@@ -96,6 +98,8 @@ try {
   await page.waitForFunction(() => !document.querySelector("#learningStatus")?.textContent.includes("Memuat katalog"), null, { timeout: 30000 });
   console.log("FRONTEND_GOAL_WORKFLOW=PASS; goal created and completed; learning catalog loaded");
 
+  // Switch to the course module before enrollment and lesson assertions.
+  await page.locator('nav.sidebar-nav a[href="#coursesList"]').click();
   await page.waitForFunction(() => document.querySelectorAll("#coursesList .item").length >= 2, null, { timeout: 30000 });
   const firstCourse = page.locator("#coursesList .item").first();
   await firstCourse.locator("button[data-enroll-course]").click();
