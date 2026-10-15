@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          url="https://akvisomr-eng.github.io/EDUNEXUS-SOFTSKILL-HARDSKILL-/"
+          url="https://akvisomr-eng.github.io/EDUNEXUS-SOFTSKILL-HARDSKILL-/app/"
           result="FAIL"
           last_status="not-requested"
           for attempt in $(seq 1 30); do
@@ -54,7 +54,9 @@ jobs:
             cat /tmp/edunexus-curl.err || true
             exit 1
           fi
-          echo "PASS: public Pages URL serves the Neon frontend and no longer references Supabase."
+          curl --location --fail --silent --show-error "${url%app/}" -o /tmp/edunexus-home.html
+          grep -q "MASUK / DAFTAR" /tmp/edunexus-home.html
+          echo "PASS: official website and separate Neon learning app are published; app no longer references Supabase."
       - name: Report live verification on PR #19
         if: always()
         env:

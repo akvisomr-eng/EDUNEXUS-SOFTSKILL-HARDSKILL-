@@ -42,19 +42,21 @@ jobs:
           test -f tests/fixtures/neon-cutover-smoke.html
           test -f tests/neon-browser-smoke.mjs
           test -f tests/neon-frontend-e2e.mjs
-          grep -q "NEON_AUTH_URL" web/index.html
-          grep -q "DATA_API_URL" web/index.html
-          grep -q "ensure_my_profile" web/index.html
-          grep -q "finalize_my_practice_attempt" web/index.html
-          grep -q "forgotPasswordBtn" web/index.html
-          grep -q "requestPasswordReset" web/index.html
-          grep -q "auth.resetPassword" web/index.html
+          grep -q "NEON_AUTH_URL" web/app/index.html
+          grep -q "DATA_API_URL" web/app/index.html
+          grep -q "ensure_my_profile" web/app/index.html
+          grep -q "finalize_my_practice_attempt" web/app/index.html
+          grep -q "forgotPasswordBtn" web/app/index.html
+          grep -q "requestPasswordReset" web/app/index.html
+          grep -q "auth.resetPassword" web/app/index.html
           grep -q "PASSWORD_RECOVERY_UI" tests/neon-frontend-e2e.mjs
-          ! grep -q "SUPABASE_URL" web/index.html
+          ! grep -q "SUPABASE_URL" web/app/index.html
           ! test -f web/neon-cutover-smoke.html
           python3 - <<'PY'
           from pathlib import Path
-          html = Path("web/index.html").read_text()
+          html = Path("web/app/index.html").read_text()
+          home = Path("web/index.html").read_text()
+          assert "MASUK / DAFTAR" in home and "EDUNEXUS" in home
           assert html.count('<script type="module">') == 1
           assert "</html>" in html
           assert "supabase.co" not in html
