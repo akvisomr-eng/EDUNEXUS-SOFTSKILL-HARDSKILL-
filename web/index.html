@@ -627,32 +627,33 @@ function setupIndependentModules(){
   <div id="cognitiveFeedback" class="status" role="status" aria-live="polite" style="display:none;margin-top:14px"></div>
   <p class="muted">Status data: hasil latihan ini hanya tampil pada sesi browser saat ini dan belum disimpan sebagai rekam kemajuan akun.</p>
  `;
+ const cognitiveEl=id=>cognitiveLab.querySelector("#"+id);
  const cognitiveTasks={
   analysis:{title:"Tantangan penalaran analitis",prompt:"Sebuah tim terlambat menyelesaikan tiga proyek berturut-turut. Susun tiga kemungkinan penyebab yang berbeda dan jelaskan bukti apa yang Anda butuhkan untuk membedakannya."},
   creative:{title:"Tantangan kreativitas",prompt:"Sebuah perpustakaan komunitas ingin menarik lebih banyak pengunjung dengan anggaran sangat terbatas. Usulkan sebanyak mungkin pendekatan yang berbeda, lalu pilih satu dan jelaskan mengapa layak diuji."},
   problem:{title:"Tantangan pemecahan masalah",prompt:"Layanan pelanggan menerima banyak keluhan tentang waktu tunggu. Buat rencana tindakan yang dapat diuji dalam satu minggu, termasuk risiko dan cara mengukur hasilnya."},
   meta:{title:"Tantangan metakognisi",prompt:"Ingat satu keterampilan yang sedang Anda pelajari. Jelaskan strategi belajar yang digunakan, bagaimana Anda tahu strategi itu berhasil, dan apa yang akan Anda ubah pada percobaan berikutnya."}
  };
- $("cognitiveTask").addEventListener("change",()=>{
-  const task=cognitiveTasks[$("cognitiveTask").value];
-  $("cognitivePromptTitle").textContent=task.title;$("cognitivePrompt").textContent=task.prompt;
-  $("cognitiveFeedback").style.display="none";
+ cognitiveEl("cognitiveTask").addEventListener("change",()=>{
+  const task=cognitiveTasks[cognitiveEl("cognitiveTask").value];
+  cognitiveEl("cognitivePromptTitle").textContent=task.title;cognitiveEl("cognitivePrompt").textContent=task.prompt;
+  cognitiveEl("cognitiveFeedback").style.display="none";
  });
- $("cognitiveForm").addEventListener("submit",event=>{
+ cognitiveEl("cognitiveForm").addEventListener("submit",event=>{
   event.preventDefault();
-  const response=$("cognitiveResponse").value.trim();
-  if(response.length<20){$("cognitiveFeedback").textContent="Tambahkan penjelasan agar proses berpikir Anda dapat direfleksikan."; $("cognitiveFeedback").className="status error";$("cognitiveFeedback").style.display="block";return;}
-  const checks=[...$("cognitiveForm").querySelectorAll('input[name="cognitiveCheck"]:checked')].length;
+  const response=cognitiveEl("cognitiveResponse").value.trim();
+  if(response.length<20){cognitiveEl("cognitiveFeedback").textContent="Tambahkan penjelasan agar proses berpikir Anda dapat direfleksikan."; cognitiveEl("cognitiveFeedback").className="status error";cognitiveEl("cognitiveFeedback").style.display="block";return;}
+  const checks=[...cognitiveEl("cognitiveForm").querySelectorAll('input[name="cognitiveCheck"]:checked')].length;
   let message="Langkah berikutnya: jelaskan alasan di balik pilihan Anda, cari satu kelemahan atau kontra-argumen, lalu perbaiki jawaban.";
   if(checks>=3)message="Refleksi proses Anda mencakup beberapa langkah penting. Langkah berikutnya: uji jawaban pada contoh berbeda dan catat apakah kesimpulan tetap berlaku. ";
   if(checks<=1)message="Mulailah dengan memperjelas tujuan, memisahkan asumsi dari bukti, dan mencari alternatif sebelum menyimpulkan. ";
   if(response.split(/\\s+/).filter(Boolean).length<35)message+=" Pertimbangkan menambahkan contoh atau bukti konkret.";
-  $("cognitiveFeedback").textContent=message+" Refleksi ini bersifat formatif dan tidak menghasilkan skor kecerdasan.";
-  $("cognitiveFeedback").className="status";$("cognitiveFeedback").style.display="block";
+  cognitiveEl("cognitiveFeedback").textContent=message+" Refleksi ini bersifat formatif dan tidak menghasilkan skor kecerdasan.";
+  cognitiveEl("cognitiveFeedback").className="status";cognitiveEl("cognitiveFeedback").style.display="block";
  });
- $("cognitiveReset").addEventListener("click",()=>{
-  $("cognitiveForm").reset();$("cognitiveFeedback").style.display="none";
-  const task=cognitiveTasks[$("cognitiveTask").value];$("cognitivePromptTitle").textContent=task.title;$("cognitivePrompt").textContent=task.prompt;
+ cognitiveEl("cognitiveReset").addEventListener("click",()=>{
+  cognitiveEl("cognitiveForm").reset();cognitiveEl("cognitiveFeedback").style.display="none";
+  const task=cognitiveTasks[cognitiveEl("cognitiveTask").value];cognitiveEl("cognitivePromptTitle").textContent=task.title;cognitiveEl("cognitivePrompt").textContent=task.prompt;
  });
  const definitions=[
   {key:"overview",title:"Ringkasan",icon:"⌂",description:"Ringkasan perkembangan, status layanan, dan Paspor Keterampilan.",targets:[$("welcome").closest(".card"),$("passportStatus").closest(".card")]},
