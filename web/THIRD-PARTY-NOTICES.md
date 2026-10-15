@@ -1,11 +1,7 @@
 # Third-party notices
 
-## Tailwindadmin React Free
+The public EDUNEXUS website UX/UI is adapted from **TemplateMo 629 — Nexus System**: https://templatemo.com/tm-629-nexus-system
 
-The EDUNEXUS interface refresh uses visual design ideas from the user-provided Tailwindadmin React Free template (Tailwindadmin, 2026), including its compact dashboard layout, navigation hierarchy, card spacing, and blue accent palette. EDUNEXUS retains its existing application behavior, authentication, Neon Data API calls, learning catalog, practice workflows, and AI knowledge interface.
+TemplateMo states that the template is free to download, edit, and use for commercial or non-commercial websites. The original visual interaction pattern (Z-depth scroll-stacking, kinetic accordion, tabbed matrix, HUD progress) has been adapted and the copy, branding, and program content have been rewritten for EDUNEXUS. The image-heavy panels are rendered with CSS technical artwork in this integration; no original image files are redistributed in this commit.
 
-The supplied template's LICENSE.md declares the template under the MIT License and requires retaining its copyright and permission notice when distributing substantial portions of the software. This EDUNEXUS refresh adapts the visual language rather than copying the template's React source files.
-
-Template attribution: Copyright (c) 2026 Tailwindadmin.  
-Template preview: https://themewagon.github.io/tailwindadmin/  
-License: MIT (see the supplied template archive's LICENSE.md).
+Fonts load from Google Fonts (Plus Jakarta Sans and JetBrains Mono).
