@@ -463,8 +463,7 @@ function openLesson(lessonId){
  $("lessonContent").innerHTML=renderLessonContent(lesson.content);
  $("lessonReader").style.display="block";
  updateLessonNavigation();
- const module=learningCache.modules.find(item=>item.id===lesson.module_id);
- const enrollment=module&&learningCache.enrollments.find(item=>item.course_id===module.course_id);
+ const enrollment=learningCache.enrollments.find(item=>item.course_id===module.course_id);
  const progress=learningCache.progress.find(item=>item.lesson_id===lessonId);
  if(!enrollment){
   $("lessonProgressStatus").textContent="Untuk menyimpan progres, ikuti kursus terlebih dahulu.";
