@@ -1070,6 +1070,44 @@
         "kalibrasi"
       ],
       "text": "EDUNEXUS assessment principle: AI is a formative coach and evidence organizer, not an autonomous high-stakes certifier. Suggested 4-domain rubric: (1) conceptual accuracy, (2) practical application, (3) reasoning and evidence, (4) reflection, communication, and safe judgment. Use behaviorally anchored levels: 1 beginning, 2 developing, 3 competent for the stated task, 4 transfers/adapts reliably. Human tutor verifies identity when needed, asks follow-up questions, observes a presentation/interview or authentic task, checks the submitted work, documents evidence and feedback, and makes the final pass/needs-more-practice decision. Keep AI feedback, human assessment, rubric version, date, evidence references, and appeal/reassessment path distinct. Do not infer a student's ability or character from demographic proxies. Do not label practice quiz results as formal certification."
+    },
+    {
+      "id": "EDU-COURSE-MATH-PRACTICAL-LOCAL",
+      "title": "Kursus Matematika Praktis dan Pemecahan Masalah — pedagogi dan konteks Indonesia",
+      "url": "https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/neon/migrations/0009_indonesia_context_course_catalog.sql",
+      "publisher": "EDUNEXUS authored courseware",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-15",
+      "keywords": [
+        "matematika",
+        "persentase",
+        "diskon",
+        "harga",
+        "perbandingan",
+        "estimasi",
+        "ukuran",
+        "waktu",
+        "tabel",
+        "grafik",
+        "fakta",
+        "asumsi",
+        "opini",
+        "masalah",
+        "batasan",
+        "uji",
+        "solusi",
+        "tutor",
+        "latihan",
+        "Indonesia",
+        "rupiah",
+        "belanja",
+        "warung",
+        "sekolah",
+        "ongkir",
+        "liter",
+        "kilogram"
+      ],
+      "text": "EDUNEXUS courseware guidance for the six-session practical mathematics course. Teach from local everyday situations: rupiah prices, market/warung transactions, transport time, school tasks, small business inventory and delivery. Session 1: percent means per hundred; discount amount = rate/100 × original price; final price = original minus discount; successive discounts apply to the reduced price; compare unit prices on equal units and total costs including delivery/mandatory fees. Session 2: use consistent units (1 m=100 cm, 1 kg=1000 g, 1 L=1000 mL, 1 hour=60 minutes); estimate by rounding, then distinguish estimate from exact calculation; plan time buffers and express uncertainty as a range with assumptions. Session 3: inspect chart title, axis labels, units, period, scale and source; percent change uses the initial value as denominator; correlation or simultaneous change does not prove cause. Session 4: distinguish verifiable facts, assumptions/predictions and opinions; match evidence to claim and test assumptions without shaming the learner. Session 5: define a problem with baseline, target, period and affected stakeholders; distinguish symptom from cause; record cost, time, quality, privacy and safety constraints. Session 6: run a small, low-risk test with hypothesis, baseline, measurable outcome, duration, privacy-minimal data and stop criteria; consider sample size and confounders before expanding. AI tutor agent roles: Learning Navigator sequences prerequisites and next steps; Subject Mentor checks concepts/calculations; Pedagogy Coach adapts explanation and asks guiding questions; Practice Designer creates local scenarios; Formative Assessor explains answers against transparent criteria; Indonesia Context Reviewer flags assumptions and directs current regulation questions to official sources; Evidence Curator organizes learner-authored work; Human Tutor Coordinator prepares presentation/interview prompts and evidence gaps. These roles assist one another but are not independent authorities. AI feedback is formative only; human tutor verifies authentic performance and makes final high-stakes pass/fail decisions. Never claim a learner passed solely from quiz score or fabricate source/evidence. Materials are original EDUNEXUS authored content; cite registry for broader source provenance."
     }
   ]
 }
