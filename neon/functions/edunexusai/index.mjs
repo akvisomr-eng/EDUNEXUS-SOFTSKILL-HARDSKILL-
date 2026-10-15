@@ -187,6 +187,7 @@ async function callModel({ message, agent, locale, knowledge }) {
   const apiKey = process.env.MODEL_API_KEY;
   const baseUrl = process.env.MODEL_API_BASE_URL;
   const model = process.env.MODEL_ID;
+  if (process.env.AI_ENABLED === "false") throw new Error("ai_disabled");
   if (!apiKey || !baseUrl || !model) throw new Error("ai_not_configured");
   const sourceContext = knowledge.length
     ? knowledge.map((source, index) => "[S" + (index + 1) + "] " + source.title + "\nURL: " + source.url + "\nTrust tier: " + source.trust_tier + "\n" + source.text).join("\n\n")
@@ -223,7 +224,7 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     if (url.pathname === "/health" && request.method === "GET") {
       const corpus = await knowledgePromise;
-      return json({ service: "edunexus-ai", status: "ok", capabilities: ["learning_coach", "curated_knowledge", "project_planning"], projectExecutionConfigured: false, persistentQuotaConfigured: Boolean(process.env.DATA_API_URL || process.env.NEON_DATA_API_URL), inferenceConfigured: Boolean(process.env.MODEL_API_KEY && process.env.MODEL_API_BASE_URL && process.env.MODEL_ID), authConfigured: Boolean(process.env.NEON_AUTH_JWKS_URL), knowledgeConfigured: Array.isArray(corpus.chunks) && corpus.chunks.length > 0, knowledgeVersion: corpus.version, knowledgeChunks: Array.isArray(corpus.chunks) ? corpus.chunks.length : 0 }, 200, cors);
+      return json({ service: "edunexus-ai", status: "ok", capabilities: ["learning_coach", "curated_knowledge", "project_planning"], projectExecutionConfigured: false, persistentQuotaConfigured: Boolean(process.env.DATA_API_URL || process.env.NEON_DATA_API_URL), inferenceConfigured: Boolean(process.env.AI_ENABLED !== "false" && process.env.MODEL_API_KEY && process.env.MODEL_API_BASE_URL && process.env.MODEL_ID), inferenceDisabled: process.env.AI_ENABLED === "false", authConfigured: Boolean(process.env.NEON_AUTH_JWKS_URL), knowledgeConfigured: Array.isArray(corpus.chunks) && corpus.chunks.length > 0, knowledgeVersion: corpus.version, knowledgeChunks: Array.isArray(corpus.chunks) ? corpus.chunks.length : 0 }, 200, cors);
     }
     if (url.pathname !== "/chat" || request.method !== "POST") return json({ error: "not_found" }, 404, cors);
     if (origin && !cors["access-control-allow-origin"]) return json({ error: "origin_not_allowed" }, 403, cors);
@@ -256,12 +257,12 @@ export default {
     const agents = selectAgents(message, mode);
     const knowledge = await retrieveKnowledge(message);
     const sources = knowledge.map((source, index) => ({ id: "S" + (index + 1), sourceId: source.id, title: source.title, url: source.url, trustTier: source.trust_tier, reviewedAt: source.reviewed_at }));
-    if (!process.env.MODEL_API_KEY || !process.env.MODEL_API_BASE_URL || !process.env.MODEL_ID) {
+    if (process.env.AI_ENABLED === "false" || !process.env.MODEL_API_KEY || !process.env.MODEL_API_BASE_URL || !process.env.MODEL_ID) {
       if (mode === "project") {
         return json({
           error: "project_builder_not_configured",
-          message: "Project Builder belum aktif: kredensial model server-side belum dikonfigurasi. Tidak ada rencana proyek simulasi yang ditampilkan.",
-          requiredConfiguration: ["MODEL_API_KEY", "MODEL_API_BASE_URL", "MODEL_ID"],
+          message: process.env.AI_ENABLED === "false" ? "Project Builder sedang dinonaktifkan oleh administrator. Tidak ada rencana proyek simulasi yang ditampilkan." : "Project Builder belum aktif: kredensial model server-side belum dikonfigurasi. Tidak ada rencana proyek simulasi yang ditampilkan.",
+          requiredConfiguration: process.env.AI_ENABLED === "false" ? ["AI_ENABLED"] : ["MODEL_API_KEY", "MODEL_API_BASE_URL", "MODEL_ID"],
           agents: agents.map(([id, agent]) => ({ id, label: agent.label })),
           mode: "project_builder_unavailable",
         }, 503, cors);
