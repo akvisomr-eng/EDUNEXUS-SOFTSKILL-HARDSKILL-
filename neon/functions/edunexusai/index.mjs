@@ -1,6 +1,7 @@
 import { createPublicKey, verify as verifySignature } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { createRateLimiter } from "./rate-limit.mjs";
+import { consumePersistentQuota } from "./persistent-quota.mjs";
 
 // Project mode is planning-only until a separately audited repository tool gateway is deployed.
 // Deployment parity verified on production and preview branches; runtime smoke workflow checks both.
@@ -135,7 +136,7 @@ async function verifyCaller(request) {
     const signature = Buffer.from(parts[2], "base64url");
     const verifierKey = header.alg === "ES256" ? { key, dsaEncoding: "ieee-p1363" } : key;
     const valid = verifySignature(allowedAlgorithms[header.alg], signingInput, verifierKey, signature);
-    return valid ? { id: claims.sub } : null;
+    return valid ? { id: claims.sub, token } : null;
   } catch {
     return null;
   }
@@ -222,7 +223,7 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     if (url.pathname === "/health" && request.method === "GET") {
       const corpus = await knowledgePromise;
-      return json({ service: "edunexus-ai", status: "ok", capabilities: ["learning_coach", "curated_knowledge", "project_planning"], projectExecutionConfigured: false, inferenceConfigured: Boolean(process.env.MODEL_API_KEY && process.env.MODEL_API_BASE_URL && process.env.MODEL_ID), authConfigured: Boolean(process.env.NEON_AUTH_JWKS_URL), knowledgeConfigured: Array.isArray(corpus.chunks) && corpus.chunks.length > 0, knowledgeVersion: corpus.version, knowledgeChunks: Array.isArray(corpus.chunks) ? corpus.chunks.length : 0 }, 200, cors);
+      return json({ service: "edunexus-ai", status: "ok", capabilities: ["learning_coach", "curated_knowledge", "project_planning"], projectExecutionConfigured: false, persistentQuotaConfigured: Boolean(process.env.DATA_API_URL || process.env.NEON_DATA_API_URL), inferenceConfigured: Boolean(process.env.MODEL_API_KEY && process.env.MODEL_API_BASE_URL && process.env.MODEL_ID), authConfigured: Boolean(process.env.NEON_AUTH_JWKS_URL), knowledgeConfigured: Array.isArray(corpus.chunks) && corpus.chunks.length > 0, knowledgeVersion: corpus.version, knowledgeChunks: Array.isArray(corpus.chunks) ? corpus.chunks.length : 0 }, 200, cors);
     }
     if (url.pathname !== "/chat" || request.method !== "POST") return json({ error: "not_found" }, 404, cors);
     if (origin && !cors["access-control-allow-origin"]) return json({ error: "origin_not_allowed" }, 403, cors);
@@ -235,6 +236,22 @@ export default {
     try { body = await request.json(); } catch { return json({ error: "invalid_json" }, 400, cors); }
     const message = typeof body?.message === "string" ? body.message.trim() : "";
     if (!message || message.length > MAX_MESSAGE_CHARS) return json({ error: "invalid_message", message: "Pesan wajib diisi dan maksimal 4.000 karakter." }, 400, cors);
+    let quota;
+    try {
+      quota = await consumePersistentQuota({
+        baseUrl: process.env.DATA_API_URL || process.env.NEON_DATA_API_URL,
+        token: caller.token,
+      });
+    } catch {
+      return json({ error: "quota_service_unavailable", message: "Layanan kuota sementara tidak tersedia. Permintaan dihentikan demi keamanan." }, 503, cors);
+    }
+    if (!quota.allowed) {
+      return json({
+        error: "rate_limited",
+        message: "Batas penggunaan EDUNEXUS AI tercapai. Coba lagi setelah jendela penggunaan direset.",
+        usage: { perMinute: quota.minuteUsed, perDay: quota.dayUsed, minuteResetsAt: quota.minuteResetsAt, dayResetsAt: quota.dayResetsAt },
+      }, 429, cors);
+    }
     const mode = body?.mode === "project" ? "project" : "learn";
     const agents = selectAgents(message, mode);
     const knowledge = await retrieveKnowledge(message);
