@@ -65,7 +65,7 @@ jobs:
           const prodHealthResponse = await fetch(process.env.PROD_AI_URL + "/health", { signal: AbortSignal.timeout(15000) });
           if (!prodHealthResponse.ok) throw new Error("Production AI health HTTP " + prodHealthResponse.status);
           const prodHealth = await prodHealthResponse.json();
-          if (prodHealth.status !== "ok" || prodHealth.authConfigured !== true || prodHealth.knowledgeConfigured !== true || prodHealth.knowledgeChunks < 51 || !String(prodHealth.knowledgeVersion).includes("v3")) {
+          if (prodHealth.status !== "ok" || prodHealth.authConfigured !== true || prodHealth.knowledgeConfigured !== true || prodHealth.knowledgeChunks < 51 || !String(prodHealth.knowledgeVersion).includes("v4")) {
             throw new Error("Production AI runtime/corpus invalid: " + JSON.stringify(prodHealth));
           }
           console.log("AI_RUNTIME_HEALTH_PRODUCTION=PASS; version=" + prodHealth.knowledgeVersion + "; chunks=" + prodHealth.knowledgeChunks + "; inferenceConfigured=" + prodHealth.inferenceConfigured);

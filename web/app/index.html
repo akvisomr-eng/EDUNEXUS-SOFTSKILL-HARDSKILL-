@@ -433,19 +433,60 @@ async function loadLearning(){
   host.querySelectorAll("[data-enroll-course]").forEach(b=>b.addEventListener("click",async()=>{await enrollCourse(b.dataset.enrollCourse);openCourseScreen(b.dataset.enrollCourse)}));
  }catch(e){$("learningStatus").textContent="Katalog belum dapat dimuat.";host.innerHTML='<div class="status error">'+escapeHtml(e.message)+'</div>'}
 }
+const MATH_SESSIONS={
+"Estimasi, ukuran, dan waktu":{
+summary:"Estimasi membantu membuat rencana saat angka belum lengkap. Samakan satuan, tulis asumsi, dan siapkan cadangan.",
+objectives:["Mengonversi satuan sederhana","Memperkirakan biaya dan durasi","Memeriksa kewajaran hasil","Menyatakan ketidakpastian"],
+sections:[{heading:"Satuan",body:"1 m = 100 cm; 1 kg = 1.000 g; 1 L = 1.000 mL; 1 jam = 60 menit. Samakan satuan sebelum membandingkan dan selalu tulis satuannya."},{heading:"Estimasi",body:"19 barang × Rp9.800 dapat diperkirakan sebagai 20 × Rp10.000 = Rp200.000. Hitungan tepat Rp186.200. Estimasi untuk perencanaan; gunakan hitungan tepat untuk pembayaran."},{heading:"Waktu dan cadangan",body:"Jika perjalanan 40–55 menit dan acara pukul 09.00, dengan cadangan 15 menit, berangkat sekitar 07.50. Periksa kondisi aktual dan sesuaikan rencana."},{heading:"Rentang",body:"Jika kebutuhan diperkirakan 8–10 liter, tulis rentang dan faktor pengubahnya, bukan angka tepat tanpa dasar."}],
+exercise:"Rencanakan perjalanan 40–55 menit untuk acara pukul 09.00 dengan cadangan 15 menit. Tulis waktu berangkat, asumsi, dan rencana bila lalu lintas memburuk.",
+quiz:[["19 barang sekitar Rp9.800; estimasi wajar?",["Rp20.000","Rp200.000","Rp2.000.000"],1,"20 × Rp10.000 ≈ Rp200.000."],["2,4 meter adalah…",["24 cm","240 cm","2.400 cm"],1,"2,4 × 100 = 240 cm."],["55 menit perjalanan + 15 menit cadangan untuk tiba 09.00: berangkat…",["08.45","07.50","08.20"],1,"Total 70 menit sebelum 09.00 adalah 07.50."],["Estimasi yang belum pasti sebaiknya…",["Angka pasti tanpa asumsi","Rentang, asumsi, faktor pengubah","Sembunyikan risiko"],1,"Rentang menyampaikan ketidakpastian."]]},
+"Membaca tabel dan grafik":{
+summary:"Baca data berdasarkan judul, label, satuan, periode, skala, dan sumber. Perubahan bersamaan tidak otomatis membuktikan sebab-akibat.",
+objectives:["Membaca label dan skala","Menghitung selisih dan persentase","Membedakan data dari tafsiran","Menyebutkan batasan data"],
+sections:[{heading:"Baca label",body:"Periksa judul, kategori, satuan, periode, sumber, dan apakah sumbu dimulai dari nol. Jangan membandingkan ukuran berbeda tanpa konversi."},{heading:"Persentase perubahan",body:"Penjualan naik 80 ke 100 unit: selisih 20; persentase kenaikan (100−80) ÷ 80 × 100% = 25%. Nilai awal menjadi penyebut."},{heading:"Fakta dan penyebab",body:"“Penjualan 100 unit” dapat didukung tabel. “Naik karena iklan” butuh bukti tambahan dan pertimbangan harga, musim, stok, serta pembanding."},{heading:"Kualitas data",body:"Periksa data hilang, duplikasi, sampel kecil, definisi berubah, dan skala menyesatkan. Jika sumber tidak jelas, nyatakan keterbatasannya."}],
+exercise:"Penjualan warung: Senin 20, Selasa 25, Rabu 30 porsi. Hitung kenaikan Senin–Rabu dalam jumlah dan persen. Tulis satu kesimpulan yang didukung dan satu yang belum bisa disimpulkan.",
+quiz:[["Penjualan naik 80 ke 100. Kenaikan persentase?",["20%","25%","80%"],1,"(100−80) ÷ 80 × 100% = 25%."],["Yang diperiksa pertama pada grafik?",["Warna","Judul, label, satuan, periode, skala","Opini"],1,"Label dan skala menentukan makna angka."],["Penjualan naik saat iklan berjalan. Sebab-akibat terbukti?",["Ya otomatis","Belum, perlu pembanding dan bukti","Tak perlu data"],1,"Kejadian bersamaan tidak membuktikan sebab."],["Sumber data tidak jelas?",["Buat klaim pasti","Nyatakan batasan dan cari konteks","Anggap benar"],1,"Sumber membatasi kekuatan kesimpulan."]]},
+"Membedakan fakta, asumsi, dan opini":{
+summary:"Pisahkan hal yang dapat diverifikasi, dugaan sementara, dan penilaian pribadi sebelum mengambil keputusan.",
+objectives:["Mengenali fakta, asumsi, opini","Memilih bukti relevan","Menguji asumsi","Berkomunikasi tanpa menghakimi"],
+sections:[{heading:"Tiga jenis pernyataan",body:"Fakta bisa diperiksa, misalnya catatan kas Rp450.000 pukul 16.00. Asumsi adalah dugaan, misalnya stok cukup sampai Jumat. Opini adalah penilaian, misalnya kemasan terlihat menarik."},{heading:"Uji asumsi",body:"Tanyakan bukti pendukung, kapan data diambil, penjelasan lain, dan apa yang dapat membuktikan dugaan salah."},{heading:"Bukti sesuai klaim",body:"Foto stok menunjukkan kondisi saat foto diambil, tetapi tidak menjamin stok esok hari. Gunakan bukti yang relevan dan cukup baru."},{heading:"Komunikasi",body:"Gunakan kalimat netral: “Data yang kita punya menunjukkan X. Saya belum melihat bukti untuk Y. Bisakah kita cek catatan atau uji sampel kecil?”"}],
+exercise:"Seseorang berkata “Pelanggan pasti tidak suka harga baru karena kemarin dua orang mengeluh.” Tandai fakta, asumsi, opini, dan data tambahan yang diperlukan.",
+quiz:[["“Catatan kas Rp450.000 pukul 16.00” adalah…",["Fakta terverifikasi","Opini","Prediksi"],0,"Pernyataan bisa diperiksa pada catatan."],["“Semua pelanggan akan menolak” adalah…",["Fakta pasti","Asumsi yang perlu diuji","Bukti lengkap"],1,"Klaim universal memerlukan bukti luas."],["Dua pelanggan mengeluh. Kesimpulan aman?",["Semua menolak","Ada dua keluhan; perlu data tambahan","Harga pasti salah"],1,"Dua kasus belum mewakili semua pelanggan."],["Cara menguji asumsi?",["Abaikan data lain","Kumpulkan bukti relevan dan uji","Ubah opini jadi fakta"],1,"Uji yang baik terbuka pada hasil berbeda."]]},
+"Mendefinisikan masalah dan batasan":{
+summary:"Definisikan kondisi, target, bukti, pihak terdampak, dan batasan sebelum memilih solusi.",
+objectives:["Merumuskan masalah terukur","Membedakan gejala dan penyebab","Mencatat batasan dan risiko","Menetapkan indikator"],
+sections:[{heading:"Rumusan terukur",body:"Contoh: “18 dari 60 pesanan terlambat lebih dari sehari dalam dua minggu; target bulan depan maksimal 5 dari 60.” Nyatakan kondisi dan target tanpa menyalahkan."},{heading:"Gejala dan penyebab",body:"Keterlambatan adalah gejala. Penyebab mungkin alamat tidak lengkap, stok, kurir, atau konfirmasi. Kumpulkan bukti sebelum memilih penyebab."},{heading:"Batasan",body:"Catat biaya, waktu, kapasitas, alat, aturan, privasi, dan keselamatan. Solusi cepat tetapi tidak aman atau tidak bisa dijalankan bukan solusi baik."},{heading:"Indikator",body:"Tentukan ukuran sebelum tindakan: keterlambatan, waktu, keluhan, biaya, atau mutu. Gunakan definisi yang sama sebelum dan sesudah."}],
+exercise:"Kelompok sering terlambat mengumpulkan tugas. Buat rumusan masalah terukur, tiga kemungkinan penyebab, dua batasan, dan satu indikator keberhasilan tanpa menyalahkan anggota.",
+quiz:[["Rumusan paling terukur?",["Tim kurang disiplin","12 dari 40 tugas terlambat; target maksimal 4 minggu depan","Semua tak peduli"],1,"Ada angka, periode, target."],["Pesanan terlambat adalah…",["Akar masalah pasti","Gejala untuk ditelusuri","Bukti siapa salah"],1,"Penyebab perlu diuji."],["Contoh batasan?",["Anggaran Rp500.000","Kesan tanpa konteks","Kesimpulan awal"],0,"Anggaran memengaruhi pilihan."],["Indikator sebaiknya…",["Terukur","Diubah setelah hasil","Kesan saja"],0,"Ukuran konsisten mendukung evaluasi adil."]]},
+"Menguji solusi dengan data kecil":{
+summary:"Uji coba kecil mengurangi risiko sebelum solusi diperluas. Tetapkan hipotesis, kondisi awal, indikator, durasi, dan aturan berhenti.",
+objectives:["Membuat hipotesis terukur","Mengumpulkan data awal","Menguji secara aman","Memutuskan lanjut, revisi, atau hentikan"],
+sections:[{heading:"Hipotesis",body:"“Jika daftar periksa dipakai seminggu, kesalahan alamat turun dari 8 menjadi maksimal 3 per 100 pesanan.” Sebutkan tindakan, hasil, dan periode."},{heading:"Data awal",body:"Ukur kondisi sebelum perubahan dengan definisi yang sama. Catat ukuran sampel dan kejadian khusus."},{heading:"Uji aman",body:"Pilih periode berisiko rendah, tetapkan pelaksana, data minimum, perlindungan privasi, dan kondisi untuk menghentikan uji."},{heading:"Keputusan",body:"Bandingkan indikator, pertimbangkan sampel dan faktor lain, lalu putuskan lanjut, revisi, uji ulang, atau hentikan dengan alasan tertulis."}],
+exercise:"Warung ingin mengurangi antrean dengan nomor pesanan. Rancang uji tiga hari: hipotesis, data awal, ukuran keberhasilan, data minimum, dan aturan berhenti.",
+quiz:[["Hipotesis teruji memuat…",["Tindakan, hasil, periode","Harapan umum","Tanpa ukuran"],0,"Komponen terukur memungkinkan perbandingan."],["Mengapa perlu data awal?",["Untuk membandingkan kondisi","Agar terlihat bagus","Hindari evaluasi"],0,"Baseline menunjukkan perubahan."],["Hasil uji membaik. Kesimpulan?",["Pasti satu sebab","Menjanjikan; periksa sampel dan faktor lain","Langsung perluas"],1,"Hasil awal perlu ditafsirkan hati-hati."],["Kapan uji dihentikan?",["Risiko melewati batas","Tidak pernah","Jika semua setuju"],0,"Aturan berhenti melindungi peserta."]]}
+};
+function getLessonCurriculum(lesson){
+ let stored=lesson?.content||{};if(typeof stored==="string"){try{stored=JSON.parse(stored)}catch{stored={summary:stored}}}
+ const module=learningCache.modules.find(item=>item.id===lesson?.module_id),course=module&&learningCache.courses.find(item=>item.id===module.course_id);
+ if(!/matematika praktis dan pemecahan masalah/i.test(course?.name||""))return stored;
+ const curated=MATH_SESSIONS[lesson?.title];
+ return curated?{...curated,sources:[{title:"Registri Kurikulum EDUNEXUS",url:"https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/blob/main/docs/EDUNEXUS-KNOWLEDGE-CURRICULUM-REGISTRY-v1.0.md",note:"Rujukan kurikulum; materi dan latihan ditulis orisinal oleh EDUNEXUS."}],license_note:"Materi orisinal untuk latihan formatif. Nilai kuis bukan sertifikat atau keputusan kelulusan."}:stored;
+}
 function renderLessonContent(content,lesson){
- let value=content||{};
- if(typeof value==="string"){try{value=JSON.parse(value)}catch{value={summary:value}}}
+ let value=getLessonCurriculum(lesson);
  const parts=[];
  if(value.summary)parts.push('<section class="lesson-unit"><h4>Ringkasan konsep</h4><p>'+escapeHtml(value.summary)+'</p></section>');
  if(Array.isArray(value.objectives)&&value.objectives.length)parts.push('<section class="lesson-unit"><h4>Setelah sesi ini, kamu mampu</h4><ul>'+value.objectives.map(x=>'<li>'+escapeHtml(x)+'</li>').join("")+'</ul></section>');
  if(Array.isArray(value.sections)&&value.sections.length)parts.push('<section class="lesson-unit"><h4>Materi inti</h4>'+value.sections.map((section,index)=>'<div class="lesson-step"><span class="lesson-step-num">'+(index+1)+'</span><div><b>'+escapeHtml(section.heading||"Materi")+'</b><p>'+escapeHtml(section.body||"")+'</p></div></div>').join("")+'</section>');
  const title=(lesson?.title||"").toLowerCase();
+ const module=learningCache.modules.find(item=>item.id===lesson?.module_id),course=module&&learningCache.courses.find(item=>item.id===module.course_id);
+ const isMathCourse=/matematika praktis dan pemecahan masalah/i.test(course?.name||"");
  const isPercent=/persentase|diskon|perbandingan harga/.test(title);
  if(isPercent){
   parts.push('<section class="lesson-unit"><h4>Pelajaran terarah: pahami dengan contoh</h4><p><b>Persen</b> berarti “per seratus”. Diskon 15% berarti pengurangan sebesar 15 rupiah untuk setiap Rp100 dari harga awal. Nilai diskon = persentase ÷ 100 × harga awal.</p><div class="lesson-example"><b>Contoh 1 — diskon di toko</b><p>Harga sepatu Rp240.000, diskon 25%.</p><ol><li>Ubah 25% menjadi 0,25.</li><li>Hitung diskon: 0,25 × Rp240.000 = Rp60.000.</li><li>Harga setelah diskon: Rp240.000 − Rp60.000 = <b>Rp180.000</b>.</li></ol></div><div class="lesson-example"><b>Contoh 2 — bandingkan harga per unit</b><p>Minyak 1 liter Rp18.000 dan 1,5 liter Rp25.500. Harga per liter: Rp18.000/liter versus Rp25.500 ÷ 1,5 = Rp17.000/liter. Kemasan 1,5 liter lebih murah Rp1.000 per liter, sebelum mempertimbangkan kebutuhan, ongkir, dan promo tambahan.</p></div><h4>Strategi yang aman</h4><ul><li>Pastikan harga awal, satuan, dan syarat promo jelas.</li><li>Bandingkan harga per unit yang sama (kg, liter, buah, atau menit).</li><li>Tambahkan ongkir, biaya layanan, pajak jika berlaku, dan biaya wajib lainnya.</li><li>Jangan menganggap diskon terbesar selalu berarti biaya akhir termurah.</li></ul></section>');
  }else{
   parts.push('<section class="lesson-unit"><h4>Praktik terpandu</h4><p>Gunakan kasus nyata dari sekolah, pekerjaan, perjalanan, rumah, atau usaha kecil. Kerjakan berurutan:</p><ol><li>Tulis tujuan dan hasil yang ingin dicapai.</li><li>Pisahkan fakta yang tersedia dari asumsi yang belum terbukti.</li><li>Pilih metode/strategi, jelaskan alasan dan risikonya.</li><li>Uji solusi pada contoh kecil, catat hasil, lalu perbaiki.</li></ol></section>');
+  if(isMathCourse&&Array.isArray(value.quiz)){parts.push('<section class="lesson-unit" id="lessonQuiz"><h4>Uji pemahaman · '+value.quiz.length+' soal</h4><p>Jawab setiap soal, lalu periksa pembahasan.</p>'+value.quiz.map((q,index)=>'<div class="lesson-quiz-q" data-answer="'+q[2]+'" data-explain="'+escapeHtml(q[3])+'"><b>'+(index+1)+'. '+escapeHtml(q[0])+'</b>'+q[1].map((answer,answerIndex)=>'<label><input type="radio" name="mathq'+index+'" value="'+answerIndex+'"> '+escapeHtml(answer)+'</label>').join("")+'</div>').join("")+'<div class="actions"><button id="lessonQuizCheck" type="button">Periksa jawaban</button><button id="lessonQuizReset" class="secondary" type="button">Ulangi kuis</button></div><div id="lessonQuizFeedback" class="lesson-feedback" style="display:none" role="status" aria-live="polite"></div></section>');}
  }
  if(value.exercise)parts.push('<section class="lesson-unit"><h4>Tugas praktik</h4><p>'+escapeHtml(typeof value.exercise==="string"?value.exercise:JSON.stringify(value.exercise))+'</p><label for="lessonPracticeResponse">Jawaban / bukti praktik yang kamu hasilkan</label><textarea id="lessonPracticeResponse" rows="5" placeholder="Tuliskan langkah, hasil, alasan, dan hal yang masih perlu diverifikasi."></textarea><p class="muted">Jawaban ini dapat kamu kirim ke AI Mentor untuk umpan balik formatif.</p><button id="lessonReviewPractice" class="secondary" type="button">Minta umpan balik tutor</button></section>');
  if(isPercent){
@@ -466,6 +507,18 @@ function renderLessonContent(content,lesson){
  }
  if(value.license_note)parts.push('<section class="lesson-unit"><h4>Catatan sumber dan lisensi</h4><p class="muted">'+escapeHtml(value.license_note)+'</p></section>');
  return parts.join("")||'<div class="empty muted">Konten pelajaran belum tersedia.</div>';
+}
+function buildCourseTutorFallback(question,lesson){
+ const curriculum=getLessonCurriculum(lesson);
+ const text=String(question||"").toLowerCase();
+ const sections=Array.isArray(curriculum.sections)?curriculum.sections:[];
+ const ranked=sections.map(section=>({section,score:(String(section.heading+" "+section.body).toLowerCase().match(/[a-z0-9%]+/g)||[]).filter(word=>word.length>3&&text.includes(word)).length})).sort((a,b)=>b.score-a.score);
+ const selected=ranked.filter(item=>item.score>0).slice(0,2).map(item=>item.section);
+ const out=["Tutor panduan EDUNEXUS — materi terkurasi sesi ini","",curriculum.summary||"Mari pecahkan pertanyaan menjadi langkah kecil."];
+ for(const section of (selected.length?selected:sections.slice(0,2)))out.push("",section.heading,section.body);
+ if(curriculum.exercise)out.push("","Coba praktik",curriculum.exercise);
+ out.push("","Cara mengecek jawaban","1. Tulis data yang diketahui dan apa yang ditanyakan. 2. Tunjukkan rumus atau alasan. 3. Hitung dengan satuan yang benar. 4. Periksa apakah hasil masuk akal. 5. Sebutkan asumsi atau informasi yang belum tersedia.","","Pertanyaan lanjutan: bagian mana yang ingin kamu hitung atau jelaskan bersama?");
+ return out.join("\n");
 }
 function bindLessonActivities(lesson){
  const check=$("lessonQuizCheck"),reset=$("lessonQuizReset");
@@ -672,12 +725,14 @@ $("lessonTutorForm").addEventListener("submit",async e=>{
  $("lessonTutorAnswer").style.display="block";$("lessonTutorAnswer").textContent="Menyiapkan penjelasan…";$("lessonTutorSpeak").disabled=true;
  try{
   const token=await getJwtToken();
-  const prompt=("Anda adalah EDUNEXUS AI Mentor untuk pembelajaran Indonesia. Jawab dalam Bahasa Indonesia, bertahap dan ramah untuk jenjang "+(course?.learner_stage||"pelajar umum")+". KURSUS: "+(course?.name||"Kursus")+". MODUL: "+(module?.name||"Modul")+". SESI: "+lesson.title+". MATERI: "+JSON.stringify(lesson.content||{}).slice(0,1200)+". Gunakan peran multi-agen: ahli materi, pedagogi, penilai formatif, dan pemeriksa konteks Indonesia. Berikan contoh lokal, alasan, dan pertanyaan tindak lanjut. Jangan mengarang sumber atau menyatakan peserta lulus. PERTANYAAN: "+question.slice(0,1000)).slice(0,3900);
+  const prompt=("Anda adalah EDUNEXUS AI Mentor untuk pembelajaran Indonesia. Jawab dalam Bahasa Indonesia, bertahap dan ramah untuk jenjang "+(course?.learner_stage||"pelajar umum")+". KURSUS: "+(course?.name||"Kursus")+". MODUL: "+(module?.name||"Modul")+". SESI: "+lesson.title+". MATERI: "+JSON.stringify(getLessonCurriculum(lesson)).slice(0,2600)+". Orkestrasi peran: Learning Navigator (urutan dan prasyarat), Subject-Matter Mentor (akurasi konsep dan hitungan), Pedagogy Coach (penjelasan bertahap/Socratic), Practice Designer (kasus lokal), Formative Assessor (umpan balik berbasis rubrik), Indonesia Context & Safety Reviewer (konteks lokal dan kehati-hatian), Evidence Curator (bukti yang benar-benar diberikan), dan Human Tutor Coordinator (pertanyaan presentasi/wawancara serta kesenjangan bukti). Integrasikan jawaban peran-peran tersebut menjadi satu respons yang konsisten. Berikan contoh lokal Indonesia, alasan langkah demi langkah, sumber bila tersedia, dan satu pertanyaan tindak lanjut. Jangan mengarang sumber/bukti atau menyatakan peserta lulus; keputusan asesmen berisiko tinggi tetap oleh tutor manusia. PERTANYAAN: "+question.slice(0,1000)).slice(0,3900);
   const response=await fetch(EDUNEXUS_AI_URL+"/chat",{method:"POST",signal:AbortSignal.timeout(55000),headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({message:prompt,locale:"Indonesia",mode:"learn"})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.message||"AI Mentor belum tersedia (HTTP "+response.status+").");
-  $("lessonTutorAnswer").textContent=data.answer||"Belum ada jawaban.";
-  const generativeMultiAgent=data.mode!=="curated_retrieval_only_v1"&&Array.isArray(data.agents)&&data.agents.length>1;
+  const retrievalOnly=data.mode==="curated_retrieval_only_v1";
+  const tutorAnswer=retrievalOnly?buildCourseTutorFallback(question,lesson):(data.answer||"Belum ada jawaban.");
+  $("lessonTutorAnswer").textContent=tutorAnswer;
+  const generativeMultiAgent=!retrievalOnly&&Array.isArray(data.agents)&&data.agents.length>1;
   $("lessonTutorModeBadge").textContent=generativeMultiAgent?"AI MENTOR · MULTI-AGEN AKTIF":"AI MENTOR · BASIS PENGETAHUAN";
   $("lessonTutorStatus").textContent=(generativeMultiAgent?"Mode multi-agen aktif. ":"Mode saat ini: basis pengetahuan terkurasi; model generatif belum aktif. " )+"Versi: "+(data.knowledgeVersion||"EDUNEXUS terkurasi")+" · Spesialis: "+(data.agents||[]).map(agent=>agent.label).join(", ")+" · "+(data.sourceNotice||"Gunakan jawaban sebagai bantuan belajar dan verifikasi hal yang memerlukan sumber resmi.");
   $("lessonTutorSpeak").disabled=!data.answer;
