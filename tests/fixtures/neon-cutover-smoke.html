@@ -64,6 +64,9 @@ $("run").addEventListener("click",async()=>{const root=$("checks");root.replaceC
  const provisioned=await api("/rpc/ensure_my_profile",token,{method:"POST",body:"{}"});
  const provisionedId=typeof provisioned==="string"?provisioned:(Array.isArray(provisioned)?provisioned[0]:provisioned?.ensure_my_profile);
  check("Profil sendiri dibuat aman",!!provisionedId,String(provisionedId||"respons kosong"));
+ const quotaResult=await api("/rpc/consume_edunexus_ai_quota",token,{method:"POST",body:"{}"});
+ const quotaRow=Array.isArray(quotaResult)?quotaResult[0]:quotaResult;
+ check("Kuota AI persisten per akun",quotaRow?.allowed===true&&Number(quotaRow?.minute_used)>=1&&Number(quotaRow?.day_used)>=1,"diizinkan="+String(quotaRow?.allowed)+"; menit="+String(quotaRow?.minute_used)+"; hari="+String(quotaRow?.day_used));
  const identity=await api("/rpc/current_user_id",token,{method:"POST",body:"{}"});
  const uid=typeof identity==="string"?identity:(Array.isArray(identity)?identity[0]:identity?.current_user_id);
  check("RPC current_user_id",!!uid&&String(uid)===String(provisionedId),String(uid||"respons kosong"));
