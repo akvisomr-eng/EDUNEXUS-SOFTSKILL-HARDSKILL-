@@ -7,8 +7,8 @@ on:
       - "neon/migrations/**"
       - "neon/functions/edunexusai/**"
       - "tests/neon-frontend-e2e.mjs"
-      - "web/knowledge-sources.json"
       - "web/knowledge-corpus.json"
+      - "web/knowledge-sources.json"
       - "docs/KNOWLEDGE_CORPUS_CURRICULUM_V1.md"
   push:
     branches: ["main"]
@@ -24,49 +24,68 @@ permissions:
 jobs:
   ai-runtime-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Verify deployed Neon function health and fail-closed auth
+      - name: Verify source-grounded corpus and Frappe Books learning chunk
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFile } from "node:fs/promises";
+          const corpus = JSON.parse(await readFile("web/knowledge-corpus.json", "utf8"));
+          if (corpus.version !== "edunexus-curated-knowledge-2026-10-16-v6" || !Array.isArray(corpus.chunks) || corpus.chunks.length < 57) {
+            throw new Error("Repository corpus invalid: " + JSON.stringify({version:corpus.version,chunks:corpus.chunks?.length}));
+          }
+          if (!corpus.chunks.some(chunk => chunk.id === "EDU-FRAPPE-BOOKS-ACCOUNTING-LEARNING")) {
+            throw new Error("Repository corpus missing Frappe Books accounting-learning chunk.");
+          }
+          console.log("REPOSITORY_CORPUS=PASS; version=" + corpus.version + "; chunks=" + corpus.chunks.length);
+          if (process.env.GITHUB_EVENT_NAME !== "pull_request") {
+            const response = await fetch("https://akvisomr-eng.github.io/EDUNEXUS-SOFTSKILL-HARDSKILL-/knowledge-corpus.json", {signal: AbortSignal.timeout(15000)});
+            if (!response.ok) throw new Error("Published corpus HTTP " + response.status);
+            const published = await response.json();
+            if (published.version !== corpus.version || published.chunks?.length !== corpus.chunks.length ||
+                !published.chunks.some(chunk => chunk.id === "EDU-FRAPPE-BOOKS-ACCOUNTING-LEARNING")) {
+              throw new Error("Published corpus differs from repository: " + JSON.stringify({version:published.version,chunks:published.chunks?.length}));
+            }
+            console.log("PUBLISHED_CORPUS=PASS; version=" + published.version + "; chunks=" + published.chunks.length);
+          } else {
+            console.log("PUBLISHED_CORPUS=DEFERRED; PR checks repository artifact, live parity runs after merge/deploy.");
+          }
+          NODE
+      - name: Verify preview and production runtime health, corpus parity, and fail-closed auth
         env:
           AI_URL: https://br-quiet-frost-azemctlk-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech
           PROD_AI_URL: https://br-bitter-king-azb11lde-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech
         run: |
           node --input-type=module <<'NODE'
-          const corpusUrl = "https://akvisomr-eng.github.io/EDUNEXUS-SOFTSKILL-HARDSKILL-/knowledge-corpus.json";
-          const corpusResponse = await fetch(corpusUrl, { signal: AbortSignal.timeout(15000) });
-          if (!corpusResponse.ok) throw new Error("Published corpus HTTP " + corpusResponse.status);
-          const corpus = await corpusResponse.json();
-          if (!String(corpus.version).includes("v6") || !Array.isArray(corpus.chunks) || corpus.chunks.length < 57) {
-            throw new Error("Published corpus invalid: " + JSON.stringify({ version: corpus.version, chunks: corpus.chunks?.length }));
+          const expectedVersion = "edunexus-curated-knowledge-2026-10-16-v6";
+          for (const [label, base] of [["PREVIEW", process.env.AI_URL], ["PRODUCTION", process.env.PROD_AI_URL]]) {
+            const healthResponse = await fetch(base + "/health", {signal: AbortSignal.timeout(15000)});
+            if (!healthResponse.ok) throw new Error(label + " AI health HTTP " + healthResponse.status);
+            const health = await healthResponse.json();
+            const safe = {
+              service:health.service,status:health.status,authConfigured:health.authConfigured,
+              persistentQuotaConfigured:health.persistentQuotaConfigured,
+              knowledgeVersion:health.knowledgeVersion,knowledgeChunks:health.knowledgeChunks,
+              inferenceConfigured:health.inferenceConfigured,inferenceProvider:health.inferenceProvider
+            };
+            console.log(label + "_AI_HEALTH=" + JSON.stringify(safe));
+            if (health.service !== "edunexus-ai" || health.status !== "ok" || health.authConfigured !== true ||
+                health.persistentQuotaConfigured !== true || health.knowledgeConfigured !== true ||
+                health.knowledgeVersion !== expectedVersion || Number(health.knowledgeChunks) < 57 ||
+                typeof health.inferenceConfigured !== "boolean") {
+              throw new Error(label + " runtime configuration invalid: " + JSON.stringify(safe));
+            }
+            const unauth = await fetch(base + "/chat", {
+              method:"POST",
+              headers:{"Content-Type":"application/json","Origin":"https://akvisomr-eng.github.io"},
+              body:JSON.stringify({message:"smoke test"}),
+              signal:AbortSignal.timeout(15000)
+            });
+            if (unauth.status !== 401) throw new Error(label + " unauthenticated chat must return 401, got " + unauth.status);
+            console.log(label + "_UNAUTHENTICATED_CHAT=PASS; HTTP 401");
           }
-          console.log("PUBLISHED_CORPUS=PASS; version=" + corpus.version + "; chunks=" + corpus.chunks.length);
-          const base = process.env.AI_URL;
-          const health = await fetch(base + "/health", { signal: AbortSignal.timeout(15000) });
-          if (!health.ok) throw new Error("AI health HTTP " + health.status);
-          const body = await health.json();
-          if (body.status !== "ok" || body.authConfigured !== true || body.knowledgeConfigured !== true || body.knowledgeChunks < 57) {
-            throw new Error("AI health configuration invalid: " + JSON.stringify(body));
-          }
-          if (typeof body.inferenceConfigured !== "boolean" || !String(body.knowledgeVersion).includes("v6")) {
-            throw new Error("AI runtime must report an explicit inference configuration state and updated corpus: " + JSON.stringify(body));
-          }
-          const unauth = await fetch(base + "/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Origin": "https://akvisomr-eng.github.io" },
-            body: JSON.stringify({ message: "test" }),
-            signal: AbortSignal.timeout(15000)
-          });
-          if (unauth.status !== 401) throw new Error("Unauthenticated chat must fail closed; got HTTP " + unauth.status);
-          console.log("AI_RUNTIME_HEALTH_TEST_BRANCH=PASS; KNOWLEDGE_CHUNKS=" + body.knowledgeChunks + "; INFERENCE_CONFIGURED=" + body.inferenceConfigured + "; UNAUTHENTICATED_CHAT=401");
-          const prodHealthResponse = await fetch(process.env.PROD_AI_URL + "/health", { signal: AbortSignal.timeout(15000) });
-          if (!prodHealthResponse.ok) throw new Error("Production AI health HTTP " + prodHealthResponse.status);
-          const prodHealth = await prodHealthResponse.json();
-          if (prodHealth.status !== "ok" || prodHealth.authConfigured !== true || prodHealth.knowledgeConfigured !== true || prodHealth.knowledgeChunks < 57 || !String(prodHealth.knowledgeVersion).includes("v6")) {
-            throw new Error("Production AI runtime/corpus invalid: " + JSON.stringify(prodHealth));
-          }
-          console.log("AI_RUNTIME_HEALTH_PRODUCTION=PASS; version=" + prodHealth.knowledgeVersion + "; chunks=" + prodHealth.knowledgeChunks + "; inferenceConfigured=" + prodHealth.inferenceConfigured);
           NODE
