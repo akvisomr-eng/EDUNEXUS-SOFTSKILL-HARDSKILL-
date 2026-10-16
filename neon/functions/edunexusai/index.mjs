@@ -184,8 +184,18 @@ export function buildKnowledgeOnlyAnswer(knowledge) {
     "\n\nRingkasan ini bukan pengganti pemeriksaan sumber asli. Gunakan tautan rujukan yang disertakan untuk memverifikasi detail.";
 }
 function getModelConfiguration() {
-  // Prefer an explicitly configured provider. Neon AI Gateway is the managed fallback:
-  // its branch-scoped credential is injected into Neon Functions when the gateway is enabled.
+  // An explicit Groq selection must never fall through to Neon AI Gateway:
+  // this prevents an accidental provider switch (and possible unexpected charges).
+  if ((process.env.MODEL_PROVIDER || "").toLowerCase() === "groq") {
+    if (!process.env.MODEL_API_KEY || !process.env.MODEL_ID) return null;
+    return {
+      apiKey: process.env.MODEL_API_KEY,
+      baseUrl: "https://api.groq.com/openai/v1",
+      model: process.env.MODEL_ID,
+      provider: "groq",
+    };
+  }
+  // Generic OpenAI-compatible provider configuration remains supported.
   if (process.env.MODEL_API_KEY && process.env.MODEL_API_BASE_URL && process.env.MODEL_ID) {
     return {
       apiKey: process.env.MODEL_API_KEY,
@@ -245,7 +255,7 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
     if (url.pathname === "/health" && request.method === "GET") {
       const corpus = await knowledgePromise;
-      return json({ service: "edunexus-ai", status: "ok", capabilities: ["learning_coach", "curated_knowledge", "project_planning"], projectExecutionConfigured: false, persistentQuotaConfigured: Boolean(process.env.DATA_API_URL || process.env.NEON_DATA_API_URL), inferenceConfigured: Boolean(process.env.AI_ENABLED !== "false" && getModelConfiguration()), inferenceDisabled: process.env.AI_ENABLED === "false", authConfigured: Boolean(process.env.NEON_AUTH_JWKS_URL), knowledgeConfigured: Array.isArray(corpus.chunks) && corpus.chunks.length > 0, knowledgeVersion: corpus.version, knowledgeChunks: Array.isArray(corpus.chunks) ? corpus.chunks.length : 0 }, 200, cors);
+      return json({ service: "edunexus-ai", status: "ok", capabilities: ["learning_coach", "curated_knowledge", "project_planning"], projectExecutionConfigured: false, persistentQuotaConfigured: Boolean(process.env.DATA_API_URL || process.env.NEON_DATA_API_URL), inferenceConfigured: Boolean(process.env.AI_ENABLED !== "false" && getModelConfiguration()), inferenceProvider: process.env.AI_ENABLED === "false" ? null : (getModelConfiguration()?.provider || null), inferenceDisabled: process.env.AI_ENABLED === "false", authConfigured: Boolean(process.env.NEON_AUTH_JWKS_URL), knowledgeConfigured: Array.isArray(corpus.chunks) && corpus.chunks.length > 0, knowledgeVersion: corpus.version, knowledgeChunks: Array.isArray(corpus.chunks) ? corpus.chunks.length : 0 }, 200, cors);
     }
     if (url.pathname !== "/chat" || request.method !== "POST") return json({ error: "not_found" }, 404, cors);
     if (origin && !cors["access-control-allow-origin"]) return json({ error: "origin_not_allowed" }, 403, cors);

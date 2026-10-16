@@ -16,8 +16,17 @@
 - `NEON_AUTH_JWKS_URL`: exact JWKS URL from the active Neon Auth configuration.
 - `NEON_AUTH_ISSUER`: optional exact issuer claim, only set after verifying a real JWT's `iss`.
 - `MODEL_API_BASE_URL`: provider's OpenAI-compatible API base URL.
-- `MODEL_API_KEY`: server-side provider key or a Neon credential scoped to `ai_gateway:invoke`; never add it to GitHub, frontend JavaScript, a commit, or a public issue. The Neon Gateway credential must only be used with its matching branch gateway URL.
-- `MODEL_ID`: exact model identifier supported by the chosen provider.
+- `MODEL_PROVIDER`: optional explicit provider selector. Set to `groq` to force Groq and prevent automatic fallback to Neon AI Gateway.
+- `MODEL_API_KEY`: server-side provider key; never add it to GitHub, frontend JavaScript, a commit, issue, log, or chat. For Groq, create/store it only in the private Neon Function environment.
+- `MODEL_API_BASE_URL`: required for generic OpenAI-compatible providers. When `MODEL_PROVIDER=groq`, runtime pins the endpoint to `https://api.groq.com/openai/v1`.
+- `MODEL_ID`: exact model identifier currently available to the account, verified in the provider console; do not guess or hard-code a model name.
+
+## Groq free-tier activation (no automatic spend)
+1. Confirm the Groq account's current free-plan terms, rate limits, and data-processing terms directly in the official Groq console/docs. Free access and model IDs can change; this repository does not assume unlimited or permanent free usage.
+2. In the private Neon Function environment, set `MODEL_PROVIDER=groq`, `MODEL_API_KEY` to the Groq key, and `MODEL_ID` to an exact supported model. Do not set a paid fallback provider. The Groq endpoint is fixed in code when this selector is active.
+3. Keep `AI_ENABLED=false` until the secret and model are configured and the owner has verified the account is eligible for free usage. The current source-level tests only verify safe configuration selection; they do not prove live Groq connectivity.
+4. Run the authenticated preview smoke test for a single low-cost prompt, then test 401/no-token, disallowed origin, malformed/oversized input, provider timeout/429/5xx, persistent 10/minute and 100/day quota enforcement, and emergency disable. Confirm no key or learner-identifying data appears in logs/responses.
+5. Public pilot stays blocked until the live provider test, privacy review, and quota/fallback checks pass. On provider failure, return a sanitized error; do not invent a generated answer. Curated learning retrieval remains available when model inference is not configured; Project Builder remains unavailable until inference works.
 - `APP_ORIGIN`: optional origin override. Default is `https://akvisomr-eng.github.io`.
 - `AI_ENABLED`: optional emergency switch. Set to `false` in the server-side Neon Function environment and deploy to disable provider inference while keeping curated retrieval available.
 
@@ -42,4 +51,5 @@ Google documents an OpenAI-compatible Gemini API endpoint at `https://generative
 - Automated full-text web ingestion, source licensing/review UI, embeddings/vector or semantic search, persistent rate limits, and durable usage budgets are not implemented. Current automation refreshes only public metadata and opens review PRs.
 - In-memory rate limits are per isolate and are only a safety floor, not a durable abuse-control system.
 - Do not use dark-web sources by default. Use lawful, public, licensed, verifiable sources and human approval before indexing.
+- Groq support is opt-in via `MODEL_PROVIDER=groq`; without that explicit setting, existing custom-provider and Neon AI Gateway behavior is unchanged. The runtime pins Groq to its OpenAI-compatible endpoint and requires a server-side key plus an explicitly verified model ID. No Groq key is committed.
 - Production deployment #15 briefly configured the Neon AI Gateway endpoint and model credential. An authenticated E2E request on the preview branch returned HTTP 403; the sanitized upstream message indicated that AI Gateway is not enabled for the account's current plan. This is a plan-access blocker, not a source-code syntax failure. To avoid repeated failed calls and to keep public health truthful, production deployment #16 sets `AI_ENABLED=false`; `/health` should report `inferenceConfigured=false`, learning requests use clearly labeled curated retrieval, and Project Builder fails closed. Re-enable only after the owner approves an eligible Neon plan/credits or supplies a valid external provider key, then pass a real authenticated inference test. Repository execution, patch generation, CI repair, and deployment automation are not enabled. No credential is committed.
