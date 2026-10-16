@@ -121,6 +121,22 @@
       "publisher": "marcelscruz/public-apis contributors",
       "trust_tier": "B",
       "license_note": "Repository catalog is MIT-licensed; each listed API has separate terms, license, quotas, attribution and data-processing rules. Use for discovery only; verify each provider before integration."
+    },
+    {
+      "key": "FRAPPE-BOOKS-ARCHIVED",
+      "title": "Frappe Books (original desktop repository, archived)",
+      "url": "https://github.com/frappe/books",
+      "publisher": "Frappe contributors",
+      "trust_tier": "B",
+      "license_note": "AGPL-3.0; upstream repository is archived. Use as feature reference only unless AGPL obligations and full dependency/license review are accepted; do not copy code into EDUNEXUS by default."
+    },
+    {
+      "key": "FRAPPE-BOOKS-CURRENT",
+      "title": "Frappe Books for Frappe Framework",
+      "url": "https://github.com/frappe/frappe-books",
+      "publisher": "Frappe contributors",
+      "trust_tier": "B",
+      "license_note": "AGPL-3.0-only; built on Frappe Framework. Treat as separate application/dependency stack; no code reuse without legal, architecture, security and operational review."
     }
   ]
 }
