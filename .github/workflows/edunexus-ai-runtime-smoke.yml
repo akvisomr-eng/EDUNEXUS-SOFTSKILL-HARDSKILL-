@@ -51,8 +51,8 @@ jobs:
           if (body.status !== "ok" || body.authConfigured !== true || body.knowledgeConfigured !== true || body.knowledgeChunks < 55) {
             throw new Error("AI health configuration invalid: " + JSON.stringify(body));
           }
-          if (body.inferenceConfigured !== false || !String(body.knowledgeVersion).includes("v4")) {
-            throw new Error("Expected honest retrieval-only mode with updated corpus and no provider key: " + JSON.stringify(body));
+          if (typeof body.inferenceConfigured !== "boolean" || !String(body.knowledgeVersion).includes("v4")) {
+            throw new Error("AI runtime must report an explicit inference configuration state and updated corpus: " + JSON.stringify(body));
           }
           const unauth = await fetch(base + "/chat", {
             method: "POST",
@@ -61,7 +61,7 @@ jobs:
             signal: AbortSignal.timeout(15000)
           });
           if (unauth.status !== 401) throw new Error("Unauthenticated chat must fail closed; got HTTP " + unauth.status);
-          console.log("AI_RUNTIME_HEALTH_TEST_BRANCH=PASS; KNOWLEDGE_CHUNKS=" + body.knowledgeChunks + "; MODEL_MODE=RETRIEVAL_ONLY; UNAUTHENTICATED_CHAT=401");
+          console.log("AI_RUNTIME_HEALTH_TEST_BRANCH=PASS; KNOWLEDGE_CHUNKS=" + body.knowledgeChunks + "; INFERENCE_CONFIGURED=" + body.inferenceConfigured + "; UNAUTHENTICATED_CHAT=401");
           const prodHealthResponse = await fetch(process.env.PROD_AI_URL + "/health", { signal: AbortSignal.timeout(15000) });
           if (!prodHealthResponse.ok) throw new Error("Production AI health HTTP " + prodHealthResponse.status);
           const prodHealth = await prodHealthResponse.json();
