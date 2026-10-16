@@ -6,7 +6,7 @@
 - Neon Data API is active and limited to the `public` schema on production and the disposable test branch.
 - A no-compute rollback snapshot branch `edunexus-pre-neon-cutover-20261014` (`br-icy-pine-az1nl1b7`) was created from production at LSN `0/21E2710` before applying cutover functions.
 - Production row counts were inspected read-only before cutover: 1 legacy `auth.users` ID, 1 `neon_auth.user`, 0 `profiles`, 0 `practice_sessions`, 0 `practice_attempts`, 0 `skill_evidence`, and 2 active practice scenarios.
-- 41 public tables were inspected on production; all 41 currently have RLS enabled.
+- 45 public tables were inspected on production; all 45 currently have RLS enabled.
 - The Neon database contains 2 practice scenarios.
 - The identity migration table has one mapping, and the mapped Supabase and Neon user UUIDs differ.
 - Neon Function `edunexusapi` deployment 4 previously failed because the bundle could not resolve package `pg`; this unused function is not on the production frontend request path, which now uses Neon Data API directly.
@@ -14,6 +14,17 @@
 - Password recovery UI is being added using Neon Auth's `requestPasswordReset({ email, redirectTo })` and `resetPassword({ newPassword, token })` APIs. The production Neon Auth config currently lists `https://akvisomr-eng.github.io` as a trusted origin and the shared Neon Auth email provider. Browser tests verify the recovery panel and reject an invalid reset token on the disposable branch. Delivery to a real user's inbox is not claimed until a real inbox flow is tested.
 - Login error handling now explains that credentials from before the Supabase-to-Neon cutover may not be usable in Neon Auth. Supabase remains enabled as rollback; no passwords are copied, guessed, or reset outside Neon Auth.
 - Production migrations 0001–0004 were applied transactionally and the Neon Data API schema cache was refreshed. Supabase remains enabled only as a rollback source; it was not disabled.
+
+## Production security re-audit — 2026-10-16
+
+Read-only catalog queries were rerun against production branch `br-bitter-king-azb11lde`:
+
+- **45/45 public base tables have row-level security enabled**; zero public tables were found with RLS disabled.
+- **84 policies cover 44 tables.** The only RLS-enabled table without a direct policy is `edunexus_ai_usage_limits`; this is the quota ledger and is intentionally accessed through the narrowly granted `consume_edunexus_ai_quota()` RPC rather than direct table access.
+- Six application-owned SECURITY DEFINER functions were inspected: `consume_edunexus_ai_quota`, `current_user_id`, `edunexus_finalize_practice`, `edunexus_sync_identity`, `ensure_my_profile`, and `finalize_my_practice_attempt`. The catalog check found no execute privilege for role `anonymous`; each was executable by `authenticated`. Their recorded function search paths were also inspected.
+- `edunexusapi` deployment 4 remains failed because its bundle cannot resolve package `pg`; deployment 2 remains active. Repository review documents this function as unused by the production frontend, which uses Neon Data API directly. Do not redeploy or delete it until its ownership and consumers are confirmed.
+
+**Scope limitation:** this is a catalog/privilege audit, not a penetration test or proof of every row-level policy's business correctness. All tables report `FORCE ROW LEVEL SECURITY = false`; privileged table owners and service roles therefore remain outside the protection boundary of ordinary user RLS. Real-account JWT isolation, model inference, and commercial launch gates remain separate requirements.
 
 ## Changes prepared for Neon
 
@@ -39,7 +50,7 @@ These migrations have been prepared for the disposable test branch; do not apply
 - [x] Run SQL tests and verify the identity, profile provisioning, and trusted score lifecycle on the disposable branch.
 - [x] Pass browser E2E for Neon Auth/JWT, identity, catalog, practice session/attempt submission, trusted scoring, candidate evidence, and own-session RLS.
 - [x] Apply migrations 0001–0004 transactionally to production and refresh the Data API schema cache.
-- [x] Verify all 41 public tables still have RLS enabled and business row counts remain unchanged.
+- [x] Verify all 45 public tables still have RLS enabled and business row counts remain unchanged.
 - [x] Verify GitHub Pages returns HTTP 200 and serves the Neon frontend.
 - [x] Keep Supabase available as rollback source; it has not been disabled.
 
