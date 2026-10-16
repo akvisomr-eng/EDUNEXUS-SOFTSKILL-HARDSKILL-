@@ -40,7 +40,7 @@ jobs:
           const corpusResponse = await fetch(corpusUrl, { signal: AbortSignal.timeout(15000) });
           if (!corpusResponse.ok) throw new Error("Published corpus HTTP " + corpusResponse.status);
           const corpus = await corpusResponse.json();
-          if (!String(corpus.version).includes("v4") || !Array.isArray(corpus.chunks) || corpus.chunks.length < 55) {
+          if (!String(corpus.version).includes("v6") || !Array.isArray(corpus.chunks) || corpus.chunks.length < 57) {
             throw new Error("Published corpus invalid: " + JSON.stringify({ version: corpus.version, chunks: corpus.chunks?.length }));
           }
           console.log("PUBLISHED_CORPUS=PASS; version=" + corpus.version + "; chunks=" + corpus.chunks.length);
@@ -48,10 +48,10 @@ jobs:
           const health = await fetch(base + "/health", { signal: AbortSignal.timeout(15000) });
           if (!health.ok) throw new Error("AI health HTTP " + health.status);
           const body = await health.json();
-          if (body.status !== "ok" || body.authConfigured !== true || body.knowledgeConfigured !== true || body.knowledgeChunks < 55) {
+          if (body.status !== "ok" || body.authConfigured !== true || body.knowledgeConfigured !== true || body.knowledgeChunks < 57) {
             throw new Error("AI health configuration invalid: " + JSON.stringify(body));
           }
-          if (typeof body.inferenceConfigured !== "boolean" || !String(body.knowledgeVersion).includes("v4")) {
+          if (typeof body.inferenceConfigured !== "boolean" || !String(body.knowledgeVersion).includes("v6")) {
             throw new Error("AI runtime must report an explicit inference configuration state and updated corpus: " + JSON.stringify(body));
           }
           const unauth = await fetch(base + "/chat", {
@@ -65,7 +65,7 @@ jobs:
           const prodHealthResponse = await fetch(process.env.PROD_AI_URL + "/health", { signal: AbortSignal.timeout(15000) });
           if (!prodHealthResponse.ok) throw new Error("Production AI health HTTP " + prodHealthResponse.status);
           const prodHealth = await prodHealthResponse.json();
-          if (prodHealth.status !== "ok" || prodHealth.authConfigured !== true || prodHealth.knowledgeConfigured !== true || prodHealth.knowledgeChunks < 55 || !String(prodHealth.knowledgeVersion).includes("v4")) {
+          if (prodHealth.status !== "ok" || prodHealth.authConfigured !== true || prodHealth.knowledgeConfigured !== true || prodHealth.knowledgeChunks < 57 || !String(prodHealth.knowledgeVersion).includes("v6")) {
             throw new Error("Production AI runtime/corpus invalid: " + JSON.stringify(prodHealth));
           }
           console.log("AI_RUNTIME_HEALTH_PRODUCTION=PASS; version=" + prodHealth.knowledgeVersion + "; chunks=" + prodHealth.knowledgeChunks + "; inferenceConfigured=" + prodHealth.inferenceConfigured);
