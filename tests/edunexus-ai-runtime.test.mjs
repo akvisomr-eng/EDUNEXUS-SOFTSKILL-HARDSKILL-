@@ -164,3 +164,20 @@ test("explicit Groq selection without a key fails closed instead of switching pr
     }
   }
 });
+
+
+test("public API learning catalog is curated, provenance-aware, and does not enable live external calls", async () => {
+  const catalog = JSON.parse(await readFile(new URL("../knowledge/public-api-catalog.json", import.meta.url), "utf8"));
+  assert.equal(catalog.version, 1);
+  assert.equal(catalog.policy.live_calls_enabled, false);
+  assert.ok(catalog.apis.length >= 5);
+  const ids = catalog.apis.map((api) => api.id);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const api of catalog.apis) {
+    assert.ok(api.name && api.url && api.learning_use && api.terms_review);
+    assert.match(api.url, /^https:\/\//);
+    assert.equal(api.enabled_by_default, false);
+  }
+  const corpus = JSON.parse(await readFile(new URL("../neon/functions/edunexusai/knowledge.json", import.meta.url), "utf8"));
+  assert.ok(corpus.chunks.some((chunk) => chunk.id === "EDU-PUBLIC-API-DISCOVERY" && chunk.url === "https://github.com/marcelscruz/public-apis"));
+});
