@@ -7,6 +7,7 @@ on:
       - "web/student/**"
       - "web/mentor/**"
       - "web/parent/**"
+      - "web/shared/**"
       - ".github/workflows/role-dashboards.yml"
   push:
     branches: ["main"]
@@ -15,6 +16,7 @@ on:
       - "web/student/**"
       - "web/mentor/**"
       - "web/parent/**"
+      - "web/shared/**"
       - ".github/workflows/role-dashboards.yml"
   workflow_dispatch:
 
@@ -50,10 +52,19 @@ jobs:
               assert 'name="viewport"' in html, f"{role}: responsive viewport missing"
               assert 'aria-live="polite"' in html, f"{role}: accessible action feedback missing"
               assert "Mode pratinjau" in html and "backend belum dihubungkan" in html, f"{role}: demo limitations must remain visible"
+              assert f'data-role-dashboard="{role}"' in html, f"{role}: role binding missing"
+              assert "../shared/role-dashboard-live-data.js" in html, f"{role}: authenticated data module missing"
               assert "</html>" in html, f"{role}: incomplete HTML"
               print(f"OK {role}: {path}")
           for role in pages:
               assert f'/EDUNEXUS-SOFTSKILL-HARDSKILL-/{role}/' in home, f"Landing page link missing for {role}"
+          shared = Path("web/shared/role-dashboard-live-data.js")
+          assert shared.is_file(), "Missing shared authenticated dashboard module"
+          module = shared.read_text()
+          for required in ["createAuthClient", "ensure_my_profile", "current_user_id", "getProfile", "mentor_student_relationships", "guardian_student_relationships", "course_enrollments", "lesson_progress"]:
+              assert required in module, f"Authenticated data module missing required guard/query: {required}"
+          assert "row.role !== role" in module, "Role mismatch must be rejected"
+          print("OK authenticated role data module and role gates")
           print("OK all three role portals linked from landing page")
           PY
       - name: Parse dashboard JavaScript
@@ -70,3 +81,6 @@ jobs:
               subprocess.run(["node", "--check", "/tmp/dashboard-check.js"], check=True)
               print(f"OK JavaScript syntax: {path}")
           PY
+
+      - name: Parse shared role data module as JavaScript module
+        run: node --input-type=module --check < web/shared/role-dashboard-live-data.js
