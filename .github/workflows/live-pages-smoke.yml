@@ -36,6 +36,8 @@ jobs:
             sleep 3
           done
           grep -q "EDUNEXUS MULTI-AGENT AI" app.html
+grep -q "Simulasi akuntansi" app.html
+grep -q "accountingLab" app.html
           grep -q "knowledgeVersion" app.html
           for attempt in $(seq 1 20); do
             if curl --fail --silent --show-error --max-time 15 "${URL}app/knowledge-sources.json" -o knowledge-sources.json; then break; fi
