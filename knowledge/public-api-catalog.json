@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "title": "EDUNEXUS Public API Learning Catalog",
+  "generated_for": "EDUNEXUS",
+  "reviewed_at": "2026-10-16",
+  "upstream": {
+    "name": "marcelscruz/public-apis",
+    "url": "https://github.com/marcelscruz/public-apis",
+    "license": "MIT",
+    "note": "Discovery catalog only. Upstream listing does not guarantee availability, quality, free access, or rights to reuse the APIs or their data."
+  },
+  "policy": {
+    "live_calls_enabled": false,
+    "default_mode": "catalog-only",
+    "rule": "No browser or server calls are made to listed APIs by this catalog. A live connector requires a separate implementation, owner review of current terms, privacy/security assessment, quotas, timeout, caching and fallback tests.",
+    "privacy": "Never forward learner identity, access tokens, submissions, personal data or private institutional information to a third-party API unless explicitly necessary, consented, and reviewed.",
+    "commercial_use": "Verify each provider's current commercial-use rules separately. Public or no-key does not mean unrestricted or free for commercial use."
+  },
+  "apis": [
+    {
+      "id": "jsonplaceholder",
+      "name": "JSONPlaceholder",
+      "url": "https://jsonplaceholder.typicode.com/",
+      "category": "developer-learning",
+      "auth": "none-listed",
+      "learning_use": "Latihan REST, HTTP methods, JSON, pagination, error handling, and API client tests using fake data.",
+      "recommendation": "First candidate for API practice because responses are mock data; never use as a production data store.",
+      "terms_review": "Verify current service policy and usage limits before a public workshop.",
+      "enabled_by_default": false
+    },
+    {
+      "id": "rest-countries",
+      "name": "REST Countries",
+      "url": "https://restcountries.com/",
+      "category": "open-data",
+      "auth": "no-key-listed",
+      "learning_use": "Latihan membaca JSON, filter, mapping data, visualisasi geografi, and comparing country-level indicators.",
+      "recommendation": "Use only public country data; cache responses and label source/date.",
+      "terms_review": "Confirm current API version, acceptable use, attribution, rate limits, and dataset terms.",
+      "enabled_by_default": false
+    },
+    {
+      "id": "free-dictionary-api",
+      "name": "Free Dictionary API",
+      "url": "https://dictionaryapi.dev/",
+      "category": "language-learning",
+      "auth": "none-listed",
+      "learning_use": "Vocabulary practice, pronunciation metadata exploration where provided, and building a glossary activity.",
+      "recommendation": "Do not rely on it as the sole authority for formal language assessment.",
+      "terms_review": "Confirm current service policy, source dictionaries, and reuse rights before republishing content.",
+      "enabled_by_default": false
+    },
+    {
+      "id": "open-library",
+      "name": "Open Library APIs",
+      "url": "https://openlibrary.org/developers/api",
+      "category": "reading-literacy",
+      "auth": "public-api",
+      "learning_use": "Book discovery, reading lists, metadata search, and information-literacy activities.",
+      "recommendation": "Show source links and avoid mirroring large datasets or book content.",
+      "terms_review": "Follow current Open Library API usage guidelines, rate limits, and rights for cover/metadata reuse.",
+      "enabled_by_default": false
+    },
+    {
+      "id": "open-trivia-db",
+      "name": "Open Trivia DB",
+      "url": "https://opentdb.com/api_config.php",
+      "category": "practice-quizzes",
+      "auth": "no-key-for-basic-use",
+      "learning_use": "Prototype low-stakes quizzes and demonstrate JSON parsing and quiz UI.",
+      "recommendation": "Treat questions as external material; sanitize HTML entities and do not use as validated curriculum or high-stakes assessment.",
+      "terms_review": "Verify current API limits, attribution, question licensing and commercial-use conditions.",
+      "enabled_by_default": false
+    },
+    {
+      "id": "open-meteo",
+      "name": "Open-Meteo",
+      "url": "https://open-meteo.com/en/docs",
+      "category": "science-environment-data",
+      "auth": "no-key-listed-for-public-api",
+      "learning_use": "Weather and environmental-data projects involving units, charts, time series, and uncertainty.",
+      "recommendation": "Useful for science/data-literacy exercises, but not an emergency or safety-critical source.",
+      "terms_review": "Verify current free-tier scope, attribution, licensing, and commercial-use terms before live use.",
+      "enabled_by_default": false
+    },
+    {
+      "id": "public-apis-upstream",
+      "name": "Public APIs upstream catalog",
+      "url": "https://github.com/marcelscruz/public-apis",
+      "category": "api-discovery",
+      "auth": "not-an-api-runtime",
+      "learning_use": "Discover API candidates for project-based learning and compare authentication, HTTPS, CORS, documentation, and terms.",
+      "recommendation": "Treat entries as leads to verify, not vetted integrations or a runtime dependency.",
+      "terms_review": "Upstream repository is MIT-licensed; each listed provider's API and data terms remain independent.",
+      "enabled_by_default": false
+    }
+  ]
+}
