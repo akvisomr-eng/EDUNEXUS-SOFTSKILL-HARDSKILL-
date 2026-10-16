@@ -20,7 +20,7 @@ jobs:
           BASE="https://akvisomr-eng.github.io/EDUNEXUS-SOFTSKILL-HARDSKILL-"
           curl --fail --silent --show-error --max-time 20 "$BASE/" | grep -q "EDUNEXUS"
           curl --fail --silent --show-error --max-time 20 "$BASE/app/" | grep -q "EDUNEXUS MULTI-AGENT AI"
-          curl --fail --silent --show-error --max-time 20 "$BASE/app/knowledge-corpus.json" -o corpus.json
+          curl --fail --silent --show-error --max-time 20 "$BASE/knowledge-corpus.json" -o corpus.json
           node -e '
             const c = require("./corpus.json");
             if (c.version !== "edunexus-curated-knowledge-2026-10-16-v6" || !Array.isArray(c.chunks) || c.chunks.length < 57) {
