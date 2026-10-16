@@ -4,3 +4,11 @@ html{scroll-behavior:smooth;scroll-padding-top:84px}body{font-family:"Plus Jakar
 @media(max-width:991px){.heroText{padding-top:130px}.edunexus-nav .navbar-collapse{padding-top:12px}.edunexus-nav .nav-link{padding:10px 0!important}.about-image,.about-photo-panel,.about-photo-panel img{min-height:320px}.program-image{height:230px}.hero-scroll{display:none}}
 @media(max-width:575px){.heroText{padding:120px 22px 90px}.hero h1{font-size:clamp(3.3rem,17vw,5.5rem)}.hero-actions{align-items:stretch;flex-direction:column;max-width:300px}.hero-actions .btn{text-align:center}.display-heading{font-size:2.45rem}.program-body{padding:22px}.program-body h3{font-size:20px}.program-image{height:210px}.footer-top,.footer-bottom{align-items:flex-start;flex-direction:column}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+
+/* Role portals: part of the EDUNEXUS Nomad Force adaptation */
+.role-portals{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}
+.role-portals a{display:inline-flex;align-items:center;border:1px solid #ffffff70;border-radius:999px;padding:9px 13px;color:#fff;background:#ffffff12;font-size:12px;font-weight:700;text-decoration:none;backdrop-filter:blur(8px)}
+.role-portals a:hover{background:#ffffff28;color:#fff}
+.role-portals a[href$="/parent/"]{background:#8756c8;border-color:#8756c8;color:#fff}
+.role-portals a[href$="/parent/"]:hover{background:#7040ad;border-color:#7040ad;color:#fff}
+:focus-visible{outline:3px solid #b6d779;outline-offset:3px}
