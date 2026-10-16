@@ -181,3 +181,15 @@ test("public API learning catalog is curated, provenance-aware, and does not ena
   const corpus = JSON.parse(await readFile(new URL("../neon/functions/edunexusai/knowledge.json", import.meta.url), "utf8"));
   assert.ok(corpus.chunks.some((chunk) => chunk.id === "EDU-PUBLIC-API-DISCOVERY" && chunk.url === "https://github.com/marcelscruz/public-apis"));
 });
+
+
+test("Frappe Books reference is treated as an accounting-learning blueprint, not copied runtime software", async () => {
+  const review = JSON.parse(await readFile(new URL("../knowledge/frappe-books-review.json", import.meta.url), "utf8"));
+  assert.equal(review.policy.copy_upstream_code_by_default, false);
+  assert.equal(review.policy.live_finance_enabled, false);
+  assert.ok(review.learning_modules.length >= 4);
+  assert.match(review.upstream.original_license, /AGPL-3.0/);
+  assert.equal(review.upstream.archived, true);
+  const corpus = JSON.parse(await readFile(new URL("../neon/functions/edunexusai/knowledge.json", import.meta.url), "utf8"));
+  assert.ok(corpus.chunks.some((chunk) => chunk.id === "EDU-FRAPPE-BOOKS-ACCOUNTING-LEARNING"));
+});
