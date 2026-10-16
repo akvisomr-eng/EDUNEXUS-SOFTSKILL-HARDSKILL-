@@ -16,7 +16,7 @@
 - `NEON_AUTH_JWKS_URL`: exact JWKS URL from the active Neon Auth configuration.
 - `NEON_AUTH_ISSUER`: optional exact issuer claim, only set after verifying a real JWT's `iss`.
 - `MODEL_API_BASE_URL`: provider's OpenAI-compatible API base URL.
-- `MODEL_API_KEY`: secret key; never add it to GitHub, frontend JavaScript, a commit, or a public issue.
+- `MODEL_API_KEY`: server-side provider key or a Neon credential scoped to `ai_gateway:invoke`; never add it to GitHub, frontend JavaScript, a commit, or a public issue. The Neon Gateway credential must only be used with its matching branch gateway URL.
 - `MODEL_ID`: exact model identifier supported by the chosen provider.
 - `APP_ORIGIN`: optional origin override. Default is `https://akvisomr-eng.github.io`.
 - `AI_ENABLED`: optional emergency switch. Set to `false` in the server-side Neon Function environment and deploy to disable provider inference while keeping curated retrieval available.
@@ -42,4 +42,4 @@ Google documents an OpenAI-compatible Gemini API endpoint at `https://generative
 - Automated full-text web ingestion, source licensing/review UI, embeddings/vector or semantic search, persistent rate limits, and durable usage budgets are not implemented. Current automation refreshes only public metadata and opens review PRs.
 - In-memory rate limits are per isolate and are only a safety floor, not a durable abuse-control system.
 - Do not use dark-web sources by default. Use lawful, public, licensed, verifiable sources and human approval before indexing.
-- Production model inference is not yet configured because `MODEL_API_KEY` is absent from the current production function environment metadata. The source-only learning assistant works without that key; model-generated multi-agent answers and Project Builder planning require a provider key stored as a Neon Function secret. Repository execution, patch generation, CI repair, and deployment automation are not enabled. No provider key is committed or assumed.
+- Production deployment #15 briefly configured the Neon AI Gateway endpoint and model credential. An authenticated E2E request on the preview branch returned HTTP 403; the sanitized upstream message indicated that AI Gateway is not enabled for the account's current plan. This is a plan-access blocker, not a source-code syntax failure. To avoid repeated failed calls and to keep public health truthful, production deployment #16 sets `AI_ENABLED=false`; `/health` should report `inferenceConfigured=false`, learning requests use clearly labeled curated retrieval, and Project Builder fails closed. Re-enable only after the owner approves an eligible Neon plan/credits or supplies a valid external provider key, then pass a real authenticated inference test. Repository execution, patch generation, CI repair, and deployment automation are not enabled. No credential is committed.

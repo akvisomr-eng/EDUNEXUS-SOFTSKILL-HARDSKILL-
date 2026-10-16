@@ -58,7 +58,7 @@ For every checkbox, record: evidence URL or run ID, date, tested environment, re
 ### Verified in the repository as of 15 October 2026
 
 - Source and workflow changes are committed to the repository. Current source includes a persistent per-user quota RPC, a fail-closed runtime client, and an emergency inference disable switch.
-- Production Neon Function `edunexusai` metadata was rechecked on 16 October 2026: active deployment #13 is `completed` and its configured environment names include `APP_ORIGIN`, `KNOWLEDGE_CORPUS_URL`, `MODEL_API_BASE_URL`, `MODEL_ID`, and `NEON_AUTH_JWKS_URL`; `MODEL_API_KEY` is absent from that deployment's listed environment. Therefore real model inference remains unverified and must not be advertised as enabled. The separate `edunexusapi` function still reports failed current deployment #4 (`pg` bundle error) with deployment #2 remaining active; the frontend's documented request path uses Neon Data API.
+- Production Neon Function `edunexusai` is now on deployment #16 (16 October 2026). A real authenticated preview E2E request reached the configured model path but received HTTP 403; the sanitized upstream error states AI Gateway is not enabled on the account's current plan. Production `AI_ENABLED=false` is set as a fail-safe, so health should report `inferenceConfigured=false`, learning mode falls back to curated retrieval, and Project Builder fails closed. Do not advertise generative AI as available until the owner approves an eligible Neon plan/credits or provides a valid external model-provider key, then a real authenticated model call succeeds. The separate `edunexusapi` function still reports failed current deployment #4 (`pg` bundle error) with deployment #2 remaining active; the frontend's documented request path uses Neon Data API.
 - Runtime Health run `38692369802`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38692369802
 - EDUNEXUS CI run `38692369524`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38692369524
 - Browser smoke run `38692230916`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38692230916. It exercised a real Neon Auth JWT, profile provisioning, quota RPC, catalog retrieval, practice finalization, candidate evidence, and cross-account isolation for practice sessions. It also called the deployed AI runtime in curated-retrieval mode and received HTTP 200.
@@ -69,7 +69,7 @@ For every checkbox, record: evidence URL or run ID, date, tested environment, re
 
 ## 6. Immediate next actions
 
-1. Owner configures a legitimate model-provider API key privately in Neon and confirms the exact provider base URL/model ID. Do not place the key in GitHub source, frontend code, logs, or chat.
+1. Owner chooses whether to enable Neon AI Gateway on an eligible paid plan with credits or provide a valid external model-provider key. The latest authenticated E2E test confirmed the current Neon plan is not permitted to invoke the gateway. Do not place any key in GitHub source, frontend code, logs, or chat.
 2. Test one real authenticated tutor request and one Project Builder planning request after inference is configured; retain redacted evidence and check the emergency disable switch.
 3. Configure provider-side spend alerts and any available token/budget ceilings; measure real costs before approving prices.
 4. Complete legal operator/contact details, reviewed privacy notice and terms, retention/deletion procedures, support and incident intake.
