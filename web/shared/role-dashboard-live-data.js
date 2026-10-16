@@ -51,9 +51,49 @@ function addActionLink(host, label, href) {
 
 function showSignIn(message) {
   setStatus(message, "is-muted");
-  const actions = $("div", "live-data-actions");
-  addActionLink(actions, "Masuk / buat akun di EDUNEXUS", "../app/");
-  ui.body.replaceChildren(actions);
+  const form = $("form", "live-data-login");
+  const heading = $("h3", "", "Masuk ke Portal " + roleLabels[role]);
+  const intro = $("p", "live-data-muted", "Gunakan akun yang sudah terdaftar dengan peran " + roleLabels[role].toLowerCase() + ". Portal ini tidak mengalihkan Anda ke ruang belajar siswa.");
+  const emailLabel = $("label", "", "Email akun");
+  emailLabel.htmlFor = "rolePortalEmail";
+  const email = $("input");
+  email.id = "rolePortalEmail";
+  email.name = "email";
+  email.type = "email";
+  email.autocomplete = "username";
+  email.required = true;
+  const passwordLabel = $("label", "", "Kata sandi");
+  passwordLabel.htmlFor = "rolePortalPassword";
+  const password = $("input");
+  password.id = "rolePortalPassword";
+  password.name = "password";
+  password.type = "password";
+  password.autocomplete = "current-password";
+  password.required = true;
+  const submit = $("button", "live-data-login-submit", "Masuk ke Portal " + roleLabels[role]);
+  submit.type = "submit";
+  const status = $("p", "live-data-muted", "");
+  status.setAttribute("aria-live", "polite");
+  form.append(heading, intro, emailLabel, email, passwordLabel, password, submit, status);
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    submit.disabled = true;
+    status.textContent = "Memeriksa akun…";
+    try {
+      const result = await auth.signIn.email({ email: email.value.trim(), password: password.value });
+      if (result?.error) throw new Error(result.error.message || "Email atau kata sandi tidak valid.");
+      const session = await auth.getSession();
+      if (session?.error || !session?.data?.user || !session?.data?.session) {
+        throw new Error(session?.error?.message || "Sesi akun tidak tersedia.");
+      }
+      status.textContent = "Login berhasil. Memuat data portal…";
+      await start();
+    } catch (error) {
+      status.textContent = error?.message || "Login gagal. Periksa akun dan coba lagi.";
+      submit.disabled = false;
+    }
+  });
+  ui.body.replaceChildren(form);
 }
 
 async function api(path, options = {}) {
@@ -84,10 +124,14 @@ async function api(path, options = {}) {
 }
 
 async function ensureIdentity() {
-  const result = await api("/rpc/ensure_my_profile", { method: "POST", body: "{}" });
-  const uid = typeof result === "string" ? result : Array.isArray(result) ? result[0] : result?.ensure_my_profile;
   const verifiedResult = await api("/rpc/current_user_id", { method: "POST", body: "{}" });
   const verified = typeof verifiedResult === "string" ? verifiedResult : Array.isArray(verifiedResult) ? verifiedResult[0] : verifiedResult?.current_user_id;
+  if (!verified) throw new Error("Identitas akun tidak dapat diverifikasi.");
+  // Only the student portal may bootstrap a default student profile.
+  // Mentor and parent identities must already be provisioned by the institution.
+  if (role !== "student") return String(verified);
+  const result = await api("/rpc/ensure_my_profile", { method: "POST", body: "{}" });
+  const uid = typeof result === "string" ? result : Array.isArray(result) ? result[0] : result?.ensure_my_profile;
   if (!uid || String(uid) !== String(verified)) throw new Error("Identitas akun tidak konsisten; akses dihentikan.");
   return String(uid);
 }
@@ -214,7 +258,7 @@ async function start() {
     const session = await auth.getSession();
     if (session?.error) throw new Error("Sesi akun tidak dapat dibaca.");
     if (!session?.data?.user || !session?.data?.session) {
-      showSignIn("Belum masuk. Data akun tidak dimuat. Masuk melalui EDUNEXUS untuk melihat data terotorisasi.");
+      showSignIn("Belum masuk. Silakan masuk menggunakan akun sesuai peran portal ini.");
       return;
     }
     const uid = await ensureIdentity();
@@ -226,7 +270,16 @@ async function start() {
     ui.body.replaceChildren();
     setStatus(error?.message || "Data akun belum dapat dimuat.", "is-error");
     const actions = $("div", "live-data-actions");
-    addActionLink(actions, "Buka ruang belajar EDUNEXUS", "../app/");
+    const retry = $("button", "live-data-link", "Coba muat ulang data");
+    retry.type = "button";
+    retry.addEventListener("click", () => start());
+    const signOut = $("button", "live-data-secondary", "Ganti akun");
+    signOut.type = "button";
+    signOut.addEventListener("click", async () => {
+      try { await auth.signOut(); } catch { /* keep the portal available if sign-out fails */ }
+      showSignIn("Silakan masuk dengan akun yang memiliki peran " + roleLabels[role] + ".");
+    });
+    actions.append(retry, signOut);
     ui.body.append(actions);
   }
 }
@@ -241,7 +294,7 @@ style.textContent = `
 .live-data-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}
 .live-data-metric{border:1px solid #e7edf5;border-radius:11px;padding:13px;min-width:0;display:grid;gap:7px}
 .live-data-metric-label{font-size:11px;color:#758197;font-weight:700}.live-data-metric strong{font-size:23px;letter-spacing:-.04em}.live-data-metric small{font-size:10px;color:#8792a5;line-height:1.5}
-.live-data-list{margin-top:14px;border:1px solid #e7edf5;border-radius:11px;padding:14px}.live-data-list h3{margin:0 0 8px}.live-data-list ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}.live-data-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-radius:8px;background:#f8faff;font-size:12px}.live-data-pill{font-size:10px;color:#536db6;background:#eaf0ff;border-radius:999px;padding:5px 8px;white-space:nowrap}.live-data-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.live-data-link{display:inline-flex;padding:10px 13px;border-radius:9px;background:#4169e1;color:white;font-size:12px;font-weight:800;text-decoration:none}
+.live-data-list{margin-top:14px;border:1px solid #e7edf5;border-radius:11px;padding:14px}.live-data-list h3{margin:0 0 8px}.live-data-list ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}.live-data-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-radius:8px;background:#f8faff;font-size:12px}.live-data-pill{font-size:10px;color:#536db6;background:#eaf0ff;border-radius:999px;padding:5px 8px;white-space:nowrap}.live-data-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.live-data-link{display:inline-flex;padding:10px 13px;border:0;border-radius:9px;background:#4169e1;color:white;font-size:12px;font-weight:800;text-decoration:none;cursor:pointer}.live-data-secondary{display:inline-flex;padding:10px 13px;border:1px solid #dce5f3;border-radius:9px;background:#fff;color:#536177;font-size:12px;font-weight:800;cursor:pointer}.live-data-login{display:grid;gap:9px;max-width:420px;margin-top:14px}.live-data-login h3{margin:0}.live-data-login label{font-size:12px;font-weight:700;color:#536177}.live-data-login input{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #dce5f3;border-radius:9px;font:inherit}.live-data-login-submit{padding:11px 14px;border:0;border-radius:9px;background:#4169e1;color:white;font-weight:800;cursor:pointer}.live-data-login-submit:disabled{opacity:.6;cursor:wait}
 @media(max-width:760px){.live-data-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.live-data-panel{padding:14px}.live-data-list li{align-items:flex-start;flex-direction:column}}
 `;
 document.head.append(style);
