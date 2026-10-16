@@ -232,7 +232,9 @@ async function callModel({ message, agent, locale, knowledge }) {
     const providerError = await response.json().catch(() => null);
     const providerCode = providerError?.error?.code || providerError?.error?.type || providerError?.code;
     const safeProviderCode = typeof providerCode === "string" && /^[A-Za-z0-9_-]{1,64}$/.test(providerCode) ? "_" + providerCode : "";
-    throw new Error("ai_provider_http_" + response.status + safeProviderCode);
+    const providerMessage = providerError?.error?.message || providerError?.message;
+    const safeProviderMessage = typeof providerMessage === "string" ? "_msg_" + providerMessage.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 64) : "";
+    throw new Error("ai_provider_http_" + response.status + safeProviderCode + safeProviderMessage);
   }
   const data = await response.json();
   const content = data?.choices?.[0]?.message?.content;
@@ -310,7 +312,7 @@ export default {
       const reason = error instanceof Error ? error.message : "unknown";
       if (reason === "ai_not_configured") return json({ error: "ai_not_configured", message: "Layanan AI belum dikonfigurasi. Tidak ada jawaban simulasi yang ditampilkan." }, 503, cors);
       if (reason === "ai_rate_limited") return json({ error: "provider_rate_limited", message: "Penyedia AI sedang membatasi permintaan." }, 429, cors);
-      const diagnosticCode = /^ai_provider_http_[0-9]{3}(?:_[A-Za-z0-9_-]{1,64})?$/.test(reason) ? reason : "ai_unavailable";
+      const diagnosticCode = /^ai_provider_http_[0-9]{3}(?:_[A-Za-z0-9_-]{1,64}){0,2}$/.test(reason) ? reason : "ai_unavailable";
       return json({ error: "ai_unavailable", diagnosticCode, message: "Layanan AI sedang tidak tersedia. Coba lagi nanti." }, 502, cors);
     }
   },
