@@ -64,6 +64,10 @@ jobs:
           for required in ["createAuthClient", "ensure_my_profile", "current_user_id", "getProfile", "mentor_student_relationships", "guardian_student_relationships", "course_enrollments", "lesson_progress"]:
               assert required in module, f"Authenticated data module missing required guard/query: {required}"
           assert "rows[0].role !== role" in module, "Role mismatch must be rejected"
+          assert "Masuk ke Portal " in module, "Role-specific sign-in must be rendered inside each portal"
+          assert "Buka ruang belajar EDUNEXUS" not in module, "Role portals must not redirect to the student learning room"
+          assert "auth.signIn.email" in module and "auth.signOut" in module, "Portal-local sign-in and account switching must be available"
+          assert "if (role !== \"student\") return String(verified)" in module, "Mentor and parent must not be auto-provisioned as students"
           print("OK authenticated role data module and role gates")
           print("OK all three role portals linked from landing page")
           PY
