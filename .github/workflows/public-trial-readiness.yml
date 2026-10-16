@@ -1,0 +1,65 @@
+name: EDUNEXUS Public Trial Readiness Gate
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check public Pages and current knowledge corpus
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://akvisomr-eng.github.io/EDUNEXUS-SOFTSKILL-HARDSKILL-"
+          curl --fail --silent --show-error --max-time 20 "$BASE/" | grep -q "EDUNEXUS"
+          curl --fail --silent --show-error --max-time 20 "$BASE/app/" | grep -q "EDUNEXUS MULTI-AGENT AI"
+          curl --fail --silent --show-error --max-time 20 "$BASE/knowledge-corpus.json" -o corpus.json
+          node -e '
+            const c = require("./corpus.json");
+            if (c.version !== "edunexus-curated-knowledge-2026-10-16-v6" || !Array.isArray(c.chunks) || c.chunks.length < 57) {
+              console.error("Published knowledge corpus is stale:", {version:c.version,chunks:c.chunks?.length});
+              process.exit(1);
+            }
+            if (!c.chunks.some(x => x.id === "EDU-FRAPPE-BOOKS-ACCOUNTING-LEARNING")) {
+              console.error("Published corpus is missing the accounting-learning chunk.");
+              process.exit(1);
+            }
+            console.log("PUBLISHED_CORPUS=PASS; version=" + c.version + "; chunks=" + c.chunks.length);
+          '
+      - name: Require authenticated Groq inference and persistent quota on production
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 20 "https://br-bitter-king-azb11lde-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech/health" -o health.json
+          node -e '
+            const h = require("./health.json");
+            const safe = {
+              service:h.service,status:h.status,authConfigured:h.authConfigured,
+              persistentQuotaConfigured:h.persistentQuotaConfigured,
+              knowledgeVersion:h.knowledgeVersion,knowledgeChunks:h.knowledgeChunks,
+              inferenceConfigured:h.inferenceConfigured,inferenceProvider:h.inferenceProvider
+            };
+            console.log("PRODUCTION_READINESS=" + JSON.stringify(safe));
+            const checks = [
+              h.service === "edunexus-ai",
+              h.status === "ok",
+              h.authConfigured === true,
+              h.persistentQuotaConfigured === true,
+              h.knowledgeVersion === "edunexus-curated-knowledge-2026-10-16-v6",
+              Number(h.knowledgeChunks) >= 57,
+              h.inferenceConfigured === true,
+              h.inferenceProvider === "groq"
+            ];
+            if (checks.some(ok => !ok)) {
+              console.error("PUBLIC TRIAL BLOCKED: production must pass all health/auth/quota/corpus/Groq checks. Configure Groq secrets only in Neon Function environment; never in GitHub source or chat.");
+              process.exit(1);
+            }
+            console.log("PUBLIC_TRIAL_GATE=PASS");
+          '

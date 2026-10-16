@@ -53,6 +53,8 @@ jobs:
           assert "</html>" in html, "HTML document is incomplete"
           assert 'id="knowledgeNotes"' in html, "Knowledge notes UI mount is missing"
           assert 'id="knowledgeSourcesList"' in html, "Knowledge source UI mount is missing"
+          assert 'id="accountingLab"' in html and 'key:"accounting"' in html, "Accounting learning lab is missing"
+          assert "debit!==credit" in html and "Tagihan latihan" in html, "Accounting simulation guardrails/modules are missing"
           assert 'id="aiChatForm"' in html, "AI chat UI is missing"
           assert 'id="aiHealth"' in html, "AI runtime health UI is missing"
           assert 'aria-label="Navigasi utama EDUNEXUS"' in html, "Dashboard navigation is missing"
