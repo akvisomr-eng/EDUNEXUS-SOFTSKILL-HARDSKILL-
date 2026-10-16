@@ -29,6 +29,8 @@ jobs:
           test -f neon/tests/0011_project_builder_rls.sql
           test -f supabase/migrations/20261014180000_lesson_source_links.sql
           test -f supabase/migrations/20261014170000_knowledge_registry_curriculum_v2.sql
+          test -f knowledge/public-api-catalog.json
+          node -e "const c=require('./knowledge/public-api-catalog.json'); if(c.policy.live_calls_enabled!==false || c.apis.length<5 || c.apis.some(a=>a.enabled_by_default!==false)) process.exit(1); console.log('Public API learning catalog validated:', c.apis.length)"
           test -f knowledge/sources.json
           test -f scripts/ingest-public-knowledge.mjs
           test -f docs/KNOWLEDGE_INGESTION_AND_CURRICULUM_V2.md
