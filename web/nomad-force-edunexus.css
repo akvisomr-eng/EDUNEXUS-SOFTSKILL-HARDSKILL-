@@ -12,3 +12,10 @@ html{scroll-behavior:smooth;scroll-padding-top:84px}body{font-family:"Plus Jakar
 .role-portals a[href$="/parent/"]{background:#8756c8;border-color:#8756c8;color:#fff}
 .role-portals a[href$="/parent/"]:hover{background:#7040ad;border-color:#7040ad;color:#fff}
 :focus-visible{outline:3px solid #b6d779;outline-offset:3px}
+
+
+/* Clear, accessible disclosure for the public technical preview. */
+.release-notice { background: #f2eee4; border-bottom: 1px solid rgba(23,32,30,.14); color: #26302d; padding: 14px 0; }
+.release-notice p { margin: 0; font-size: .94rem; line-height: 1.55; }
+.release-notice strong { color: #17201e; }
+@media (max-width: 575.98px) { .release-notice { padding: 12px 0; } .release-notice p { font-size: .88rem; } }
