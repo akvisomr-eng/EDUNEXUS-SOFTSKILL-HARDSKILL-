@@ -1,0 +1,72 @@
+name: EDUNEXUS Role Dashboard Validation
+
+on:
+  pull_request:
+    paths:
+      - "web/index.html"
+      - "web/student/**"
+      - "web/mentor/**"
+      - "web/parent/**"
+      - ".github/workflows/role-dashboards.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "web/index.html"
+      - "web/student/**"
+      - "web/mentor/**"
+      - "web/parent/**"
+      - ".github/workflows/role-dashboards.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-role-dashboards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate separate dashboards and landing links
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          pages = {
+              "student": ("web/student/index.html", "Ruang Belajar Saya", "Kursus saya", "Peta keterampilan"),
+              "mentor": ("web/mentor/index.html", "Ruang Kerja Mentor", "Peserta dampingan", "Tinjau bukti"),
+              "parent": ("web/parent/index.html", "Portal Orang Tua", "Progres anak", "Komunikasi"),
+          }
+          home = Path("web/index.html").read_text()
+          for role, (path, title, nav_a, nav_b) in pages.items():
+              p = Path(path)
+              assert p.is_file(), f"Missing {role} dashboard"
+              html = p.read_text()
+              assert '<html lang="id">' in html, f"{role}: Indonesian document language missing"
+              assert title in html, f"{role}: title missing"
+              assert nav_a in html and nav_b in html, f"{role}: role-specific navigation missing"
+              assert 'name="viewport"' in html, f"{role}: responsive viewport missing"
+              assert 'aria-live="polite"' in html, f"{role}: accessible action feedback missing"
+              assert "Mode pratinjau" in html and "backend belum dihubungkan" in html, f"{role}: demo limitations must remain visible"
+              assert "</html>" in html, f"{role}: incomplete HTML"
+              print(f"OK {role}: {path}")
+          for role in pages:
+              assert f'/EDUNEXUS-SOFTSKILL-HARDSKILL-/{role}/' in home, f"Landing page link missing for {role}"
+          print("OK all three role portals linked from landing page")
+          PY
+      - name: Parse dashboard JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          for path in ["web/student/index.html", "web/mentor/index.html", "web/parent/index.html"]:
+              html = Path(path).read_text()
+              scripts = re.findall(r"<script>(.*?)</script>", html, flags=re.S)
+              assert len(scripts) == 1, f"{path}: expected one inline script, found {len(scripts)}"
+              Path("/tmp/dashboard-check.js").write_text(scripts[0])
+              import subprocess
+              subprocess.run(["node", "--check", "/tmp/dashboard-check.js"], check=True)
+              print(f"OK JavaScript syntax: {path}")
+          PY
