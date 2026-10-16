@@ -40,6 +40,8 @@ jobs:
               && grep -q "forgotPasswordBtn" /tmp/edunexus-live.html \
               && grep -q "requestPasswordReset" /tmp/edunexus-live.html \
               && grep -q "auth.resetPassword" /tmp/edunexus-live.html \
+              && grep -q "Simulasi akuntansi" /tmp/edunexus-live.html \
+              && grep -q "accountingLab" /tmp/edunexus-live.html \
               && ! grep -q "supabase.co" /tmp/edunexus-live.html; then
               result="PASS"
               break
