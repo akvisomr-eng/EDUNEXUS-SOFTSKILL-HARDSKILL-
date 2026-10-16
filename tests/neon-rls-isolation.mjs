@@ -55,20 +55,18 @@ try {
   }
   console.log("ACCOUNT_B_SESSION_CREATED=" + sessionIdB);
 
-  // A separate browser context ensures account A has its own independent auth state.
-  const contextA = await browser.newContext();
-  contexts.push(contextA);
-  const pageA = await contextA.newPage();
-  listen(pageA, "ACCOUNT_A");
+  // Reuse the loaded auth SDK to avoid an external CDN re-import race, but switch to a distinct account.
+  await pageB.locator("#signout").click();
+  await pageB.waitForFunction(() => (document.querySelector("#authStatus")?.textContent || "").includes("Keluar dari akun uji"), null, { timeout: 15000 });
   const emailA = `edunexus-rls-a-${suffix}@example.com`;
-  await createAccountAndSignIn(pageA, emailA, "EDUNEXUS Isolation Account A");
-  await pageA.locator("#otherSession").fill(sessionIdB);
-  await pageA.locator("#checkOther").click();
-  await pageA.waitForFunction(() => {
+  await createAccountAndSignIn(pageB, emailA, "EDUNEXUS Isolation Account A");
+  await pageB.locator("#otherSession").fill(sessionIdB);
+  await pageB.locator("#checkOther").click();
+  await pageB.waitForFunction(() => {
     const text = document.querySelector("#isolation")?.textContent || "";
     return text.includes("LULUS:") || text.includes("GAGAL/PERLU DITINJAU") || text.includes("Format UUID");
   }, null, { timeout: 30000 });
-  const result = (await pageA.locator("#isolation").innerText()).trim();
+  const result = (await pageB.locator("#isolation").innerText()).trim();
   console.log("CROSS_ACCOUNT_ISOLATION_RESULT=" + result);
   if (!result.startsWith("LULUS: API tidak mengembalikan sesi milik akun lain.")) {
     throw new Error("Cross-account isolation failed: " + result);
