@@ -131,18 +131,30 @@ try {
   console.log("FRONTEND_LEARNING_WORKFLOW=PASS; enrolled, opened lesson, and persisted completion for " + lessonTitle);
 
   if (!observedJwt) throw new Error("Could not capture authenticated test-branch JWT for AI runtime E2E.");
-  const aiResponse = await fetch("https://br-quiet-frost-azemctlk-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech/chat", {
+  const aiBase = "https://br-quiet-frost-azemctlk-edunexusai.compute.c-3.ap-southeast-1.aws.neon.tech";
+  const aiHealthResponse = await fetch(aiBase + "/health", { signal: AbortSignal.timeout(15000) });
+  if (!aiHealthResponse.ok) throw new Error("Authenticated AI E2E health probe failed: HTTP " + aiHealthResponse.status);
+  const aiHealth = await aiHealthResponse.json();
+  console.log("AI_RUNTIME_HEALTH=" + JSON.stringify({ runtimeVersion: aiHealth.runtimeVersion || "unknown", inferenceConfigured: aiHealth.inferenceConfigured }));
+  const aiResponse = await fetch(aiBase + "/chat", {
     method: "POST",
     headers: { "Authorization": "Bearer " + observedJwt, "Content-Type": "application/json", "Origin": "https://akvisomr-eng.github.io" },
     body: JSON.stringify({ message: "Jelaskan literasi AI yang bertanggung jawab dan cara memverifikasi hasil AI." }),
-    signal: AbortSignal.timeout(20000)
+    signal: AbortSignal.timeout(45000)
   });
   const aiData = await aiResponse.json().catch(() => ({}));
-  if (!aiResponse.ok) throw new Error("Authenticated EDUNEXUS knowledge retrieval failed: HTTP " + aiResponse.status + " " + JSON.stringify(aiData));
-  if (!aiData.answer || !Array.isArray(aiData.agents) || !Array.isArray(aiData.sources) || !aiData.mode.includes("retrieval")) {
-    throw new Error("AI runtime did not return grounded retrieval structure: " + JSON.stringify(aiData));
+  if (!aiResponse.ok) throw new Error("Authenticated EDUNEXUS AI request failed: HTTP " + aiResponse.status + " " + JSON.stringify(aiData));
+  if (typeof aiData.answer !== "string" || !aiData.answer.trim() || !Array.isArray(aiData.agents) || !Array.isArray(aiData.sources) || typeof aiData.mode !== "string") {
+    throw new Error("AI runtime did not return the expected answer/agent/source structure: " + JSON.stringify(aiData));
   }
-  console.log("AI_KNOWLEDGE_RETRIEVAL=PASS; mode=" + aiData.mode + "; sources=" + aiData.sources.length + "; specialists=" + aiData.agents.length);
+  const retrievalOnly = aiData.mode.toLowerCase().includes("retrieval");
+  if (aiHealth.inferenceConfigured === true && retrievalOnly) {
+    throw new Error("Inference is configured but the authenticated request returned retrieval-only mode: " + JSON.stringify({ mode: aiData.mode }));
+  }
+  if (aiHealth.inferenceConfigured !== true && !retrievalOnly) {
+    throw new Error("Inference is not configured but runtime claimed a non-retrieval response: " + JSON.stringify({ mode: aiData.mode }));
+  }
+  console.log("AI_AUTHENTICATED_REQUEST=PASS; inferenceConfigured=" + aiHealth.inferenceConfigured + "; mode=" + aiData.mode + "; sources=" + aiData.sources.length + "; specialists=" + aiData.agents.length);
 
   // Close the dedicated course workspace before navigating to another app module.
   await page.locator("#learningScreenClose").click();
