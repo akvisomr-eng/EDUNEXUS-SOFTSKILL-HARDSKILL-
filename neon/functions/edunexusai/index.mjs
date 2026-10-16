@@ -189,7 +189,7 @@ function getModelConfiguration() {
   if (process.env.MODEL_API_KEY && process.env.MODEL_API_BASE_URL && process.env.MODEL_ID) {
     return {
       apiKey: process.env.MODEL_API_KEY,
-      baseUrl: process.env.MODEL_API_BASE_URL.replace(/\\/$/, ""),
+      baseUrl: process.env.MODEL_API_BASE_URL.replace(/\/$/, ""),
       model: process.env.MODEL_ID,
       provider: "custom",
     };
@@ -197,7 +197,7 @@ function getModelConfiguration() {
   if (process.env.NEON_AI_GATEWAY_TOKEN && process.env.NEON_AI_GATEWAY_BASE_URL) {
     return {
       apiKey: process.env.NEON_AI_GATEWAY_TOKEN,
-      baseUrl: process.env.NEON_AI_GATEWAY_BASE_URL.replace(/\\/$/, "") + "/v1",
+      baseUrl: process.env.NEON_AI_GATEWAY_BASE_URL.replace(/\/$/, "") + "/v1",
       model: process.env.NEON_AI_GATEWAY_MODEL || "gemini-3-flash",
       provider: "neon_ai_gateway",
     };
