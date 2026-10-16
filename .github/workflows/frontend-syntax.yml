@@ -51,7 +51,7 @@ jobs:
           css = Path("web/nomad-force-edunexus.css").read_text()
           for marker in ("EDUNEXUS", "MASUK / DAFTAR", "id=\"program\"", "id=\"learning\"", "id=\"mentors\"", "id=\"reports\"", "/EDUNEXUS-SOFTSKILL-HARDSKILL-/app/"):
               assert marker in html, f"missing public website marker: {marker}"
-          assert "templatemo-nomad-force.css" in html and "bootstrap.min.css" in html
+          assert "nomad-force-edunexus.css" in html and "bootstrap.min.css" in html
           assert "videoWrapper" in html and "program-card" in html and "learning-step" in html
           assert ".edunexus-nav" in css and ".program-card" in css and ".learning-step" in css
           assert "prefers-reduced-motion" in css
