@@ -1,5 +1,5 @@
 {
-  "version": "edunexus-curated-knowledge-2026-10-16-v5",
+  "version": "edunexus-curated-knowledge-2026-10-16-v6",
   "retrieval": "lexical-overlap-v1",
   "chunks": [
     {
@@ -1141,6 +1141,39 @@
         "coding"
       ],
       "text": "EDUNEXUS can use the public-apis repository as a discovery index for practical learning projects, not as a guarantee that every listed provider is free, safe, available, or licensed for commercial use. Initial candidates for a later reviewed integration are JSONPlaceholder (https://jsonplaceholder.typicode.com/) for harmless mock REST/JSON exercises; REST Countries (https://restcountries.com/) for geography and data literacy; Free Dictionary API (https://dictionaryapi.dev/) for vocabulary practice; Open Library APIs (https://openlibrary.org/developers/api) for book discovery; Open Trivia DB (https://opentdb.com/api_config.php) for low-stakes quiz prototypes; and Open-Meteo (https://open-meteo.com/en/docs) for weather/environmental-data exercises. These are candidate links only: no external provider is called by this knowledge corpus. Before enabling any live integration, verify provider status, terms and license, commercial-use permission, attribution, rate limits, privacy/data sent, CORS, timeout, caching, and fallback. Do not send learner identity, submitted work, authentication tokens, or private institutional data to third-party APIs. Prefer JSONPlaceholder first for technical practice because it is mock data. Treat each API's terms independently; the catalog repository's MIT license does not license the APIs or their datasets."
+    },
+    {
+      "id": "EDU-FRAPPE-BOOKS-ACCOUNTING-LEARNING",
+      "title": "Frappe Books as accounting learning and product-design reference",
+      "url": "https://github.com/frappe/books",
+      "publisher": "Frappe contributors; successor reference https://github.com/frappe/frappe-books",
+      "trust_tier": "B",
+      "reviewed_at": "2026-10-16",
+      "keywords": [
+        "akuntansi",
+        "accounting",
+        "buku besar",
+        "general ledger",
+        "jurnal berpasangan",
+        "double entry",
+        "laba rugi",
+        "neraca",
+        "trial balance",
+        "invoice",
+        "faktur",
+        "pembayaran",
+        "pengeluaran",
+        "pembelian",
+        "persediaan",
+        "POS",
+        "anggaran",
+        "pajak",
+        "Frappe Books",
+        "keuangan",
+        "financial literacy",
+        "project builder"
+      ],
+      "text": "Frappe Books is a useful feature and learning-design reference for EDUNEXUS, not a drop-in library. The linked https://github.com/frappe/books repository is archived and AGPL-3.0 licensed; the newer https://github.com/frappe/frappe-books is an AGPL-3.0-only app built on the Frappe Framework. Do not copy code, bundle the application, or adopt its dependencies without explicit license-compliance and architecture review. EDUNEXUS can independently create original Indonesian learning modules and project templates covering chart of accounts, double-entry journal entries, general ledger, trial balance, profit-and-loss statement, balance sheet, quotations, invoices, receipts/payments, purchase bills, expenses, inventory movement, and cash-flow basics. Learning projects may include a simulated microbusiness ledger, course/institution budget tracker, mentor payment reconciliation, course invoice workflow, and monthly financial report. These should be educational simulations, not represented as a production accounting engine. Any future real finance module must use the existing Neon backend, organization-scoped authorization, append-only/auditable financial events, idempotent posting, balanced journal validation, currency/decimal-safe calculations, reversals rather than destructive edits, period locking, and human approval for consequential actions. Tax/legal rules for Indonesia require current official sources and qualified review. Do not send learner identity or private institution finance data to Frappe or third parties by default."
     }
   ]
 }
