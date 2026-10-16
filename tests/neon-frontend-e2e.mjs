@@ -135,6 +135,7 @@ try {
   const aiHealthResponse = await fetch(aiBase + "/health", { signal: AbortSignal.timeout(15000) });
   if (!aiHealthResponse.ok) throw new Error("Authenticated AI E2E health probe failed: HTTP " + aiHealthResponse.status);
   const aiHealth = await aiHealthResponse.json();
+  console.log("AI_RUNTIME_HEALTH=" + JSON.stringify({ runtimeVersion: aiHealth.runtimeVersion || "unknown", inferenceConfigured: aiHealth.inferenceConfigured }));
   const aiResponse = await fetch(aiBase + "/chat", {
     method: "POST",
     headers: { "Authorization": "Bearer " + observedJwt, "Content-Type": "application/json", "Origin": "https://akvisomr-eng.github.io" },
