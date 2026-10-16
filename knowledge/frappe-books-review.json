@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "reviewed_at": "2026-10-16",
+  "upstream": {
+    "original_url": "https://github.com/frappe/books",
+    "original_license": "GNU Affero General Public License v3.0 (AGPL-3.0)",
+    "archived": true,
+    "current_reference_url": "https://github.com/frappe/frappe-books",
+    "current_license": "AGPL-3.0-only",
+    "current_stack": "Frappe Framework (Python/JavaScript), Frappe UI (Vue), framework-managed database, authentication, roles and REST API",
+    "evidence_urls": [
+      "https://github.com/frappe/books",
+      "https://github.com/frappe/books/blob/master/LICENSE",
+      "https://github.com/frappe/frappe-books"
+    ]
+  },
+  "decision": "Adopt product concepts and original learning outcomes; do not port or bundle upstream code in EDUNEXUS by default. Treat production accounting integration as a separately gated future project.",
+  "policy": {
+    "copy_upstream_code_by_default": false,
+    "live_finance_enabled": false,
+    "external_service_required": false,
+    "neon_remains_system_of_record": true,
+    "indonesia_tax_rules_verified": false
+  },
+  "reusable_concepts": [
+    "Double-entry accounting and balanced journals",
+    "Chart of accounts and general ledger",
+    "Trial balance, profit-and-loss, balance-sheet and cash-flow reporting",
+    "Quotation, invoice, receipt/payment and returns workflows",
+    "Purchase bills, expenses and supplier payments",
+    "Inventory ledger and stock balance",
+    "Responsive finance interface and printable documents"
+  ],
+  "learning_modules": [
+    {
+      "id": "accounting-foundations",
+      "title": "Dasar Akuntansi dan Persamaan Akuntansi",
+      "level": "beginner",
+      "practice": "Classify assets, liabilities, equity, revenue and expenses; explain debit/credit with a balanced example."
+    },
+    {
+      "id": "double-entry-ledger",
+      "title": "Jurnal Berpasangan dan Buku Besar",
+      "level": "intermediate",
+      "practice": "Post sample transactions and prove total debits equal total credits; reconcile a trial balance."
+    },
+    {
+      "id": "microbusiness-finance-project",
+      "title": "Proyek Buku Kas dan Laporan Usaha Mikro",
+      "level": "intermediate",
+      "practice": "Build a fictional business ledger, invoice/payment records, expense register and monthly profit/loss report using synthetic data."
+    },
+    {
+      "id": "education-budget-project",
+      "title": "Proyek Anggaran Kursus dan Institusi",
+      "level": "intermediate",
+      "practice": "Compare planned versus actual course revenue/cost, mentor fees, scholarships and remaining budget with mock data."
+    },
+    {
+      "id": "invoice-workflow",
+      "title": "Simulasi Faktur dan Rekonsiliasi Pembayaran",
+      "level": "intermediate",
+      "practice": "Trace quote-to-invoice-to-payment, identify overdue balances and reconcile payment records using fictional customers."
+    },
+    {
+      "id": "inventory-ledger",
+      "title": "Persediaan dan Dampak Transaksi",
+      "level": "advanced",
+      "practice": "Model stock receipts/issues and explain how inventory transactions affect a sample ledger; no real stock mutation."
+    }
+  ],
+  "future_production_gates": [
+    "Review Indonesian accounting/tax requirements against current official sources and qualified professional guidance.",
+    "Keep all finance data in the existing Neon architecture; do not add Frappe hosting or external services by default.",
+    "Require organization-scoped authorization and isolation tests for every finance record.",
+    "Use decimal-safe currency arithmetic, balanced journal constraints, idempotent posting, audit trails and reversal entries.",
+    "Separate draft from posted transactions; require explicit human approval for posting, payouts, tax treatment and period close.",
+    "Run two-account authorization tests, concurrency/idempotency tests, ledger invariants and backup/restore checks before real money workflows.",
+    "Keep AI in advisory/drafting mode; never let agents independently post or pay money."
+  ]
+}
