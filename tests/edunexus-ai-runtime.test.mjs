@@ -87,7 +87,7 @@ test("curated knowledge corpus has source provenance and unique chunk ids", asyn
   for (const id of ["CURRICULUM-ID-KEMENDIKDASMEN","UNESCO-AI-STUDENT","UNESCO-GENAI-EDUCATION","ONET-SKILLS","ESCO-API","OWASP-LLM-TOP10","CURR-AI-VERIFY","CURR-SECURE-PHISHING","CURR-CAREER-PORTFOLIO","EDU-MENTOR-PEDAGOGY-LOCAL-V1","EDU-MATH-PERCENTAGE-PRICE-COMPARE-V1","EDU-HUMAN-TUTOR-ASSESSMENT-V1"]) {
     assert.ok(ids.includes(id), "missing expected knowledge source " + id);
   }
-  assert.equal(corpus.version, "edunexus-curated-knowledge-2026-10-15-v4");
+  assert.equal(corpus.version, "edunexus-curated-knowledge-2026-10-16-v5");
 });
 
 test("knowledge-only fallback is transparent and grounded in retrieved chunks", () => {
@@ -163,4 +163,21 @@ test("explicit Groq selection without a key fails closed instead of switching pr
       else process.env[key] = value;
     }
   }
+});
+
+
+test("public API learning catalog is curated, provenance-aware, and does not enable live external calls", async () => {
+  const catalog = JSON.parse(await readFile(new URL("../knowledge/public-api-catalog.json", import.meta.url), "utf8"));
+  assert.equal(catalog.version, 1);
+  assert.equal(catalog.policy.live_calls_enabled, false);
+  assert.ok(catalog.apis.length >= 5);
+  const ids = catalog.apis.map((api) => api.id);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const api of catalog.apis) {
+    assert.ok(api.name && api.url && api.learning_use && api.terms_review);
+    assert.match(api.url, /^https:\/\//);
+    assert.equal(api.enabled_by_default, false);
+  }
+  const corpus = JSON.parse(await readFile(new URL("../neon/functions/edunexusai/knowledge.json", import.meta.url), "utf8"));
+  assert.ok(corpus.chunks.some((chunk) => chunk.id === "EDU-PUBLIC-API-DISCOVERY" && chunk.url === "https://github.com/marcelscruz/public-apis"));
 });

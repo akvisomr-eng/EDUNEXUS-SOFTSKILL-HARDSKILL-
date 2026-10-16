@@ -113,6 +113,14 @@
       "publisher": "Creative Commons",
       "trust_tier": "A",
       "license_note": "follow each license's specific conditions"
+    },
+    {
+      "key": "PUBLIC-APIS-CATALOG",
+      "title": "Public APIs — curated API discovery catalog",
+      "url": "https://github.com/marcelscruz/public-apis",
+      "publisher": "marcelscruz/public-apis contributors",
+      "trust_tier": "B",
+      "license_note": "Repository catalog is MIT-licensed; each listed API has separate terms, license, quotas, attribution and data-processing rules. Use for discovery only; verify each provider before integration."
     }
   ]
 }
