@@ -117,3 +117,50 @@ test("project mode cannot claim repo or deployment execution", () => {
   assert.deepEqual(agents.map(([id]) => id), ["projectManager", "architect", "engineer", "qa"]);
   assert.ok(agents.every(([, agent]) => agent.instruction.length > 30));
 });
+
+test("explicit Groq selection is server-side, fixed-endpoint, and does not fall back to Neon", async () => {
+  const keys = ["AI_ENABLED", "MODEL_PROVIDER", "MODEL_API_KEY", "MODEL_API_BASE_URL", "MODEL_ID", "NEON_AI_GATEWAY_TOKEN", "NEON_AI_GATEWAY_BASE_URL"];
+  const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+  try {
+    process.env.AI_ENABLED = "true";
+    process.env.MODEL_PROVIDER = "groq";
+    process.env.MODEL_API_KEY = "unit-test-groq-key";
+    process.env.MODEL_ID = "unit-test-model";
+    // Even if gateway credentials exist, explicit Groq selection must win.
+    process.env.NEON_AI_GATEWAY_TOKEN = "unit-test-neon-token";
+    process.env.NEON_AI_GATEWAY_BASE_URL = "https://gateway.example.test";
+    const response = await handler.fetch(new Request("https://example.test/health"));
+    const data = await response.json();
+    assert.equal(data.inferenceConfigured, true);
+    assert.equal(data.inferenceProvider, "groq");
+    assert.equal(JSON.stringify(data).includes("unit-test-groq-key"), false);
+    assert.equal(JSON.stringify(data).includes("unit-test-neon-token"), false);
+  } finally {
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+});
+
+test("explicit Groq selection without a key fails closed instead of switching provider", async () => {
+  const keys = ["AI_ENABLED", "MODEL_PROVIDER", "MODEL_API_KEY", "MODEL_API_BASE_URL", "MODEL_ID", "NEON_AI_GATEWAY_TOKEN", "NEON_AI_GATEWAY_BASE_URL"];
+  const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+  try {
+    process.env.AI_ENABLED = "true";
+    process.env.MODEL_PROVIDER = "groq";
+    delete process.env.MODEL_API_KEY;
+    process.env.MODEL_ID = "unit-test-model";
+    process.env.NEON_AI_GATEWAY_TOKEN = "unit-test-neon-token";
+    process.env.NEON_AI_GATEWAY_BASE_URL = "https://gateway.example.test";
+    const response = await handler.fetch(new Request("https://example.test/health"));
+    const data = await response.json();
+    assert.equal(data.inferenceConfigured, false);
+    assert.equal(data.inferenceProvider, null);
+  } finally {
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+});
