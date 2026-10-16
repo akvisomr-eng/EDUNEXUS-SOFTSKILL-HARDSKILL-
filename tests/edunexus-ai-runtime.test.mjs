@@ -193,3 +193,19 @@ test("Frappe Books reference is treated as an accounting-learning blueprint, not
   const corpus = JSON.parse(await readFile(new URL("../neon/functions/edunexusai/knowledge.json", import.meta.url), "utf8"));
   assert.ok(corpus.chunks.some((chunk) => chunk.id === "EDU-FRAPPE-BOOKS-ACCOUNTING-LEARNING"));
 });
+
+
+test("accounting learning lab is client-only, fictional, and balanced-journal guarded", async () => {
+  const html = await readFile(new URL("../web/app/index.html", import.meta.url), "utf8");
+  assert.match(html, /id="accountingLab"/);
+  assert.match(html, /Simulasi keuangan usaha/);
+  assert.match(html, /Mode edukasi saja/);
+  assert.match(html, /Buku kas/);
+  assert.match(html, /Jurnal umum/);
+  assert.match(html, /Anggaran kursus/);
+  assert.match(html, /Tagihan latihan/);
+  assert.match(html, /debit!==credit/);
+  assert.match(html, /Cocok \(simulasi\)/);
+  assert.match(html, /accounting:"accountingLab"/);
+  assert.match(html, /labReset/);
+});
