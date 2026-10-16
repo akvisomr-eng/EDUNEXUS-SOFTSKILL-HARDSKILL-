@@ -63,7 +63,7 @@ jobs:
           module = shared.read_text()
           for required in ["createAuthClient", "ensure_my_profile", "current_user_id", "getProfile", "mentor_student_relationships", "guardian_student_relationships", "course_enrollments", "lesson_progress"]:
               assert required in module, f"Authenticated data module missing required guard/query: {required}"
-          assert "row.role !== role" in module, "Role mismatch must be rejected"
+          assert "rows[0].role !== role" in module, "Role mismatch must be rejected"
           print("OK authenticated role data module and role gates")
           print("OK all three role portals linked from landing page")
           PY
