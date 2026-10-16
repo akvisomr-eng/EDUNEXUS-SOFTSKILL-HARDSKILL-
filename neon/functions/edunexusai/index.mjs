@@ -307,7 +307,7 @@ export default {
       const reason = error instanceof Error ? error.message : "unknown";
       if (reason === "ai_not_configured") return json({ error: "ai_not_configured", message: "Layanan AI belum dikonfigurasi. Tidak ada jawaban simulasi yang ditampilkan." }, 503, cors);
       if (reason === "ai_rate_limited") return json({ error: "provider_rate_limited", message: "Penyedia AI sedang membatasi permintaan." }, 429, cors);
-      const diagnosticCode = /^ai_provider_http_\\d{3}$/.test(reason) ? reason : "ai_unavailable";
+      const diagnosticCode = /^ai_provider_http_[0-9]{3}$/.test(reason) ? reason : "ai_unavailable";
       return json({ error: "ai_unavailable", diagnosticCode, message: "Layanan AI sedang tidak tersedia. Coba lagi nanti." }, 502, cors);
     }
   },
