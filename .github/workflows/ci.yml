@@ -80,7 +80,7 @@ jobs:
           grep -q "finalize_my_practice_attempt" neon/tests/0002_trusted_practice_rpc.sql
           grep -q "app.trusted_practice_finalize" neon/migrations/0004_trusted_practice_score_transition.sql
           grep -q "immutable after submission" neon/tests/0004_trusted_practice_score_transition.sql
-          grep -q "41 public tables" docs/NEON_CUTOVER.md
+          grep -q "45 public tables" docs/NEON_CUTOVER.md
           test -f supabase/migrations/0001_initial_foundation.sql
           test -f supabase/migrations/0002_rls_policy_design.sql
           test -f supabase/migrations/0003_identity_membership_rls_baseline.sql
