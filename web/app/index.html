@@ -88,6 +88,7 @@ body.dashboard .module-view>.grid{margin-top:0}
     <a class="active" href="#welcome"><span class="nav-icon">⌂</span><span>Ringkasan</span></a>
     <a href="#coursesList"><span class="nav-icon">▤</span><span>Program & kursus</span></a>
     <a href="#cognitiveLab"><span class="nav-icon">◈</span><span>Cognitive Fitness Lab</span></a>
+    <a href="#accountingLab"><span class="nav-icon">▧</span><span>Simulasi akuntansi</span></a>
     <a href="#scenarios"><span class="nav-icon">◎</span><span>Praktik & simulasi</span></a>
     <a href="#goalForm"><span class="nav-icon">↗</span><span>Tujuan pengembangan</span></a>
   </nav>
@@ -1037,9 +1038,62 @@ $("aiMode").addEventListener("change",()=>{
  }
 });
 
+
+function createAccountingLab(){
+ const el=document.createElement("div");el.id="accountingLab";el.className="card";
+ el.innerHTML=`
+  <div class="badge">LAB PEMBELAJARAN · DATA FIKTIF</div>
+  <h2>Simulasi keuangan usaha</h2>
+  <p class="muted">Latihan pembukuan usaha dan anggaran pelatihan dengan data contoh. Seluruh perubahan hanya tersimpan di memori halaman ini dan akan direset saat halaman dimuat ulang.</p>
+  <div class="status" role="note">Mode edukasi saja — bukan sistem akuntansi resmi, bukan nasihat pajak/keuangan, tidak terhubung ke bank, tidak memproses pembayaran, dan tidak menyimpan transaksi nyata.</div>
+  <div class="actions" role="group" aria-label="Pilih latihan">
+   <button type="button" class="secondary" data-ledger-tab="cash">Buku kas</button>
+   <button type="button" class="secondary" data-ledger-tab="journal">Jurnal umum</button>
+   <button type="button" class="secondary" data-ledger-tab="budget">Anggaran kursus</button>
+   <button type="button" class="secondary" data-ledger-tab="invoice">Tagihan latihan</button>
+  </div>
+  <section data-ledger-panel="cash">
+   <h3>Buku kas contoh</h3><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+    <div class="item"><small class="muted">Saldo simulasi</small><h2 id="labCashBalance">Rp 2.500.000</h2></div>
+    <div class="item"><small class="muted">Total masuk</small><h2 id="labCashIn">Rp 3.000.000</h2></div>
+    <div class="item"><small class="muted">Total keluar</small><h2 id="labCashOut">Rp 500.000</h2></div>
+   </div>
+   <form id="labCashForm"><div class="grid"><div class="field"><label for="labCashDesc">Keterangan</label><input id="labCashDesc" required maxlength="100" placeholder="Contoh: penjualan latihan"></div><div class="field"><label for="labCashType">Jenis</label><select id="labCashType"><option value="in">Kas masuk</option><option value="out">Kas keluar</option></select></div><div class="field"><label for="labCashAmount">Nominal (Rp)</label><input id="labCashAmount" type="number" min="1" max="1000000000" step="1" required></div></div><button type="submit">Tambah transaksi simulasi</button></form>
+   <div class="table-wrap"><table><thead><tr><th>Keterangan</th><th>Masuk</th><th>Keluar</th><th>Saldo</th></tr></thead><tbody id="labCashRows"></tbody></table></div>
+  </section>
+  <section data-ledger-panel="journal" hidden>
+   <h3>Jurnal umum berpasangan</h3><p class="muted">Setiap contoh jurnal harus seimbang: total debit sama dengan total kredit. Posting hanya memengaruhi tabel latihan di halaman ini.</p>
+   <form id="labJournalForm"><div class="grid"><div class="field"><label for="labJournalDesc">Uraian transaksi</label><input id="labJournalDesc" required maxlength="100" placeholder="Contoh: pembelian alat tulis"></div><div class="field"><label for="labJournalDebit">Debit (Rp)</label><input id="labJournalDebit" type="number" min="1" max="1000000000" step="1" required></div><div class="field"><label for="labJournalCredit">Kredit (Rp)</label><input id="labJournalCredit" type="number" min="1" max="1000000000" step="1" required></div></div><button type="submit">Validasi & catat jurnal latihan</button></form><p id="labJournalStatus" class="status" role="status" aria-live="polite">Belum ada jurnal baru.</p>
+   <div class="table-wrap"><table><thead><tr><th>Uraian</th><th>Debit</th><th>Kredit</th><th>Status</th></tr></thead><tbody id="labJournalRows"><tr><td>Modal awal contoh</td><td>Rp 5.000.000</td><td>Rp 5.000.000</td><td>Seimbang</td></tr></tbody></table></div>
+  </section>
+  <section data-ledger-panel="budget" hidden>
+   <h3>Kalkulator anggaran program pelatihan</h3><div class="grid"><div class="field"><label for="labLearners">Jumlah peserta</label><input id="labLearners" type="number" min="1" max="10000" value="25"></div><div class="field"><label for="labFee">Biaya per peserta (Rp)</label><input id="labFee" type="number" min="0" max="1000000000" value="150000"></div><div class="field"><label for="labTrainer">Honor fasilitator (Rp)</label><input id="labTrainer" type="number" min="0" max="1000000000" value="1200000"></div><div class="field"><label for="labVenue">Tempat & perlengkapan (Rp)</label><input id="labVenue" type="number" min="0" max="1000000000" value="500000"></div><div class="field"><label for="labOther">Biaya lain (Rp)</label><input id="labOther" type="number" min="0" max="1000000000" value="250000"></div></div>
+   <div class="grid"><div class="item"><small class="muted">Pendapatan simulasi</small><h2 id="labBudgetRevenue">Rp 3.750.000</h2></div><div class="item"><small class="muted">Total biaya</small><h2 id="labBudgetCost">Rp 1.950.000</h2></div><div class="item"><small class="muted">Surplus / (defisit)</small><h2 id="labBudgetNet">Rp 1.800.000</h2></div></div><p class="muted">Kalkulasi aritmetika sederhana, belum termasuk pajak, biaya tak terduga, atau kebijakan lembaga.</p>
+  </section>
+  <section data-ledger-panel="invoice" hidden>
+   <h3>Rekonsiliasi tagihan fiktif</h3><p class="muted">Tandai pembayaran contoh sebagai cocok atau belum cocok untuk berlatih pemeriksaan bukti. Tidak ada pembayaran sungguhan.</p><div class="table-wrap"><table><thead><tr><th>Nomor</th><th>Deskripsi</th><th>Nilai</th><th>Status latihan</th><th>Aksi</th></tr></thead><tbody id="labInvoiceRows"></tbody></table></div>
+  </section>
+  <div class="actions"><button type="button" id="labReset" class="secondary">Reset semua latihan</button></div>
+ `;
+ const $l=id=>el.querySelector("#"+id), money=n=>"Rp "+Math.round(n).toLocaleString("id-ID");
+ let cash=[{desc:"Modal awal contoh",type:"in",amount:3000000},{desc:"Perlengkapan latihan",type:"out",amount:500000}], journals=[], invoices=[{id:"INV-DEMO-001",desc:"Kelas komunikasi",amount:750000,status:"Menunggu cocok"},{id:"INV-DEMO-002",desc:"Pelatihan spreadsheet",amount:1200000,status:"Cocok (simulasi)"},{id:"INV-DEMO-003",desc:"Kelas manajemen proyek",amount:450000,status:"Menunggu cocok"}];
+ function renderCash(){let bal=0,ins=0,outs=0;const rows=cash.map(x=>{if(x.type==="in"){bal+=x.amount;ins+=x.amount}else{bal-=x.amount;outs+=x.amount}return "<tr><td>"+escapeHtml(x.desc)+"</td><td>"+(x.type==="in"?money(x.amount):"—")+"</td><td>"+(x.type==="out"?money(x.amount):"—")+"</td><td>"+money(bal)+"</td></tr>"});$l("labCashBalance").textContent=money(bal);$l("labCashIn").textContent=money(ins);$l("labCashOut").textContent=money(outs);$l("labCashRows").innerHTML=rows.join("")}
+ function renderJournals(){journals.forEach(()=>{});$l("labJournalRows").innerHTML='<tr><td>Modal awal contoh</td><td>'+money(5000000)+'</td><td>'+money(5000000)+'</td><td>Seimbang</td></tr>'+journals.map(j=>'<tr><td>'+escapeHtml(j.desc)+'</td><td>'+money(j.debit)+'</td><td>'+money(j.credit)+'</td><td>Seimbang</td></tr>').join("")}
+ function calcBudget(){const v=id=>Math.max(0,Number($l(id).value)||0);const revenue=v("labLearners")*v("labFee"),cost=v("labTrainer")+v("labVenue")+v("labOther");$l("labBudgetRevenue").textContent=money(revenue);$l("labBudgetCost").textContent=money(cost);$l("labBudgetNet").textContent=money(revenue-cost)}
+ function renderInvoices(){$l("labInvoiceRows").innerHTML=invoices.map((x,i)=>'<tr><td>'+x.id+'</td><td>'+escapeHtml(x.desc)+'</td><td>'+money(x.amount)+'</td><td>'+x.status+'</td><td><button type="button" class="secondary" data-invoice="'+i+'">'+(x.status.startsWith("Cocok")?"Batalkan kecocokan":"Tandai cocok")+'</button></td></tr>').join("")}
+ el.querySelectorAll("[data-ledger-tab]").forEach(btn=>btn.addEventListener("click",()=>{const tab=btn.dataset.ledgerTab;el.querySelectorAll("[data-ledger-panel]").forEach(p=>p.hidden=p.dataset.ledgerPanel!==tab);el.querySelectorAll("[data-ledger-tab]").forEach(b=>b.classList.toggle("active",b===btn));}));
+ $l("labCashForm").addEventListener("submit",e=>{e.preventDefault();const amount=Number($l("labCashAmount").value),desc=$l("labCashDesc").value.trim();if(!desc||!Number.isSafeInteger(amount)||amount<1||amount>1000000000)return;cash.push({desc,type:$l("labCashType").value,amount});e.target.reset();renderCash()});
+ $l("labJournalForm").addEventListener("submit",e=>{e.preventDefault();const desc=$l("labJournalDesc").value.trim(),debit=Number($l("labJournalDebit").value),credit=Number($l("labJournalCredit").value),status=$l("labJournalStatus");if(!desc||!Number.isSafeInteger(debit)||!Number.isSafeInteger(credit)||debit<1||credit<1||debit>1e9||credit>1e9){status.textContent="Masukkan uraian dan nominal bulat yang valid.";status.className="status error";return}if(debit!==credit){status.textContent="Jurnal ditolak: total debit dan kredit harus sama.";status.className="status error";return}journals.push({desc,debit,credit});renderJournals();status.textContent="Jurnal seimbang ditambahkan ke simulasi saja.";status.className="status";e.target.reset()});
+ ["labLearners","labFee","labTrainer","labVenue","labOther"].forEach(id=>$l(id).addEventListener("input",calcBudget));
+ $l("labInvoiceRows").addEventListener("click",e=>{const b=e.target.closest("button[data-invoice]");if(!b)return;const x=invoices[Number(b.dataset.invoice)];if(!x)return;x.status=x.status.startsWith("Cocok")?"Menunggu cocok":"Cocok (simulasi)";renderInvoices()});
+ $l("labReset").addEventListener("click",()=>{cash=[{desc:"Modal awal contoh",type:"in",amount:3000000},{desc:"Perlengkapan latihan",type:"out",amount:500000}];journals=[];invoices=[{id:"INV-DEMO-001",desc:"Kelas komunikasi",amount:750000,status:"Menunggu cocok"},{id:"INV-DEMO-002",desc:"Pelatihan spreadsheet",amount:1200000,status:"Cocok (simulasi)"},{id:"INV-DEMO-003",desc:"Kelas manajemen proyek",amount:450000,status:"Menunggu cocok"}];$l("labCashForm").reset();$l("labJournalForm").reset();$l("labJournalStatus").textContent="Belum ada jurnal baru.";$l("labJournalStatus").className="status";renderCash();renderJournals();renderInvoices();calcBudget()});
+ renderCash();renderJournals();renderInvoices();calcBudget();return el;
+}
+
 function setupIndependentModules(){
  const app=$("app");
  if(!app||$("moduleViews"))return;
+ const accountingLab=createAccountingLab();
  const cognitiveLab=document.createElement("div");
  cognitiveLab.id="cognitiveLab";cognitiveLab.className="card";
  cognitiveLab.innerHTML=`
@@ -1104,6 +1158,7 @@ function setupIndependentModules(){
   {key:"overview",title:"Ringkasan",icon:"⌂",description:"Ringkasan perkembangan, status layanan, dan Paspor Keterampilan.",targets:[$("welcome").closest(".card"),$("passportStatus").closest(".card")]},
   {key:"courses",title:"Program & kursus",icon:"▤",description:"Jelajahi program belajar, buka modul dan pelajaran, lalu pantau kemajuan Anda.",targets:[$("coursesList").closest(".card")]},
   {key:"cognitive",title:"Cognitive Fitness Lab",icon:"◈",description:"Latih penalaran, kreativitas, pemecahan masalah, dan refleksi metakognitif melalui tantangan formatif.",targets:[cognitiveLab]},
+  {key:"accounting",title:"Simulasi akuntansi",icon:"▧",description:"Latihan buku kas, jurnal berpasangan, anggaran program, dan rekonsiliasi tagihan dengan data fiktif.",targets:[accountingLab]},
   {key:"practice",title:"Praktik & simulasi",icon:"◎",description:"Pilih skenario, kerjakan tugas terstruktur, dan kirim bukti praktik untuk dinilai.",targets:[$("scenarios").closest(".card")]},
   {key:"goals",title:"Tujuan pengembangan",icon:"↗",description:"Tetapkan target keterampilan, simpan rencana, dan tinjau progres tujuan Anda.",targets:[$("goalForm").closest(".card")]},
   {key:"ai",title:"Multi-agent AI",icon:"✧",description:"Konsultasikan materi, latihan, soft skill, hard skill, atau arah karier kepada asisten belajar.",targets:[$("aiCoach")]},
@@ -1121,12 +1176,12 @@ function setupIndependentModules(){
  });
  if(originalGrid)originalGrid.style.display="none";
  app.appendChild(views);
- const navMap={"welcome":"overview","coursesList":"courses","cognitiveLab":"cognitive","scenarios":"practice","goalForm":"goals","aiCoach":"ai","knowledgeLibrary":"knowledge","history":"history"};
+ const navMap={"welcome":"overview","coursesList":"courses","cognitiveLab":"cognitive","accountingLab":"accounting","scenarios":"practice","goalForm":"goals","aiCoach":"ai","knowledgeLibrary":"knowledge","history":"history"};
  function activateModule(key,updateHash=false){
   if(!definitions.some(d=>d.key===key))key="overview";
   views.querySelectorAll(".module-view").forEach(view=>{const active=view.dataset.module===key;view.classList.toggle("is-active",active);view.setAttribute("aria-hidden",String(!active));});
   document.querySelectorAll(".sidebar-nav a[href^='#']").forEach(link=>{const target=link.getAttribute("href").slice(1);const active=navMap[target]===key;link.classList.toggle("active",active);if(active)link.setAttribute("aria-current","page");else link.removeAttribute("aria-current");});
-  if(updateHash){const link=document.querySelector('.sidebar-nav a[href="#'+({overview:"welcome",courses:"coursesList",cognitive:"cognitiveLab",practice:"scenarios",goals:"goalForm",ai:"aiCoach",knowledge:"knowledgeLibrary",history:"history"}[key])+'"]');if(link)history.replaceState(null,"",location.pathname+location.search+link.getAttribute("href"));}
+  if(updateHash){const link=document.querySelector('.sidebar-nav a[href="#'+({overview:"welcome",courses:"coursesList",cognitive:"cognitiveLab",accounting:"accountingLab",practice:"scenarios",goals:"goalForm",ai:"aiCoach",knowledge:"knowledgeLibrary",history:"history"}[key])+'"]');if(link)history.replaceState(null,"",location.pathname+location.search+link.getAttribute("href"));}
   window.scrollTo({top:0,behavior:"auto"});
  }
  document.querySelectorAll(".sidebar-nav a[href^='#']").forEach(link=>link.addEventListener("click",event=>{event.preventDefault();activateModule(navMap[link.getAttribute("href").slice(1)]||"overview",true);}));
