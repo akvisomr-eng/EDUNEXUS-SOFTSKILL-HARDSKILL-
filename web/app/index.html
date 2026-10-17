@@ -977,7 +977,8 @@ async function checkAiHealth(){
   const data=await response.json();
   if(!response.ok||!data.authConfigured||!data.knowledgeConfigured||!data.persistentQuotaConfigured)throw new Error("Layanan AI, kuota persisten, atau basis pengetahuan belum dapat diverifikasi.");
   const projectMode=$("aiMode").querySelector('option[value="project"]');
-  if(data.inferenceConfigured){
+  const approvedInferenceReady=data.inferenceConfigured===true&&data.inferenceProvider==="groq";
+  if(approvedInferenceReady){
    projectMode.disabled=false;
    projectMode.textContent="Multi-agent Project Builder (perencanaan)";
    $("aiHealth").textContent="AI generatif terkonfigurasi. Pertanyaan dirutekan ke spesialis dengan sumber pengetahuan terkurasi. Eksekusi kode dan deployment tetap memerlukan tool gateway yang terpisah.";
@@ -987,7 +988,7 @@ async function checkAiHealth(){
    projectMode.disabled=true;
    projectMode.textContent="Multi-agent Project Builder (belum aktif — menunggu AI generatif)";
    if($("aiMode").value==="project") $("aiMode").value="learn";
-   $("aiHealth").textContent="Mode aman aktif: tutor hanya merangkum sumber terkurasi dengan kuota persisten. AI generatif multi-agen dan Project Builder belum tersedia; tidak ada permintaan model generatif yang dikirim.";
+   $("aiHealth").textContent=data.inferenceConfigured===true?"Mode aman aktif: provider AI belum sesuai konfigurasi rilis Groq yang disetujui. Project Builder dinonaktifkan untuk mencegah penggunaan provider yang tidak disetujui.":"Mode aman aktif: tutor hanya merangkum sumber terkurasi dengan kuota persisten. AI generatif multi-agen dan Project Builder belum tersedia; tidak ada permintaan model generatif yang dikirim.";
    $("aiHealth").className="status ok";
    $("aiSendBtn").disabled=false;
   }
