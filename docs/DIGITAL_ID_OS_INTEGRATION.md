@@ -56,3 +56,12 @@ Do not choose solely from headline fees. Confirm merchant eligibility, digital-g
 ## Automated schema acceptance
 
 `neon/tests/0013_digital_id_billing_acceptance.sql` verifies the eight service tables have RLS, at least one policy, authenticated SELECT access, no direct authenticated writes, and no accidentally published plans. Run only after migration 0013 on an isolated Neon branch. It does not substitute for two-account tenant-isolation, payment-webhook, provider API, or card-issuance tests.
+
+## Recommended payment-gateway candidate
+
+**Midtrans is the first candidate to evaluate**, not yet an active integration. Its official docs describe subscription/recurring APIs, while recurring capability requires eligible payment channels and additional activation/agreements in some cases. Official sources:
+- Pricing: https://midtrans.com/id/biaya
+- Subscription API: https://docs.midtrans.com/reference/create-subscription
+- Recurring activation caveat: https://docs.midtrans.com/docs/coreapi-advanced-features
+
+Keep ordinary one-time checkout and automatic recurring billing as separate release gates. Do not advertise automatic renewal until Midtrans confirms the merchant account and recurring MID/channel eligibility, and sandbox webhook/renewal/cancellation/refund tests pass. Published prices can vary for digital products and merchant categories; confirm the actual contracted rates before setting customer prices.
