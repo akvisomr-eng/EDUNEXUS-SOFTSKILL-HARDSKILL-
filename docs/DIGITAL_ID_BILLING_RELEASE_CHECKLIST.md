@@ -1,0 +1,16 @@
+# Digital ID Billing — Test and Release Checklist
+- [ ] Confirm provider authorization, reseller terms, license cost and supported customer pricing.
+- [ ] Obtain provider API docs and test credentials through approved secret management, never chat/issues.
+- [ ] Confirm payment gateway and sandbox; configure secrets server-side only.
+- [ ] Apply migration 0012 to a disposable Neon branch; test execution and rollback.
+- [ ] Verify RLS with two real accounts and two institutions; test anonymous, student, mentor, staff and admin visibility.
+- [ ] Verify browser roles cannot write plans, subscriptions, orders, payments, cards or events directly.
+- [ ] Ensure server computes price and totals from published plans.
+- [ ] Replay same payment webhook twice; assert one order transition and one issuance request.
+- [ ] Reject invalid signatures, wrong currency/amount, stale events and unknown order references.
+- [ ] Test pending, failed, abandoned, succeeded, refunded and partially refunded payments.
+- [ ] Test provider timeout, duplicate response, card issuance failure and safe retry.
+- [ ] Ensure card state never becomes issued/active before provider confirmation.
+- [ ] Reconcile customer revenue, provider license expense, fees, tax and refunds.
+- [ ] Review privacy notice, consent, retention/deletion and incident process.
+- [ ] Run CI, browser smoke, accessibility and production URL checks before launch.
