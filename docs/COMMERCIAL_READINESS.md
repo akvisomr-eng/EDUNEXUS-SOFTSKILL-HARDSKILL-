@@ -1,6 +1,6 @@
 # EDUNEXUS — Commercial Readiness & Launch Gate
 
-**Document status:** internal release-control checklist, 15 October 2026  
+**Document status:** internal release-control checklist, updated 17 October 2026  
 **Release status:** NOT READY for paid public launch until every P0 gate is evidenced.  
 **Operating principle:** do not sell roadmap items as available features.
 
@@ -58,14 +58,23 @@ For every checkbox, record: evidence URL or run ID, date, tested environment, re
 ### Verified in the repository as of 15 October 2026
 
 - Source and workflow changes are committed to the repository. Current source includes a persistent per-user quota RPC, a fail-closed runtime client, and an emergency inference disable switch.
-- Production Neon Function `edunexusai` is now on deployment #16 (16 October 2026). A real authenticated preview E2E request reached the configured model path but received HTTP 403; the sanitized upstream error states AI Gateway is not enabled on the account's current plan. Production `AI_ENABLED=false` is set as a fail-safe, so health should report `inferenceConfigured=false`, learning mode falls back to curated retrieval, and Project Builder fails closed. Do not advertise generative AI as available until the owner approves an eligible Neon plan/credits or provides a valid external model-provider key, then a real authenticated model call succeeds. The separate `edunexusapi` function still reports failed current deployment #4 (`pg` bundle error) with deployment #2 remaining active; the frontend's documented request path uses Neon Data API.
+- Production Neon Function `edunexusai` is on deployment #17 (16 October 2026). A real authenticated preview E2E request reached the configured model path but received HTTP 403; the sanitized upstream error states AI Gateway is not enabled on the account's current plan. Production `AI_ENABLED=false` is set as a fail-safe, so health should report `inferenceConfigured=false`, learning mode falls back to curated retrieval, and Project Builder fails closed. Do not advertise generative AI as available until the owner approves an eligible Neon plan/credits or provides a valid external model-provider key, then a real authenticated model call succeeds. The separate `edunexusapi` function still reports failed current deployment #4 (`pg` bundle error) with deployment #2 remaining active; the frontend's documented request path uses Neon Data API.
 - Runtime Health run `38692369802`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38692369802
 - EDUNEXUS CI run `38692369524`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38692369524
 - Browser smoke run `38692230916`: success — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38692230916. It exercised a real Neon Auth JWT, profile provisioning, quota RPC, catalog retrieval, practice finalization, candidate evidence, and cross-account isolation for practice sessions. It also called the deployed AI runtime in curated-retrieval mode and received HTTP 200.
 - Migration `0012_persistent_ai_quotas.sql` has been applied on production and preview. SQL boundary tests passed for 10 requests/minute and 100/day per application identity. Direct table access is revoked; the RPC is executable by `authenticated` only.
-- The `AI_ENABLED=false` emergency inference switch is covered by a runtime unit test. Provider inference remains disabled by missing `MODEL_API_KEY`; no live generative model call is claimed.
+- The `AI_ENABLED=false` emergency inference switch is covered by a runtime unit test. The latest owner-provided `/health` response reports `inferenceConfigured=false`, `inferenceProvider=null`, `inferenceDisabled=true`, and `projectExecutionConfigured=false`. Deployment metadata lists `MODEL_API_KEY` as an environment-variable name but does not reveal its value; key presence and validity are therefore not independently verified. No live generative model call is claimed.
 - Website deploy run `38691681331` and live Pages verification run `38691681297` both succeeded — https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38691681331 and https://github.com/akvisomr-eng/EDUNEXUS-SOFTSKILL-HARDSKILL-/actions/runs/38691681297.
 - Project Builder migration `0011_project_builder_records.sql` remains preview-only. Its five tables have owner-scoped SELECT policies. Synthetic Account A/B SQL isolation tests now pass across all five tables (`neon/tests/0011_project_builder_rls.sql`); testing with two real Neon Auth accounts and actual JWT subject mappings is still required before promotion. Do not promote it yet.
+
+### Live Neon audit — 17 October 2026 (read-only checks)
+
+- Production branch `br-bitter-king-azb11lde` is `ready`; the latest listed `edunexusai` deployment is #17 and `completed`.
+- Read-only catalog audit found 45 public tables and RLS enabled on all 45, with 84 public RLS policies. The `public.consume_edunexus_ai_quota()` RPC exists and the `authenticated` role has EXECUTE permission. The quota identity table had 0 rows at the time of the check; this is an observation, not evidence of a quota bypass.
+- Preview branch `br-quiet-frost-azemctlk` had 58 public tables and RLS enabled on all 58. `id_service_subscriptions` exists in preview but not production; Digital ID billing schema is not yet promoted to production.
+- The owner-provided runtime health reports 57 curated knowledge chunks, while a read-only production database count found 21 rows in `public.knowledge_chunks` and 34 in `public.knowledge_sources`. Runtime corpus content may be served from the deployed JSON corpus rather than fully persisted in these tables; reconcile the provenance and deployment path before claiming the database itself contains all 57 chunks.
+- `edunexusapi` deployment #4 is still marked failed with `Cannot find package 'pg'`; deployment #2 remains the last completed active deployment. The documented frontend path uses Neon Data API, but the latest `edunexusapi` deployment is not healthy.
+- Function logs in the last day show `edunexusai` invocation begin/end events without an exposed application error in the returned log entries. These entries do not prove successful authenticated model inference.
 
 ## 6. Immediate next actions
 
