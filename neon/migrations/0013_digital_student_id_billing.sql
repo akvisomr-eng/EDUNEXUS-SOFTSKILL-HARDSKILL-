@@ -1,4 +1,4 @@
--- Draft 0012: Digital Student ID OS subscription foundation. Test on isolated Neon branch first.
+-- Draft 0013: Digital Student ID OS subscription foundation. Test on isolated Neon branch first.
 -- No payment gateway/API is enabled by this schema.
 BEGIN;
 CREATE TABLE IF NOT EXISTS public.id_service_providers (
