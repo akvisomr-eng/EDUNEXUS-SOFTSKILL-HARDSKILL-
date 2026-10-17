@@ -30,7 +30,7 @@ One canonical order/payment record feeds all views. Do not duplicate transaction
 10. Renewal/cancel/refund updates entitlement and card state according to signed terms.
 
 ## Data and security
-Migration draft 0012 defines provider, plan, subscription, order, order item, payment transaction, card registry and event tables. It is intentionally not applied to production. Test on an isolated Neon branch, inspect policy dependencies, verify with two real test accounts and RLS, then follow the existing production DB promotion gate.
+Migration draft 0013 defines provider, plan, subscription, order, order item, payment transaction, card registry and event tables. It is intentionally not applied to production. Test on an isolated Neon branch, inspect policy dependencies, verify with two real test accounts and RLS, then follow the existing production DB promotion gate.
 
 Browser roles are read-only. Writes must use a trusted server/function. Never store payment-card data, bearer tokens, API keys, raw webhook secrets or unnecessary identity documents. Store redacted provider event payloads and external references only. Require signature verification, idempotency, audit trails, least privilege and data minimization.
 
