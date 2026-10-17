@@ -43,3 +43,16 @@ Browser roles are read-only. Writes must use a trusted server/function. Never st
 - Public launch remains blocked until integration, security, payment, RLS, accessibility, reconciliation and failure-path tests pass.
 
 The web/id-services/index.html page is a preparation UI: checkout is disabled and it invents no prices, transactions, issued cards or QR verification.
+
+## Payment provider selection (research snapshot: 2026-10-17)
+
+The gateway is deliberately not configured. Official pricing pages indicate no standard monthly integration subscription for these gateway offerings, but successful payments incur transaction fees; exact rates and tax treatment depend on payment method and business category.
+
+- Midtrans official pricing: https://midtrans.com/id/biaya
+- Xendit official pricing: https://www.xendit.co/id/biaya
+
+Do not choose solely from headline fees. Confirm merchant eligibility, digital-goods pricing, settlement, refund/chargeback terms, taxes, webhook signatures, subscription/recurring-payment support, and account activation. For the Rp0-first plan, keep checkout disabled until a merchant account is approved and production credentials are configured server-side. No credentials belong in source control, browser code, or chat.
+
+## Automated schema acceptance
+
+`neon/tests/0013_digital_id_billing_acceptance.sql` verifies the eight service tables have RLS, at least one policy, authenticated SELECT access, no direct authenticated writes, and no accidentally published plans. Run only after migration 0013 on an isolated Neon branch. It does not substitute for two-account tenant-isolation, payment-webhook, provider API, or card-issuance tests.
