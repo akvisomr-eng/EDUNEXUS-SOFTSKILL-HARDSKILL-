@@ -244,7 +244,7 @@ body.dashboard .module-view>.grid{margin-top:0}
 <div class="section-title"><div><div class="badge">EDUNEXUS MULTI-AGENT AI</div><h2>EDUNEXUS Intelligence Workspace</h2><p class="muted">Gunakan agen spesialis untuk belajar atau menyusun rencana proyek. Perencanaan proyek memakai beberapa peran agen; eksekusi kode dan deployment otomatis tetap nonaktif sampai tool gateway dan kredensial server-side tervalidasi.</p></div></div>
 <div id="aiHealth" class="status" role="status" aria-live="polite">Memeriksa layanan AI…</div>
 <form id="aiChatForm">
-<div class="field"><label for="aiMode">Mode kerja</label><select id="aiMode"><option value="learn">Tutor & mentor keterampilan</option><option value="project">Multi-agent Project Builder (perencanaan)</option></select></div>
+<div class="field"><label for="aiMode">Mode kerja</label><select id="aiMode"><option value="learn">Tutor & mentor keterampilan</option><option value="project" disabled>Multi-agent Project Builder (aktif setelah AI generatif siap)</option></select></div>
 <div class="field"><label for="aiMessage">Tujuan atau pertanyaan</label><textarea id="aiMessage" rows="3" maxlength="4000" placeholder="Belajar: susun jalur belajar komunikasi 2 minggu. Proyek: rancang aplikasi inventaris UMKM dengan login, stok, transaksi, dan laporan." required></textarea></div>
 <div class="actions"><button id="aiSendBtn" type="submit">Tanya EDUNEXUS</button><button id="aiClearBtn" class="secondary" type="button">Bersihkan jawaban</button></div>
 </form>
@@ -976,17 +976,27 @@ async function checkAiHealth(){
   const response=await fetch(EDUNEXUS_AI_URL+"/health",{signal:AbortSignal.timeout(10000)});
   const data=await response.json();
   if(!response.ok||!data.authConfigured||!data.knowledgeConfigured||!data.persistentQuotaConfigured)throw new Error("Layanan AI, kuota persisten, atau basis pengetahuan belum dapat diverifikasi.");
+  const projectMode=$("aiMode").querySelector('option[value="project"]');
   if(data.inferenceConfigured){
-   $("aiHealth").textContent="AI generatif aktif. Pertanyaan dirutekan ke spesialis dengan sumber pengetahuan terkurasi.";
+   projectMode.disabled=false;
+   projectMode.textContent="Multi-agent Project Builder (perencanaan)";
+   $("aiHealth").textContent="AI generatif terkonfigurasi. Pertanyaan dirutekan ke spesialis dengan sumber pengetahuan terkurasi. Eksekusi kode dan deployment tetap memerlukan tool gateway yang terpisah.";
    $("aiHealth").className="status ok";
    $("aiSendBtn").disabled=false;
   }else{
-   $("aiHealth").textContent="Tutor tersedia dalam mode sumber terkurasi dengan kuota persisten. Project Builder memerlukan model generatif server-side dan saat ini belum aktif.";
+   projectMode.disabled=true;
+   projectMode.textContent="Multi-agent Project Builder (belum aktif — menunggu AI generatif)";
+   if($("aiMode").value==="project") $("aiMode").value="learn";
+   $("aiHealth").textContent="Mode aman aktif: tutor hanya merangkum sumber terkurasi dengan kuota persisten. AI generatif multi-agen dan Project Builder belum tersedia; tidak ada permintaan model generatif yang dikirim.";
    $("aiHealth").className="status ok";
    $("aiSendBtn").disabled=false;
   }
  }catch(e){
-  $("aiHealth").textContent="Status layanan AI belum dapat diverifikasi. Coba muat ulang atau hubungi administrator.";
+  const projectMode=$("aiMode").querySelector('option[value="project"]');
+  projectMode.disabled=true;
+  projectMode.textContent="Multi-agent Project Builder (status AI belum terverifikasi)";
+  if($("aiMode").value==="project") $("aiMode").value="learn";
+  $("aiHealth").textContent="Status layanan AI belum dapat diverifikasi. Mode Project Builder dinonaktifkan demi keamanan; coba muat ulang atau hubungi administrator.";
   $("aiHealth").className="status error";
   $("aiSendBtn").disabled=true;
  }
