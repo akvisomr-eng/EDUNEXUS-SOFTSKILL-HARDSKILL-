@@ -223,3 +223,14 @@ RLS being enabled on every public table is a useful baseline, but it does **not*
 ### Audit limitations
 
 This was a catalog/policy inventory, not a penetration test. It did not execute writes, impersonate roles, test actual frontend API calls, validate all policy expressions, or test backup/restore. The row counts are point-in-time counts and can change. Production and preview were inspected separately; no migration was applied.
+
+
+### Frontend/content-path inventory (read-only)
+
+The current frontend file `web/app/index.html` confirms the Programs & Courses view reads `programs`, `courses`, `modules`, and `lessons` through the Neon Data API after authentication. It sends a bearer JWT and includes identity consistency checks around `ensure_my_profile` and `current_user_id`. The AI panel calls the existing Neon Function `edunexusai` and checks its health endpoint before enabling Project Builder mode. This confirms that the app already has native views and an existing API path; adding a second CMS would duplicate responsibilities.
+
+The Knowledge Library currently loads `web/app/knowledge-sources.json` as a static GitHub Pages asset, rather than reading the two source registries and knowledge chunks from Neon. The checked-in JSON reports version `2026-10-15-v3`, **46 source entries and 18 knowledge notes**. Production Neon has **34 rows in `knowledge_sources`, 36 in `knowledge_source_registry`, and 21 in `knowledge_chunks`**. These are different counts and represent separate content surfaces; do not treat either as an automatically synchronized mirror of the other.
+
+**New P0 finding:** establish one documented source-of-truth strategy for the Knowledge Library. Before changing the UI, compare source IDs, URLs, review state, license notes, trust tiers, and agent-role mappings across JSON and Neon. Decide which items remain curated static public metadata and which require database-managed lifecycle/permissions. Do not bulk-copy one source into the other without deduplication, provenance, licensing checks, and a repeatable sync/test.
+
+The frontend inventory was static source inspection only. It did not make live browser requests or prove the deployed GitHub Pages asset matches the current repository branch.
