@@ -1,0 +1,32 @@
+name: Knowledge Catalogue Validation
+
+on:
+  pull_request:
+    paths:
+      - "web/app/knowledge-sources.json"
+      - "scripts/validate-knowledge-catalog.py"
+      - ".github/workflows/knowledge-catalog-validation.yml"
+  push:
+    branches: [main]
+    paths:
+      - "web/app/knowledge-sources.json"
+      - "scripts/validate-knowledge-catalog.py"
+      - ".github/workflows/knowledge-catalog-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate catalogue
+        run: python scripts/validate-knowledge-catalog.py
