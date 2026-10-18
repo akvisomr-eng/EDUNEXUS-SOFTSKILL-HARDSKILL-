@@ -18,8 +18,10 @@ jobs:
         run: |
           set -euo pipefail
           BASE="https://akvisomr-eng.github.io/EDUNEXUS-SOFTSKILL-HARDSKILL-"
-          curl --fail --silent --show-error --max-time 20 "$BASE/" | grep -q "EDUNEXUS"
-          curl --fail --silent --show-error --max-time 20 "$BASE/app/" | grep -q "EDUNEXUS MULTI-AGENT AI"
+          curl --fail --silent --show-error --max-time 20 "$BASE/" -o page.html
+          grep -q "EDUNEXUS" page.html
+          curl --fail --silent --show-error --max-time 20 "$BASE/app/" -o app.html
+          grep -q "EDUNEXUS MULTI-AGENT AI" app.html
           curl --fail --silent --show-error --max-time 20 "$BASE/knowledge-corpus.json" -o corpus.json
           node -e '
             const c = require("./corpus.json");
