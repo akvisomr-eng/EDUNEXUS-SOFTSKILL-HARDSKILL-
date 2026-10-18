@@ -165,3 +165,61 @@ Do not call this capability ready until tests prove:
 ## Recommendation
 
 Proceed with **Payload-inspired content governance**, starting with a read-only inventory and field mapping. Do not install the full Payload framework unless a later, evidence-based architecture review proves that the operational benefits outweigh the hosting, migration, and authorization complexity.
+
+
+## 11. Read-only live schema audit (18 October 2026)
+
+**Audit scope:** Neon project `holy-breeze-21216615`, production branch `br-bitter-king-azb11lde` and preview branch `br-quiet-frost-azemctlk`. Queries were read-only. No rows, schema, policies, functions, or configuration were changed.
+
+### Verified inventory
+
+| Check | Production | Preview |
+|---|---:|---:|
+| Public base tables | 45 | 58 |
+| Public tables with RLS enabled | 45/45 | 58/58 |
+| Public tables with RLS disabled | 0 | 0 |
+| Policies in `public` | 84 | 97 |
+
+The preview branch contains additional feature tables not present in production, including `ai_projects`, `ai_project_tasks`, and `ai_project_artifacts`, plus ID-service tables. Treat preview as a different schema version, not as proof that these features are deployed to production. Reconcile the branch drift before any migration or release.
+
+### Existing learning and knowledge model
+
+Production row counts observed during this audit:
+
+| Table | Rows |
+|---|---:|
+| `programs` | 5 |
+| `courses` | 32 |
+| `modules` | 82 |
+| `lessons` | 164 |
+| `activities` | 0 |
+| `practice_scenarios` | 2 |
+| `knowledge_sources` | 34 |
+| `knowledge_source_registry` | 36 |
+| `knowledge_chunks` | 21 |
+
+The existing schema already covers the core hierarchy (program → course → module → lesson), lesson activities, practice scenarios, knowledge source provenance, and knowledge chunks. `knowledge_chunks` includes `review_status`, `trust_tier`, `canonical_url`, `content_hash`, and `corpus_version`; `knowledge_source_registry` includes `ingestion_status`, `license_notes`, `agent_roles`, and `last_verified_at`. This is a useful base for a governance layer without adding a second CMS.
+
+### Policy observations
+
+Policies visible on the production content tables include:
+- `programs`, `courses`, `modules`, `lessons`, and `activities` currently have authenticated SELECT policies with `USING (true)`.
+- `practice_scenarios` has an authenticated SELECT policy limited to `status = 'active'`.
+- `knowledge_chunks` has a public SELECT policy limited to `review_status = 'reviewed'`.
+- `knowledge_sources` and `knowledge_source_registry` each have public SELECT policies with `USING (true)`.
+
+RLS being enabled on every public table is a useful baseline, but it does **not** by itself prove tenant isolation or correct write authorization. The visible policy set for the course hierarchy is read-oriented; it does not yet demonstrate a draft/review/publish workflow. Public unrestricted reads of source metadata should be reviewed to confirm that ingestion status, license notes, and editorial metadata are intentionally public. Do not infer that a secure authoring workflow exists merely because RLS is enabled.
+
+### Implementation decisions from the audit
+
+1. **Do not add duplicate content tables yet.** Reuse the current learning hierarchy and knowledge provenance tables where their fields fit.
+2. **Do not expose draft content through existing public endpoints.** First verify all frontend query paths and function/API authorization.
+3. **Define publication state explicitly.** Courses, modules, and lessons do not expose an obvious editorial status/version field in the inspected columns. Before implementing, decide whether the smallest safe design is to add reviewed lifecycle fields or create a separate revision/audit structure; do not choose until foreign keys, current consumers, and RLS dependencies are mapped.
+4. **Protect editorial metadata.** Review the two public source-metadata policies and replace broad public reads only through a tested migration if the data should be editor-only.
+5. **Reconcile production/preview drift.** Preview has 13 more public base tables than production. Identify which migrations/features are intended before promoting any schema.
+6. **Test authorization with separate identities.** Required cases: anonymous reader, learner, author, reviewer, publisher, and users from two different institutions. Verify read, insert, update, publish, archive, and revision access at the actual API/database boundary.
+7. **Keep AI off for public use.** This audit provides no evidence of successful Groq inference, quota enforcement under load, or provider fallback; existing AI activation gates remain unchanged.
+
+### Audit limitations
+
+This was a catalog/policy inventory, not a penetration test. It did not execute writes, impersonate roles, test actual frontend API calls, validate all policy expressions, or test backup/restore. The row counts are point-in-time counts and can change. Production and preview were inspected separately; no migration was applied.
