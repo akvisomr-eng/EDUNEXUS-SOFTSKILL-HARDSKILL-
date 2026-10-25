@@ -40,3 +40,10 @@ Set `AI_ENABLED=false` in the Neon Function server-side environment and deploy a
 ## Batasan keamanan
 
 Mengaktifkan `MODEL_API_KEY` mengaktifkan panggilan model saja. Itu tidak memberi fungsi akses GitHub, tidak mengaktifkan eksekusi kode, dan tidak memigrasikan tabel Project Builder ke produksi. Skema `0011_project_builder_records.sql` saat ini baru tercatat diterapkan dan diverifikasi pada branch preview. Promosi ke produksi memerlukan pemeriksaan pemetaan identitas `auth.uid()` dan kebijakan RLS terlebih dahulu.
+
+
+## Jalur free tier: Groq (preview terlebih dahulu)
+
+Runtime mendukung provider OpenAI-compatible. Untuk uji preview, kandidat awal adalah `MODEL_API_BASE_URL=https://api.groq.com/openai/v1`, `MODEL_ID=openai/gpt-oss-20b`, dan `MODEL_API_KEY` yang dibuat pada konsol resmi Groq. Function menambahkan `/chat/completions` secara otomatis. Model dan kuota gratis dapat berubah; verifikasi daftar model serta batas akun pada dokumentasi resmi Groq sebelum pengujian. Lihat [runbook aktivasi Groq](GROQ_FREE_TIER_ACTIVATION.md) untuk checklist koneksi, kualitas, keamanan, privasi, kuota, fallback, dan gerbang pilot publik.
+
+**Jangan mengaktifkan produksi pada tahap ini.** Simpan key hanya di environment server-side fungsi Neon pada branch preview. Pertahankan `AI_ENABLED=false` di produksi. Gunakan data sintetis, bukan data siswa atau data pribadi. Aktifkan uji publik terbatas hanya setelah seluruh tes preview lulus dan pemilik menyetujui perubahan produksi secara terpisah.
